@@ -1,72 +1,72 @@
 ---
-description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
+description: 透過平行分發執行預發布檢查清單，針對專業角色進行分析，然後綜合出發布或不發布的決定
 ---
 
-Invoke the agent-skills:shipping-and-launch skill.
+呼叫代理技能：shipping-and-launch
 
-`/ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel against the current change, then merges their reports into a single go/no-go decision with a rollback plan. The personas operate independently — no shared state, no ordering — which is what makes parallel execution safe and useful here.
+`/ship` 是一個**分發協調器**。它會對當前的變更，以平行方式運行三個專業角色，然後將他們的報告合併為一個包含回滾計劃的發布/不發布決定。這些角色獨立運作——沒有共享狀態，沒有排序——這正是平行執行的安全性和實用性的原因。
 
-## Phase A — Parallel fan-out
+## 階段 A — 平行分發
 
-Spawn three subagents concurrently using the Agent tool. **Issue all three Agent tool calls in a single assistant turn so they execute in parallel** — sequential calls defeat the purpose of this command.
+使用 Agent 工具同時啟動三個子代理。**在單一助理回合中發出所有三個 Agent 工具呼叫，以便它們平行執行**——依序呼叫會違背此命令的目的。
 
-In Claude Code, each call passes `subagent_type` matching the persona's `name` field:
+在 Claude Code 中，每次呼叫都會傳遞 `subagent_type`，與該角色的 `name` 欄位相匹配：
 
-1. **`code-reviewer`** — Run a five-axis review (correctness, readability, architecture, security, performance) on the staged changes or recent commits. Output the standard review template.
-2. **`security-auditor`** — Run a vulnerability and threat-model pass. Check OWASP Top 10, secrets handling, auth/authz, dependency CVEs. Output the standard audit report.
-3. **`test-engineer`** — Analyze test coverage for the change. Identify gaps in happy path, edge cases, error paths, and concurrency scenarios. Output the standard coverage analysis.
+1. **`code-reviewer`** — 對已分階段的變更或最近的提交進行五軸審查（正確性、可讀性、架構、安全性、效能）。輸出標準審查範本。
+2. **`security-auditor`** — 執行漏洞和威脅模型檢查。檢查 OWASP Top 10、密碼處理、認證/授權、依賴的 CVE。輸出標準審計報告。
+3. **`test-engineer`** — 分析變更的測試覆蓋率。識別快樂路徑、邊緣案例、錯誤路徑和並行場景中的差距。輸出標準覆蓋率分析。
 
-In other harnesses without an Agent tool, invoke each persona's system prompt sequentially and treat their outputs as if returned in parallel — the merge phase still works.
+在沒有 Agent 工具的其他工具中，依序呼叫每個角色的系統提示，並將它們的輸出視為平行返回——合併階段仍然有效。
 
-Constraints (from Claude Code's subagent model):
-- Subagents cannot spawn other subagents — do not let one persona delegate to another.
-- Each subagent gets its own context window and returns only its report to this main session.
-- If you need teammates that talk to each other instead of just reporting back, use Claude Code Agent Teams and reference these personas as teammate types (see `references/orchestration-patterns.md`).
+約束（來自 Claude Code 的子代理模型）：
+- 子代理不能啟動其他子代理——不要讓一個角色委派給另一個。
+- 每個子代理都有自己的上下文視窗，只將其報告返回給此主會話。
+- 如果你需要彼此溝通而不是僅僅回報的隊友，請使用 Claude Code Agent Teams 並將這些角色作為隊友類型進行引用（參見 `references/orchestration-patterns.md`）。
 
-**Persona resolution.** If you've defined your own `code-reviewer`, `security-auditor`, or `test-engineer` in `.claude/agents/` or `~/.claude/agents/`, those take precedence over this plugin's versions — `/ship` picks up your customizations automatically. This is intentional: plugin subagents sit at the bottom of Claude Code's scope priority table, so user-level definitions win by design.
+**角色解析。** 如果您在 `.claude/agents/` 或 `~/.claude/agents/` 中定義了自己的 `code-reviewer`、`security-auditor` 或 `test-engineer`，它們將優先於此插件的版本——`/ship` 會自動拾取您的自定義。這是故意的：插件子代理位於 Claude Code 的範圍優先級表的最底部，因此用戶級別的定義在設計上佔據了優勢。
 
-## Phase B — Merge in main context
+## 階段 B — 在主上下文中的合併
 
-Once all three reports are back, the main agent (not a sub-persona) synthesizes them:
+一旦所有三個報告返回，主代理（而非子角色）進行綜合：
 
-1. **Code Quality** — Aggregate Critical/Important findings from `code-reviewer` and any failing tests, lint, or build output. Resolve duplicates between reviewers.
-2. **Security** — Promote any Critical/High `security-auditor` findings to launch blockers. Cross-reference with `code-reviewer`'s security axis.
-3. **Performance** — Pull from `code-reviewer`'s performance axis; cross-check Core Web Vitals if applicable.
-4. **Accessibility** — Verify keyboard nav, screen reader support, contrast (not covered by the three personas — handle directly here, or invoke the accessibility checklist).
-5. **Infrastructure** — Env vars, migrations, monitoring, feature flags. Verify directly.
-6. **Documentation** — README, ADRs, changelog. Verify directly.
+1. **程式碼品質** — 從 `code-reviewer` 和任何失敗的測試、程式碼檢查或建置輸出中彙總關鍵/重要發現。解決審查者之間的重複事項。
+2. **安全性** — 將任何 `security-auditor` 的關鍵/高風險發現提升為發布阻礙。與 `code-reviewer` 的安全軸進行交叉參考。
+3. **效能** — 從 `code-reviewer` 的效能軸中獲取；如果適用，交叉檢查核心網路指標 (Core Web Vitals)。
+4. **無障礙性** — 驗證鍵盤導航、螢幕閱讀器支援、對比度（這三個角色未涵蓋——在此處直接處理，或呼叫無障礙性檢查清單）。
+5. **基礎設施** — 環境變數、遷移、監控、功能標誌。直接驗證。
+6. **文件** — README、ADR、變更日誌。直接驗證。
 
-## Phase C — Decision and rollback
+## 階段 C — 決定與回滾
 
-Produce a single output:
+產生單一輸出：
 
 ```markdown
-## Ship Decision: GO | NO-GO
+## 發布決定：GO | NO-GO
 
-### Blockers (must fix before ship)
-- [Source persona: Critical finding + file:line]
+### 阻礙事項（發布前必須修復）
+- [來源角色：關鍵發現 + 檔案：行號]
 
-### Recommended fixes (should fix before ship)
-- [Source persona: Important finding + file:line]
+### 建議的修復（發布前應修復）
+- [來源角色：重要發現 + 檔案：行號]
 
-### Acknowledged risks (shipping anyway)
-- [Risk + mitigation]
+### 已確認風險（仍可發布）
+- [風險 + 緩解措施]
 
-### Rollback plan
-- Trigger conditions: [what signals would prompt rollback]
-- Rollback procedure: [exact steps]
-- Recovery time objective: [target]
+### 回滾計劃
+- 觸發條件：[觸發回滾的訊號]
+- 回滾程序：[確切步驟]
+- 恢復時間目標：[目標]
 
-### Specialist reports (full)
-- [code-reviewer report]
-- [security-auditor report]
-- [test-engineer report]
+### 專業報告（完整）
+- [code-reviewer 報告]
+- [security-auditor 報告]
+- [test-engineer 報告]
 ```
 
-## Rules
+## 規則
 
-1. The three Phase A personas run in parallel — never sequentially.
-2. Personas do not call each other. The main agent merges in Phase B.
-3. The rollback plan is mandatory before any GO decision.
-4. If any persona returns a Critical finding, the default verdict is NO-GO unless the user explicitly accepts the risk.
-5. **Skip the fan-out only if all of the following are true:** the change touches 2 files or fewer, the diff is under 50 lines, and it does not touch auth, payments, data access, or config/env. Otherwise, default to fan-out. `/ship` is designed for production-bound changes — when the blast radius is non-trivial, run the parallel review even if the diff looks small.
+1. 階段 A 的三個角色是平行運行的——絕不依序執行。
+2. 角色之間不互相呼叫。主代理在階段 B 中進行合併。
+3. 在任何發布決定之前，回滾計劃是強制性的。
+4. 如果任何角色返回關鍵發現，預設判斷是 NO-GO，除非用戶明確接受風險。
+5. **僅在以下所有條件都成立時才跳過分發：** 變更的檔案數量為 2 個或更少，差異（diff）少於 50 行，並且不涉及認證、支付、資料存取或配置/環境。否則，預設為分發。`/ship` 是為生產環境變更而設計的——當影響範圍非微不足道時，即使差異看起來很小，也要運行平行審查。

@@ -1,89 +1,89 @@
-# Testing Patterns Reference (JavaScript/TypeScript)
+# 測試模式參考 (JavaScript/TypeScript)
 
-Quick reference of JavaScript/TypeScript testing patterns — Jest, React Testing Library, Supertest, and Playwright — illustrating the universal principles from the `test-driven-development` skill. The principles (Arrange-Act-Assert, naming, mock discipline, anti-patterns) apply in any ecosystem; the syntax and tooling shown here are JS/TS-specific. In another stack, follow the same principles with the repository's own test framework and commands.
+JavaScript/TypeScript 測試模式的快速參考 — 介紹 Jest、React Testing Library、Supertest 和 Playwright — 說明了從「測試驅動開發」中普遍的原則。這些原則（Arrange-Act-Assert、命名、模擬紀律、反模式）適用於任何生態系統；這裡展示的語法和工具是特定於 JS/TS 的。在其他堆疊中，請使用該儲存庫自己的測試框架和命令遵循相同的原則。
 
-## Table of Contents
+## 目錄
 
-- [Test Structure (Arrange-Act-Assert)](#test-structure-arrange-act-assert)
-- [Test Naming Conventions](#test-naming-conventions)
-- [Common Assertions](#common-assertions)
-- [Mocking Patterns](#mocking-patterns)
-- [React/Component Testing](#reactcomponent-testing)
-- [API / Integration Testing](#api--integration-testing)
-- [E2E Testing (Playwright)](#e2e-testing-playwright)
-- [Test Anti-Patterns](#test-anti-patterns)
+- [測試結構 (Arrange-Act-Assert)](#test-structure-arrange-act-assert)
+- [測試命名約定](#test-naming-conventions)
+- [常用斷言](#common-assertions)
+- [模擬模式](#mocking-patterns)
+- [React/元件測試](#reactcomponent-testing)
+- [API / 整合測試](#api--integration-testing)
+- [端到端測試 (Playwright)](#e2e-testing-playwright)
+- [測試反模式](#test-anti-patterns)
 
-## Test Structure (Arrange-Act-Assert)
+## 測試結構 (Arrange-Act-Assert)
 
 ```typescript
-it('describes expected behavior', () => {
-  // Arrange: Set up test data and preconditions
-  const input = { title: 'Test Task', priority: 'high' };
+it('描述預期的行為', () => {
+  // Arrange: 設定測試資料和先決條件
+  const input = { title: '測試任務', priority: 'high' };
 
-  // Act: Perform the action being tested
+  // Act: 執行要測試的操作
   const result = createTask(input);
 
-  // Assert: Verify the outcome
+  // Assert: 驗證結果
   expect(result.title).toBe('Test Task');
   expect(result.priority).toBe('high');
   expect(result.status).toBe('pending');
 });
 ```
 
-## Test Naming Conventions
+## 測試命名約定
 
 ```typescript
-// Pattern: [unit] [expected behavior] [condition]
+// 模式: [單元] [預期行為] [條件]
 describe('TaskService.createTask', () => {
-  it('creates a task with default pending status', () => {});
-  it('throws ValidationError when title is empty', () => {});
-  it('trims whitespace from title', () => {});
-  it('generates a unique ID for each task', () => {});
+  it('以預設的待定狀態建立任務', () => {});
+  it('當標題為空時拋出驗證錯誤', () => {});
+  it('從標題中移除空白字元', () => {});
+  it('為每個任務生成一個唯一的 ID', () => {});
 });
 ```
 
-## Common Assertions
+## 常用斷言
 
 ```typescript
-// Equality
-expect(result).toBe(expected);           // Strict equality (===)
-expect(result).toEqual(expected);        // Deep equality (objects/arrays)
-expect(result).toStrictEqual(expected);  // Deep equality + type matching
+// 等值性
+expect(result).toBe(expected);           // 嚴格等值性 (===)
+expect(result).toEqual(expected);        // 深層等值性 (物件/陣列)
+expect(result).toStrictEqual(expected);  // 深層等值性 + 型別匹配
 
-// Truthiness
+// 真實性
 expect(result).toBeTruthy();
 expect(result).toBeFalsy();
 expect(result).toBeNull();
 expect(result).toBeDefined();
 expect(result).toBeUndefined();
 
-// Numbers
+// 數字
 expect(result).toBeGreaterThan(5);
 expect(result).toBeLessThanOrEqual(10);
-expect(result).toBeCloseTo(0.3, 5);      // Floating point
+expect(result).toBeCloseTo(0.3, 5);      // 浮點數
 
-// Strings
+// 字串
 expect(result).toMatch(/pattern/);
 expect(result).toContain('substring');
 
-// Arrays / Objects
+// 陣列 / 物件
 expect(array).toContain(item);
 expect(array).toHaveLength(3);
 expect(object).toHaveProperty('key', 'value');
 
-// Errors
+// 錯誤
 expect(() => fn()).toThrow();
 expect(() => fn()).toThrow(ValidationError);
 expect(() => fn()).toThrow('specific message');
 
-// Async
+// 非同步
 await expect(asyncFn()).resolves.toBe(value);
 await expect(asyncFn()).rejects.toThrow(Error);
 ```
 
-## Mocking Patterns
+## 模擬模式
 
-### Mock Functions
+### 模擬函式
 
 ```typescript
 const mockFn = jest.fn();
@@ -96,43 +96,43 @@ expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
 expect(mockFn).toHaveBeenCalledTimes(3);
 ```
 
-### Mock Modules
+### 模擬模組
 
 ```typescript
-// Mock an entire module
+// 模擬整個模組
 jest.mock('./database', () => ({
   query: jest.fn().mockResolvedValue([{ id: 1, title: 'Test' }]),
 }));
 
-// Mock specific exports
+// 模擬特定匯出
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
   generateId: jest.fn().mockReturnValue('test-id'),
 }));
 ```
 
-### Mock at Boundaries Only
+### 僅模擬邊界
 
 ```
-Mock these:                    Don't mock these:
-├── Database calls             ├── Internal utility functions
-├── HTTP requests              ├── Business logic
-├── File system operations     ├── Data transformations
-├── External API calls         ├── Validation functions
-└── Time/Date (when needed)    └── Pure functions
+模擬這些：                    不要模擬這些：
+├── 資料庫呼叫             ├── 內部工具函式
+├── HTTP 請求              ├── 業務邏輯
+├── 檔案系統操作         ├── 資料轉換
+├── 外部 API 呼叫         ├── 驗證函式
+└── 時間/日期 (在需要時)    └── 純函式
 ```
 
-## React/Component Testing
+## React/元件測試
 
 ```tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 describe('TaskForm', () => {
-  it('submits the form with entered data', async () => {
+  it('使用輸入資料提交表單', async () => {
     const onSubmit = jest.fn();
     render(<TaskForm onSubmit={onSubmit} />);
 
-    // Find elements by accessible role/label (not test IDs)
+    // 透過可存取角色/標籤查找元素 (而非測試 ID)
     await screen.findByRole('textbox', { name: /title/i });
     fireEvent.change(screen.getByRole('textbox', { name: /title/i }), {
       target: { value: 'New Task' },
@@ -144,7 +144,7 @@ describe('TaskForm', () => {
     });
   });
 
-  it('shows validation error for empty title', async () => {
+  it('顯示空標題的驗證錯誤', async () => {
     render(<TaskForm onSubmit={jest.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /create/i }));
@@ -154,14 +154,14 @@ describe('TaskForm', () => {
 });
 ```
 
-## API / Integration Testing
+## API / 整合測試
 
 ```typescript
 import request from 'supertest';
 import { app } from '../src/app';
 
 describe('POST /api/tasks', () => {
-  it('creates a task and returns 201', async () => {
+  it('建立任務並返回 201', async () => {
     const response = await request(app)
       .post('/api/tasks')
       .send({ title: 'Test Task' })
@@ -175,7 +175,7 @@ describe('POST /api/tasks', () => {
     });
   });
 
-  it('returns 422 for invalid input', async () => {
+  it('對無效輸入返回 422', async () => {
     const response = await request(app)
       .post('/api/tasks')
       .send({ title: '' })
@@ -185,7 +185,7 @@ describe('POST /api/tasks', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('returns 401 without authentication', async () => {
+  it('在沒有驗證的情況下返回 401', async () => {
     await request(app)
       .post('/api/tasks')
       .send({ title: 'Test' })
@@ -194,42 +194,35 @@ describe('POST /api/tasks', () => {
 });
 ```
 
-## E2E Testing (Playwright)
+## 端到端測試 (Playwright)
 
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test('user can create and complete a task', async ({ page }) => {
-  // Navigate and authenticate
+test('使用者可以建立並完成一個任務', async ({ page }) => {
+  // 導航並驗證身份
   await page.goto('/');
   await page.getByRole('textbox', { name: /email/i }).fill('test@example.com');
   await page.getByLabel(/password/i).fill('testpass123');
   await page.getByRole('button', { name: /log in/i }).click();
 
-  // Create a task
+  // 建立任務
   await page.getByRole('button', { name: /new task/i }).click();
-  await page.getByRole('textbox', { name: /title/i }).fill('Buy groceries');
+  await page.getByRole('textbox', { name: /title/i }).fill('買雜貨');
   await page.getByRole('button', { name: /create/i }).click();
 
-  // Verify task appears
+  // 驗證任務出現
   const task = page.getByRole('listitem', { name: /buy groceries/i });
   await expect(task).toBeVisible();
 
-  // Complete the task
+  // 完成任務
   await task.getByRole('checkbox', { name: /complete buy groceries/i }).check();
   await expect(task).toHaveCSS('text-decoration-line', 'line-through');
 });
 ```
 
-## Test Anti-Patterns
+## 測試反模式
 
-| Anti-Pattern | Problem | Better Approach |
+| 反模式 | 問題 | 更好的方法 |
 |---|---|---|
-| Testing implementation details | Breaks on refactor | Test inputs/outputs |
-| Snapshot everything | No one reviews snapshot diffs | Assert specific values |
-| Shared mutable state | Tests pollute each other | Setup/teardown per test |
-| Testing third-party code | Wastes time, not your bug | Mock the boundary |
-| Skipping tests to pass CI | Hides real bugs | Fix or delete the test |
-| Using `test.skip` permanently | Dead code | Remove or fix it |
-| Overly broad assertions | Doesn't catch regressions | Be specific |
-| No async error handling | Swallowed errors, false passes | Always `await` async tests |
+| 測試實作細節 | 重構

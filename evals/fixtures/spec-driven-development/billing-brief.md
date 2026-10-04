@@ -1,16 +1,12 @@
-# Usage-based billing brief
+# 基於使用量的計費簡報
 
-The product currently charges one flat monthly price. Leadership wants usage-
-based billing next quarter, but “usage” has not been defined. Candidate meters
-include API requests, processed records, and successful jobs.
+目前產品收取一個固定的月費。領導層希望在下個季度實施基於使用量的計費，但「使用量」尚未定義。候選的儀表包括 API 請求、處理的記錄和成功的任務。
 
-Known constraints:
+已知限制：
 
-- Existing customers need a migration path.
-- Billing events must be auditable and idempotent.
-- Late-arriving events occur for up to seven days.
-- Finance requires invoice reconciliation.
+- 現有客戶需要一個遷移路徑。
+- 計費事件必須可審計且冪等。
+- 事件可能延遲到七天。
+- 財務部門需要發票核對。
 
-Unknowns include pricing tiers, free allowances, meter ownership, correction
-rules, customer-facing usage visibility, and regional tax behavior. Produce a
-spec and surface these decisions; do not implement them by assumption.
+未知之處包括定價層級、免費額度、儀表所有權、修正規則、客戶可見的使用量以及區域稅務行為。請產出規格並提出這些決策；不要基於假設而實施它們。

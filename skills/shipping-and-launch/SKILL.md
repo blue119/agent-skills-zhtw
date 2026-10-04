@@ -1,197 +1,197 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production, or when asking what needs to be in place before shipping. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: 準備生產發布。在準備部署到生產環境或詢問發布前需要準備什麼時使用。在需要發布前檢查清單、設定監控、規劃分階段部署或需要回滾策略時使用。
 ---
 
-# Shipping and Launch
+# 發布與部署
 
-## Overview
+## 概述
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+自信地發布。目標不僅是部署，而是安全地部署，確保監控到位，準備好回滾計畫，並清楚了解成功的定義。每一次發布都應該是可逆的、可觀察的、漸進式的。
 
-## When to Use
+## 何時使用
 
-- Deploying a feature to production for the first time
-- Releasing a significant change to users
-- Migrating data or infrastructure
-- Opening a beta or early access program
-- Any deployment that carries risk (all of them)
+- 首次將功能部署到生產環境
+- 向使用者發布重大變更
+- 資料或基礎設施遷移
+- 開啟 Beta 或早期存取計畫
+- 任何帶有風險的部署（所有這些）
 
-## The Pre-Launch Checklist
+## 發布前檢查清單
 
-### Code Quality
+### 程式碼品質
 
-- [ ] All tests pass (unit, integration, e2e)
-- [ ] Build succeeds with no warnings
-- [ ] Lint and type checking pass
-- [ ] Code reviewed and approved
-- [ ] No TODO comments that should be resolved before launch
-- [ ] No `console.log` debugging statements in production code
-- [ ] Error handling covers expected failure modes
+- [ ] 所有測試都通過（單元、整合、端到端）
+- [ ] 建置成功且無警告
+- [ ] Lint 和型別檢查通過
+- [ ] 程式碼已審查並批准
+- [ ] 沒有需要在發布前解決的 TODO 註釋
+- [ ] 生產程式碼中沒有 `console.log` 除錯語句
+- [ ] 錯誤處理涵蓋預期的失敗模式
 
-### Security
+### 安全性
 
-- [ ] No secrets in code or version control
-- [ ] The ecosystem's dependency audit (`npm audit`, `pip-audit`, `cargo audit`, ...) shows no critical or high vulnerabilities
-- [ ] Input validation on all user-facing endpoints
-- [ ] Authentication and authorization checks in place
-- [ ] Security headers configured (CSP, HSTS, etc.)
-- [ ] Rate limiting on authentication endpoints
-- [ ] CORS configured to specific origins (not wildcard)
+- [ ] 程式碼或版本控制中沒有密鑰
+- [ ] 生態系統的依賴審核（`npm audit`, `pip-audit`, `cargo audit`, ...）顯示沒有嚴重或高風險漏洞
+- [ ] 所有使用者介面端點的輸入驗證
+- [ ] 實施了身份驗證和授權檢查
+- [ ] 設定了安全標頭（CSP、HSTS 等）
+- [ ] 身份驗證端點的速率限制
+- [ ] CORS 設定為特定的來源（非萬用字元）
 
-### Performance
+### 效能
 
-- [ ] Core Web Vitals within "Good" thresholds
-- [ ] No N+1 queries in critical paths
-- [ ] Images optimized (compression, responsive sizes, lazy loading)
-- [ ] Bundle size within budget
-- [ ] Database queries have appropriate indexes
-- [ ] Caching configured for static assets and repeated queries
+- [ ] 核心 Web 指標在「良好」閾值內
+- [ ] 關鍵路徑中沒有 N+1 查詢
+- [ ] 影像已優化（壓縮、響應式尺寸、延遲載入）
+- [ ] 套件大小在預算範圍內
+- [ ] 資料庫查詢有適當的索引
+- [ ] 為靜態資產和重複查詢配置了快取
 
-### Accessibility
+### 可存取性
 
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] Screen reader can convey page content and structure
-- [ ] Color contrast meets WCAG 2.1 AA (4.5:1 for text)
-- [ ] Focus management correct for modals and dynamic content
-- [ ] Error messages are descriptive and associated with form fields
-- [ ] No accessibility warnings in axe-core or Lighthouse
+- [ ] 鍵盤導航對所有互動元素都有效
+- [ ] 螢幕閱讀器可以傳達頁面內容和結構
+- [ ] 色彩對比符合 WCAG 2.1 AA 標準（文字為 4.5:1）
+- [ ] 對模態框和動態內容的焦點管理正確
+- [ ] 錯誤訊息是描述性的，並與表單欄位相關聯
+- [ ] axe-core 或 Lighthouse 中沒有可存取性警告
 
-### Infrastructure
+### 基礎設施
 
-- [ ] Environment variables set in production
-- [ ] Database migrations applied (or ready to apply)
-- [ ] DNS and SSL configured
-- [ ] CDN configured for static assets
-- [ ] Logging and error reporting configured
-- [ ] Health check endpoint exists and responds
+- [ ] 環境變數在生產環境中設定
+- [ ] 資料庫遷移已應用（或準備應用）
+- [ ] DNS 和 SSL 已配置
+- [ ] 為靜態資產配置了 CDN
+- [ ] 配置了日誌記錄和錯誤報告
+- [ ] 存在健康檢查端點並能回應
 
-### Documentation
+### 文件
 
-- [ ] README updated with any new setup requirements
-- [ ] API documentation current
-- [ ] ADRs written for any architectural decisions
-- [ ] Changelog updated
-- [ ] User-facing documentation updated (if applicable)
+- [ ] README 已更新，包含任何新的設定要求
+- [ ] API 文件是最新的
+- [ ] 為任何架構決策撰寫了 ADR
+- [ ] 更新了變更日誌
+- [ ] 更新了使用者介面文件（如果適用）
 
-## Feature Flag Strategy
+## 功能旗標策略
 
-Ship behind feature flags to decouple deployment from release:
+透過功能旗標發布，將部署與發布解耦：
 
 ```typescript
-// Feature flag check
+// 功能旗標檢查
 const flags = await getFeatureFlags(userId);
 
 if (flags.taskSharing) {
-  // New feature: task sharing
+  // 新功能：任務共享
   return <TaskSharingPanel task={task} />;
 }
 
-// Default: existing behavior
+// 預設：現有行為
 return null;
 ```
 
-**Feature flag lifecycle:**
+**功能旗標生命週期：**
 
 ```
-1. DEPLOY with flag OFF     → Code is in production but inactive
-2. ENABLE for team/beta     → Internal testing in production environment
-3. GRADUAL ROLLOUT          → 5% → 25% → 50% → 100% of users
-4. MONITOR at each stage    → Watch error rates, performance, user feedback
-5. CLEAN UP                 → Remove flag and dead code path after full rollout
+1. 部署並關閉旗標     → 程式碼在生產環境中但處於非活動狀態
+2. 為團隊/Beta 啟用     → 在生產環境中進行內部測試
+3. 漸進式發布          → 5% → 25% → 50% → 100% 的使用者
+4. 在每個階段進行監控     → 觀察錯誤率、效能、使用者回饋
+5. 清理工作             → 在完全發布後移除旗標和死程式碼路徑
 ```
 
-**Rules:**
-- Every feature flag has an owner and an expiration date
-- Clean up flags within 2 weeks of full rollout
-- Don't nest feature flags (creates exponential combinations)
-- Test both flag states (on and off) in CI
+**規則：**
+- 每個功能旗標都有一個擁有者和過期日期
+- 在完全發布後 2 週內清理旗標
+- 不要巢狀化功能旗標（會產生指數級的組合）
+- 在 CI 中測試兩種旗標狀態（開啟和關閉）
 
-## Staged Rollout
+## 分階段發布
 
-### The Rollout Sequence
-
-```
-1. DEPLOY to staging
-   └── Full test suite in staging environment
-   └── Manual smoke test of critical flows
-
-2. DEPLOY to production (feature flag OFF)
-   └── Verify deployment succeeded (health check)
-   └── Check error monitoring (no new errors)
-
-3. ENABLE for team (flag ON for internal users)
-   └── Team uses the feature in production
-   └── 24-hour monitoring window
-
-4. CANARY rollout (flag ON for 5% of users)
-   └── Monitor error rates, latency, user behavior
-   └── Compare metrics: canary vs. baseline
-   └── 24-48 hour monitoring window
-   └── Advance only if all thresholds pass (see table below)
-
-5. GRADUAL increase (25% -> 50% -> 100%)
-   └── Same monitoring at each step
-   └── Ability to roll back to previous percentage at any point
-
-6. FULL rollout (flag ON for all users)
-   └── Monitor for 1 week
-   └── Clean up feature flag
-```
-
-### Rollout Decision Thresholds
-
-Use these thresholds to decide whether to advance, hold, or roll back at each stage:
-
-| Metric | Advance (green) | Hold and investigate (yellow) | Roll back (red) |
-|--------|-----------------|-------------------------------|-----------------|
-| Error rate | Within 10% of baseline | 10-100% above baseline | >2x baseline |
-| P95 latency | Within 20% of baseline | 20-50% above baseline | >50% above baseline |
-| Client JS errors | No new error types | New errors at <0.1% of sessions | New errors at >0.1% of sessions |
-| Business metrics | Neutral or positive | Decline <5% (may be noise) | Decline >5% |
-
-### When to Roll Back
-
-Roll back immediately if:
-- Error rate increases by more than 2x baseline
-- P95 latency increases by more than 50%
-- User-reported issues spike
-- Data integrity issues detected
-- Security vulnerability discovered
-
-## Monitoring and Observability
-
-### What to Monitor
+### 發布順序
 
 ```
-Application metrics:
-├── Error rate (total and by endpoint)
-├── Response time (p50, p95, p99)
-├── Request volume
-├── Active users
-└── Key business metrics (conversion, engagement)
+1. 部署到 Staging
+   └── 在 Staging 環境中執行完整的測試套件
+   └── 手動檢查關鍵流程的煙霧測試
 
-Infrastructure metrics:
-├── CPU and memory utilization
-├── Database connection pool usage
-├── Disk space
-├── Network latency
-└── Queue depth (if applicable)
+2. 部署到生產環境（功能旗標關閉）
+   └── 驗證部署成功（健康檢查）
+   └── 檢查錯誤監控（沒有新的錯誤）
 
-Client metrics:
-├── Core Web Vitals (LCP, INP, CLS)
-├── JavaScript errors
-├── API error rates from client perspective
-└── Page load time
+3. 為團隊啟用（內部使用者旗標開啟）
+   └── 團隊在生產環境中使用該功能
+   └── 24 小時監控窗口
+
+4. 試點發布（5% 的使用者旗標開啟）
+   └── 監控錯誤率、延遲、使用者行為
+   └── 比較指標：試點版與基準線
+   └── 24-48 小時監控窗口
+   └── 僅在所有閾值都通過時推進（見下表）
+
+5. 漸進式增加（25% -> 50% -> 100%）
+   └── 每個步驟都進行相同的監控
+   └── 可以在任何時間點回滾到先前的百分比
+
+6. 完全發布（所有使用者旗標開啟）
+   └── 監控 1 週
+   └── 清理功能旗標
 ```
 
-### Error Reporting
+### 發布決策閾值
+
+使用這些閾值來決定在每個階段是推進、暫停還是回滾：
+
+| 指標 | 前進（綠色） | 暫停調查（黃色） | 回滾（紅色） |
+|---|---|---|---|
+| 錯誤率 | 在基準線的 10% 以內 | 高於基準線 10-100% | > 基準線的 2 倍 |
+| P95 延遲 | 在基準線的 20% 以內 | 高於基準線 20-50% | > 基準線的 50% |
+| 客戶端 JS 錯誤 | 沒有新的錯誤類型 | 每個會話的錯誤率 < 0.1% | 每個會話的錯誤率 > 0.1% |
+| 業務指標 | 中性或正面 | 下降 < 5%（可能是雜訊） | 下降 > 5% |
+
+### 何時回滾
+
+如果發生以下情況，請立即回滾：
+- 錯誤率增加超過基準線的 2 倍
+- P95 延遲增加超過 50%
+- 使用者報告的問題激增
+- 檢測到資料完整性問題
+- 發現安全漏洞
+
+## 監控與可觀察性
+
+### 應監控的內容
+
+```
+應用程式指標：
+├── 錯誤率（總數和按端點）
+├── 回應時間（p50、p95、p99）
+├── 請求量
+├── 活動使用者數
+└── 關鍵業務指標（轉換、參與度）
+
+基礎設施指標：
+├── CPU 和記憶體使用率
+├── 資料庫連線池使用量
+├── 硬碟空間
+├── 網路延遲
+└──佇列深度（如果適用）
+
+客戶端指標：
+├── 核心 Web 指標（LCP、INP、CLS）
+├── JavaScript 錯誤
+├── 從客戶端角度的 API 錯誤率
+└── 頁面載入時間
+```
+
+### 錯誤報告
 
 ```typescript
-// Set up error boundary with reporting
+// 設定錯誤邊界並進行報告
 class ErrorBoundary extends React.Component {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Report to error tracking service
+    // 報告到錯誤追蹤服務
     reportError(error, {
       componentStack: info.componentStack,
       userId: getCurrentUser()?.id,
@@ -207,7 +207,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Server-side error reporting
+// 伺服器端錯誤報告
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   reportError(err, {
     method: req.method,
@@ -215,116 +215,93 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     userId: req.user?.id,
   });
 
-  // Don't expose internals to users
+  // 不要向使用者暴露內部細節
   res.status(500).json({
-    error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' },
+    error: { code: 'INTERNAL_ERROR', message: '發生了錯誤' },
   });
 });
 ```
 
-### Post-Launch Verification
+### 發布後驗證
 
-In the first hour after launch:
-
-```
-1. Check health endpoint returns 200
-2. Check error monitoring dashboard (no new error types)
-3. Check latency dashboard (no regression)
-4. Test the critical user flow manually
-5. Verify logs are flowing and readable
-6. Confirm rollback mechanism works (dry run if possible)
-```
-
-## Error Budget Release Gate
-
-Your service's error budget — the fraction of requests or time your SLO allows to fail — determines whether it's safe to ship. Use it as an objective gate — not a negotiation:
+在發布後的最初一小時內：
 
 ```
-Budget remaining > 20%  →  Ship normally; monitor closely
-Budget remaining 0–20%  →  Slow rollouts only; no high-risk changes
-Budget exhausted        →  Freeze feature work; focus entirely on reliability
-Budget resets           →  Resume normal pace; bake in the fix that recovered it
+1. 檢查健康檢查端點是否返回 200
+2. 檢查錯誤監控儀表板（沒有新的錯誤類型）
+3. 檢查延遲儀表板（沒有退步）
+4. 手動測試關鍵使用者流程
+5. 確認日誌正在流動且可讀
+6. 確認回滾機制有效（如果可能，進行模擬運行）
 ```
 
-A high burn rate during a canary (consuming budget faster than the baseline pace) is a **hold** signal in the rollout thresholds table above — treat it the same as an elevated error rate.
+## 錯誤預算釋放閘門
 
-## Rollback Strategy
+您服務的錯誤預算——您的 SLO 允許失敗的請求或時間的比例——決定了發布是否安全。將其用作客觀的閘門——而不是協商：
 
-Every deployment needs a rollback plan before it happens:
+```
+剩餘預算 > 20%  →  正常發布；密切監控
+剩餘預算 0–20%  →  僅限緩慢發布；無高風險變更
+預算耗盡        →  凍結功能工作；完全專注於可靠性
+預算重置           →  恢復正常進度；將修復它（恢復的）內容納入
+```
+
+在試點發布期間（消耗的預算速度快於基準線）出現高消耗率，是發布閾值表中**暫停**的信號——請將其視為錯誤率升高。
+
+## 回滾策略
+
+每次部署都需要在發生之前有回滾計畫：
 
 ```markdown
-## Rollback Plan for [Feature/Release]
+## [功能/發布] 的回滾計畫
 
-### Trigger Conditions
-- Error rate > 2x baseline
-- P95 latency > [X]ms
-- User reports of [specific issue]
+### 觸發條件
+- 錯誤率 > 基準線的 2 倍
+- P95 延遲 > [X]ms
+- 使用者報告 [特定問題]
 
-### Rollback Steps
-1. Disable feature flag (if applicable)
-   OR
-1. Deploy previous version: `git revert <commit> && git push`
-2. Verify rollback: health check, error monitoring
-3. Communicate: notify team of rollback
+### 回滾步驟
+1. 禁用功能旗標（如果適用）
+   或
+1. 部署上一個版本：`git revert <commit> && git push`
+2. 驗證回滾：健康檢查、錯誤監控
+3. 溝通：通知團隊回滾
 
-### Database Considerations
-- Migration [X] has a rollback: <verified command or runbook link>
-- Data inserted by new feature: [preserved / cleaned up]
+### 資料庫考量
+- 遷移 [X] 有回滾：<已驗證的指令或運行指南連結>
+- 新功能插入的資料：[保留 / 清理]
 
-### Time to Rollback
-- Feature flag: < 1 minute
-- Redeploy previous version: < 5 minutes
-- Database rollback: < 15 minutes
+### 回滾時間
+- 功能旗標：< 1 分鐘
+- 重新部署上一個版本：< 5 分鐘
+- 資料庫回滾：< 15 分鐘
 ```
-## See Also
+## 另請參閱
 
-- For the project-wide Definition of Done that every change must clear before this checklist, see `../../references/definition-of-done.md`
-- For security pre-launch checks, see `../../references/security-checklist.md`
-- For performance pre-launch checklist, see `../../references/performance-checklist.md`
-- For accessibility verification before launch, see `../../references/accessibility-checklist.md`
-- For the alerting rules and SLO-tied thresholds, see `observability-and-instrumentation`
+- 關於每次變更在執行此檢查清單前必須解決的專案範圍的「完成定義」 (Definition of Done)，請參閱 `../../references/definition-of-done.md`
+- 關於發布前的安全檢查，請參閱 `../../references/security-checklist.md`
+- 關於發布前的效能檢查清單，請參閱 `../../references/performance-checklist.md`
+- 關於發布前的可存取性驗證，請參閱 `../../references/accessibility-checklist.md`
+- 關於警報規則和 SLO 相關的閾值，請參閱 `observability-and-instrumentation`
 
-## Common Rationalizations
+## 常見合理化
 
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
-| "The error rate looks fine, let's keep shipping" | Check the burn rate, not just the current error rate. Consuming budget faster than baseline is a hold signal even when individual thresholds are green. |
+|「它在 Staging 中有效，在生產環境中也會有效」 | 生產環境有不同的資料、流量模式和邊緣案例。部署後進行監控。 |
+|「我們不需要功能旗標」 | 每個功能都受益於一個關閉開關。即使是「簡單」的變更也可能出錯。 |
+|「監控是額外負擔」 | 沒有監控意味著您從使用者投訴中發現問題，而不是從儀表板中發現問題。 |
+|「我們稍後會添加監控」 | 在發布前添加它。您無法除您看不到的東西。 |
+|「回滾是承認失敗」 | 回滾是負責任的工程。發布有缺陷的功能才是失敗。 |
+|「錯誤率看起來沒問題，我們繼續發布」 | 檢查消耗率，而不僅僅是當前的錯誤率。消耗速度快於基準線即使在個別閾值為綠色時也是一個暫停信號。 |
 
-## Red Flags
+## 紅旗
 
-- Deploying without a rollback plan
-- No monitoring or error reporting in production
-- Big-bang releases (everything at once, no staging)
-- Feature flags with no expiration or owner
-- No one monitoring the deploy for the first hour
-- Production environment configuration done by memory, not code
-- "It's Friday afternoon, let's ship it"
-- Error budget exhausted but feature work continues unchanged
-
-## Verification
-
-Before deploying:
-
-- [ ] Pre-launch checklist completed (all sections green)
-- [ ] Feature flag configured (if applicable)
-- [ ] Rollback plan documented
-- [ ] Monitoring dashboards set up
-- [ ] Team notified of deployment
-
-After deploying:
-
-- [ ] Health check returns 200
-- [ ] Error rate is normal
-- [ ] Latency is normal
-- [ ] Critical user flow works
-- [ ] Logs are flowing
-- [ ] Rollback tested or verified ready
-
-For every shipped service:
-
-- [ ] Error budget policy in place: know what action to take when budget drops below 20% and when it's exhausted
+- 在沒有回滾計畫的情況下部署
+- 生產環境中沒有監控或錯誤報告
+- 爆炸式發布（一次性發布，沒有 Staging）
+- 沒有過期或擁有者的功能旗標
+- 沒有人監控前一小時的部署
+- 生產環境的配置是基於記憶，而不是程式碼
+-「現在是週五下午，我們發布它吧」
+- 錯誤預算耗盡但功能工作保持不變

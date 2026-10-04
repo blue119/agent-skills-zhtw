@@ -1,11 +1,10 @@
-# Menu component conventions
+# 選單元件規範
 
-- Framework: React with TypeScript.
-- Styling: existing `menu-*` utility classes; do not add a styling dependency.
-- Public components accept `className` and forward a DOM ref.
-- Components must support keyboard-only and screen-reader users.
-- Focus returns to the trigger when a menu closes.
-- Escape closes the menu; arrow keys move between enabled items.
+- 框架：使用 TypeScript 的 React。
+- 樣式：使用現有的 `menu-*` 工具類別；不要新增樣式依賴。
+- 公共元件接受 `className` 並傳遞一個 DOM 參考。
+- 元件必須支援僅使用鍵盤和螢幕閱讀器使用者。
+- 選單關閉時焦點會返回到觸發器。
+- 按下 Esc 鍵會關閉選單；方向鍵用於在啟用項目之間移動。
 
-The new dropdown should expose a trigger label and an array of actions. Disabled
-actions remain visible but cannot receive focus or execute.
+新的下拉選單應暴露一個觸發器標籤和一組動作陣列。停用的動作仍然可見，但不能接收焦點或執行。

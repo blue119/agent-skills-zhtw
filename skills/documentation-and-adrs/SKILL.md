@@ -1,171 +1,170 @@
 ---
 name: documentation-and-adrs
-description: Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+description: 記錄決策和文件。當你需要記錄架構決策 (ADR) 或設計選擇背後的理由時，當更改公開 API、發布功能，或當你需要記錄未來工程師和代理能夠理解程式碼上下文時，請使用此文件。
 ---
 
-# Documentation and ADRs
+# 文件與 ADR
 
-## Overview
+## 概述
 
-Document decisions, not just code. The most valuable documentation captures the *why* — the context, constraints, and trade-offs that led to a decision. Code shows *what* was built; documentation explains *why it was built this way* and *what alternatives were considered*. This context is essential for future humans and agents working in the codebase.
+記錄決策，而不僅僅是程式碼。最有價值的文件捕捉的是「為什麼」——導致該決定的背景、約束和權衡。程式碼顯示了「做了什麼」；文件解釋了「為什麼要這樣做」以及「考慮了哪些替代方案」。這個上下文對於未來在程式碼庫中工作的人類和代理至關重要。
 
-## When to Use
+## 何時使用
 
-- Making a significant architectural decision
-- Choosing between competing approaches
-- Adding or changing a public API
-- Shipping a feature that changes user-facing behavior
-- Onboarding new team members (or agents) to the project
-- When you find yourself explaining the same thing repeatedly
+- 做出重大的架構決策
+- 在相互競爭的方法之間進行選擇
+- 添加或更改公開 API
+- 發布會改變使用者行為的功能
+- 向新團隊成員（或代理）介紹專案
+- 當你發現自己不斷重複解釋同樣的事情時
 
-**When NOT to use:** Don't document obvious code. Don't add comments that restate what the code already says. Don't write docs for throwaway prototypes.
+**不應使用時：** 不要記錄明顯的程式碼。不要添加重述程式碼內容的註釋。不要為一次性原型撰寫文件。
 
-## Architecture Decision Records (ADRs)
+## 架構決策記錄 (ADR)
 
-ADRs capture the reasoning behind significant technical decisions. They're the highest-value documentation you can write.
+ADR 記錄了重大技術決策背後的理由。它們是你所能寫出的最有價值的文檔。
 
-### When to Write an ADR
+### 何時撰寫 ADR
 
-- Choosing a framework, library, or major dependency
-- Designing a data model or database schema
-- Selecting an authentication strategy
-- Deciding on an API architecture (REST vs. GraphQL vs. tRPC)
-- Choosing between build tools, hosting platforms, or infrastructure
-- Any decision that would be expensive to reverse
+- 選擇框架、函式庫或主要依賴項
+- 設計資料模型或資料庫綱要
+- 選擇身份驗證策略
+- 決定 API 架構（REST vs. GraphQL vs. tRPC）
+- 在建置工具、託管平台或基礎設施之間進行選擇
+- 任何可能需要昂貴地撤銷的決策
 
-### Match the existing convention first
+### 首先遵循現有慣例
 
-Before creating an ADR, inspect the available repository context for an established convention — existing ADRs, project instructions, and ADR-related configuration or tooling (e.g. an `.adr-dir` file). An established convention overrides the defaults below. Match:
+在建立 ADR 之前，檢查可用的儲存庫上下文以尋找既定的慣例——現有的 ADR、專案說明以及與 ADR 相關的配置或工具（例如 `.adr-dir` 文件）。既定的慣例會覆蓋以下預設值。匹配：
 
-- **Location and format** — e.g. `docs/adr/*.md`, `Documentation/Decisions/*.rst`, a MADR layout, or an `adr-tools` setup. Match the existing directory, file extension, and markup (Markdown vs reStructuredText).
-- **Numbering and naming** — continue the existing sequence and filename pattern (`ADR-004-Title.rst`, `0004-title.md`, …); don't restart at 001 or introduce a second scheme.
-- **Section headings** — reuse the project's heading set rather than imposing this template's.
+- **位置和格式** — 例如 `docs/adr/*.md`、`Documentation/Decisions/*.rst`、MADR 佈局，或 `adr-tools` 設定。匹配現有的目錄、文件擴展名和標記語言（Markdown vs reStructuredText）。
+- **編號和命名** — 繼續現有的序列和文件名模式（`ADR-004-Title.rst`、`0004-title.md`，…）；不要從 001 開始或引入第二種方案。
+- **區段標題** — 重用專案的標題集，而不是強加本範本的標題。
 
-If the available evidence conflicts, surface the conflict rather than silently introducing another scheme. Only when no convention can be established do you apply the default below.
+如果可用的證據存在衝突，請提出衝突，而不是靜默地引入另一種方案。只有在無法建立任何慣例時，才應用以下預設值。
 
-### ADR Template
+### ADR 範本
 
-Store ADRs in `docs/decisions/` with sequential numbering (unless the project already uses another location — see above):
+將 ADR 儲存在 `docs/decisions/` 中，並進行連續編號（除非專案已使用其他位置——見上文）：
 
 ```markdown
-# ADR-001: Use PostgreSQL for primary database
+# ADR-001: 使用 PostgreSQL 作為主要資料庫
 
-## Status
-Proposed | Accepted | Superseded by ADR-XXX | Deprecated
+## 狀態
+提議中 | 已接受 | 被 ADR-XXX 覆蓋 | 已棄用
 
-## Date
+## 日期
 2025-01-15
 
-## Context
-We need a primary database for the task management application. Key requirements:
-- Relational data model (users, tasks, teams with relationships)
-- ACID transactions for task state changes
-- Support for full-text search on task content
-- Managed hosting available (for small team, limited ops capacity)
+## 背景
+我們需要一個用於任務管理應用的主要資料庫。關鍵需求：
+- 關聯式資料模型（使用者、任務、團隊及其關係）
+- 任務狀態變更的 ACID 事務
+- 對任務內容的全文搜尋支援
+- 可用的託管服務（適用於小型團隊，有限的運營能力）
 
-## Decision
-Use PostgreSQL with Prisma ORM.
+## 決策
+使用 PostgreSQL 搭配 Prisma ORM。
 
-## Alternatives Considered
+## 考慮的替代方案
 
 ### MongoDB
-- Pros: Flexible schema, easy to start with
-- Cons: Our data is inherently relational; would need to manage relationships manually
-- Rejected: Relational data in a document store leads to complex joins or data duplication
+- 優點：彈性綱要，易於開始
+- 缺點：我們的資料本質上是關聯的；需要手動管理關係
+- 拒絕：在文檔儲存中儲存關聯式資料會導致複雜的連接或資料重複
 
 ### SQLite
-- Pros: Zero configuration, embedded, fast for reads
-- Cons: Limited concurrent write support, no managed hosting for production
-- Rejected: Not suitable for multi-user web application in production
+- 優點：零配置，嵌入式，讀取速度快
+- 缺點：有限的並行寫入支援，沒有生產環境的託管
+- 拒絕：不適合生產環境中的多使用者網路應用
 
 ### MySQL
-- Pros: Mature, widely supported
-- Cons: PostgreSQL has better JSON support, full-text search, and ecosystem tooling
-- Rejected: PostgreSQL is the better fit for our feature requirements
+- 優點：成熟，廣泛支援
+- 缺點：PostgreSQL 在 JSON 支援、全文搜尋和生態系統工具方面更優
+- 拒絕：PostgreSQL 更適合我們的功能需求
 
-## Consequences
-- Prisma provides type-safe database access and migration management
-- We can use PostgreSQL's full-text search instead of adding Elasticsearch
-- Team needs PostgreSQL knowledge (standard skill, low risk)
-- Hosting on managed service (Supabase, Neon, or RDS)
+## 後果
+- Prisma 提供類型安全的資料庫存取和遷移管理
+- 我們可以使用 PostgreSQL 的全文搜尋，而不是添加 Elasticsearch
+- 團隊需要 PostgreSQL 知識（標準技能，風險低）
+- 在託管服務上託管（Supabase、Neon 或 RDS）
 ```
 
-### ADR Lifecycle
+### ADR 生命週期
 
 ```
-PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
+提議中 → 已接受 → (被覆蓋或棄用)
 ```
 
-- **Don't delete old ADRs.** They capture historical context.
-- When a decision changes, write a new ADR that references and supersedes the old one.
+- **不要刪除舊的 ADR。** 它們捕捉了歷史上下文。
+- 當決策發生變化時，撰寫一個新的 ADR，其中引用並覆蓋舊的 ADR。
 
-## Inline Documentation
+## 行內文件記錄
 
-### When to Comment
+### 何時註釋
 
-Comment the *why*, not the *what*:
+註釋「為什麼」，而不是「什麼」：
 
 ```typescript
-// BAD: Restates the code
-// Increment counter by 1
+// 壞：重述程式碼
+// 將計數器增加 1
 counter += 1;
 
-// GOOD: Explains non-obvious intent
-// Rate limit uses a sliding window — reset counter at window boundary,
-// not on a fixed schedule, to prevent burst attacks at window edges
+// 好：解釋非明顯意圖
+// 速率限制使用滑動視窗——在視窗邊界重置計數器，而不是在固定時間表上，以防止在視窗邊緣發生突發攻擊
 if (now - windowStart > WINDOW_SIZE_MS) {
   counter = 0;
   windowStart = now;
 }
 ```
 
-### When NOT to Comment
+### 不應註釋時
 
 ```typescript
-// Don't comment self-explanatory code
+// 不要註釋自明代碼
 function calculateTotal(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
 
-// Don't leave TODO comments for things you should just do now
-// TODO: add error handling  ← Just add it
+// 不要為你現在應該做的事情留下 TODO 註釋
+// TODO: 添加錯誤處理 ← 直接添加即可
 
-// Don't leave commented-out code
-// const oldImplementation = () => { ... }  ← Delete it, git has history
+// 不要留下註釋掉的程式碼
+// const oldImplementation = () => { ... }  ← 刪除它，git 有歷史記錄
 ```
 
-### Document Known Gotchas
+### 文件已知陷阱
 
 ```typescript
 /**
- * IMPORTANT: This function must be called before the first render.
- * If called after hydration, it causes a flash of unstyled content
- * because the theme context isn't available during SSR.
+ * 重要：此函式必須在首次渲染前被呼叫。
+ * 如果在水合作用後呼叫，它會導致未樣式內容閃爍，
+ * 因為在 SSR 期間無法獲得主題上下文。
  *
- * See ADR-003 for the full design rationale.
+ * 請參閱 ADR-003 以了解完整的設計理由。
  */
 export function initializeTheme(theme: Theme): void {
   // ...
 }
 ```
 
-## API Documentation
+## API 文件記錄
 
-For public APIs (REST, GraphQL, library interfaces):
+對於公開 API（REST、GraphQL、函式庫介面）：
 
-### Inline with Types (Preferred for TypeScript)
+### 與類型內嵌（TypeScript 優先）
 
 ```typescript
 /**
- * Creates a new task.
+ * 建立一個新任務。
  *
- * @param input - Task creation data (title required, description optional)
- * @returns The created task with server-generated ID and timestamps
- * @throws {ValidationError} If title is empty or exceeds 200 characters
- * @throws {AuthenticationError} If the user is not authenticated
+ * @param input - 任務建立資料（標題是必需的，描述是可選的）
+ * @returns 帶有伺服器生成的 ID 和時間戳的已建立任務
+ * @throws {ValidationError} 如果標題為空或超過 200 個字元
+ * @throws {AuthenticationError} 如果使用者未經過身份驗證
  *
  * @example
- * const task = await createTask({ title: 'Buy groceries' });
+ * const task = await createTask({ title: '買雜貨' });
  * console.log(task.id); // "task_abc123"
  */
 export async function createTask(input: CreateTaskInput): Promise<Task> {
@@ -173,13 +172,13 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
 }
 ```
 
-### OpenAPI / Swagger for REST APIs
+### REST API 的 OpenAPI / Swagger
 
 ```yaml
 paths:
   /api/tasks:
     post:
-      summary: Create a task
+      summary: 建立一個任務
       requestBody:
         required: true
         content:
@@ -188,101 +187,101 @@ paths:
               $ref: '#/components/schemas/CreateTaskInput'
       responses:
         '201':
-          description: Task created
+          description: 任務已建立
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
         '422':
-          description: Validation error
+          description: 驗證錯誤
 ```
 
-## README Structure
+## README 結構
 
-Every project should have a README that covers:
+每個專案都應該有一個涵蓋以下內容的 README：
 
 ```markdown
-# Project Name
+# 專案名稱
 
-One-paragraph description of what this project does.
+關於此專案的單段描述。
 
-## Quick Start
-1. Clone the repo
-2. Install dependencies: `npm install`
-3. Set up environment: `cp .env.example .env`
-4. Run the dev server: `npm run dev`
+## 快速開始
+1. 克隆儲存庫
+2. 安裝依賴項：`npm install`
+3. 設定環境：`cp .env.example .env`
+4. 運行開發伺服器：`npm run dev`
 
-## Commands
-| Command | Description |
+## 命令
+| 命令 | 描述 |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm test` | Run tests |
-| `npm run build` | Production build |
-| `npm run lint` | Run linter |
+| `npm run dev` | 啟動開發伺服器 |
+| `npm test` | 運行測試 |
+| `npm run build` | 生產構建 |
+| `npm run lint` | 運行 Linter |
 
-## Architecture
-Brief overview of the project structure and key design decisions.
-Link to ADRs for details.
+## 架構
+專案結構和關鍵設計決策的簡要概述。
+連結到 ADR 以獲取詳細資訊。
 
-## Contributing
-How to contribute, coding standards, PR process.
+## 貢獻
+如何貢獻、編碼標準、PR 流程。
 ```
 
-## Changelog Maintenance
+## 更新日誌維護
 
-For shipped features:
+對於發布的功能：
 
 ```markdown
-# Changelog
+# 更新日誌
 
 ## [1.2.0] - 2025-01-20
-### Added
-- Task sharing: users can share tasks with team members (#123)
-- Email notifications for task assignments (#124)
+### 已新增
+- 任務分享：使用者可以與團隊成員分享任務（#123）
+- 任務指派的電子郵件通知（#124）
 
-### Fixed
-- Duplicate tasks appearing when rapidly clicking create button (#125)
+### 已修復
+- 快速點擊建立按鈕時出現重複任務（#125）
 
-### Changed
-- Task list now loads 50 items per page (was 20) for better UX (#126)
+### 已更改
+- 任務列表現在每頁載入 50 個項目（之前是 20 個）以改善使用者體驗（#126）
 ```
 
-## Documentation for Agents
+## 代理的文件記錄
 
-Special consideration for AI agent context:
+對 AI 代理上下文的特殊考慮：
 
-- **CLAUDE.md / rules files** — Document project conventions so agents follow them
-- **Spec files** — Keep specs updated so agents build the right thing
-- **ADRs** — Help agents understand why past decisions were made (prevents re-deciding)
-- **Inline gotchas** — Prevent agents from falling into known traps
+- **CLAUDE.md / 規則文件** — 記錄專案慣例，以便代理遵循它們
+- **規格文件** — 保持規格文件更新，以便代理構建正確的東西
+- **ADR** — 幫助代理理解過去決策的依據（防止重新決策）
+- **行內陷阱** — 防止代理陷入已知的陷阱
 
-## Common Rationalizations
+## 常見理由
 
-| Rationalization | Reality |
+| 理由 | 現實 |
 |---|---|
-| "The code is self-documenting" | Code shows what. It doesn't show why, what alternatives were rejected, or what constraints apply. |
-| "We'll write docs when the API stabilizes" | APIs stabilize faster when you document them. The doc is the first test of the design. |
-| "Nobody reads docs" | Agents do. Future engineers do. Your 3-months-later self does. |
-| "ADRs are overhead" | A 10-minute ADR prevents a 2-hour debate about the same decision six months later. |
-| "Comments get outdated" | Comments on *why* are stable. Comments on *what* get outdated — that's why you only write the former. |
+|「程式碼是自解釋的」 | 程式碼顯示了「什麼」。它沒有顯示「為什麼」、排除了哪些替代方案，或適用哪些約束。 |
+|「API 穩定後再寫文件」 | 當你記錄它們時，API 會更快穩定。文件是設計的第一個測試。 |
+|「沒有人閱讀文件」 | 代理會閱讀。未來的工程師會閱讀。你三個月後的自己會閱讀。 |
+|「ADR 是額外工作」 | 一個 10 分鐘的 ADR 可以避免在六個月後就同一決策進行兩小時的辯論。 |
+|「註釋會過時」 | 關於「為什麼」的註釋是穩定的。關於「什麼」的註釋會過時——這就是你只寫前者的原因。 |
 
-## Red Flags
+## 警示信號
 
-- Architectural decisions with no written rationale
-- Public APIs with no documentation or types
-- README that doesn't explain how to run the project
-- Commented-out code instead of deletion
-- TODO comments that have been there for weeks
-- No ADRs in a project with significant architectural choices
-- Documentation that restates the code instead of explaining intent
+- 沒有書面理由的架構決策
+- 沒有文件或類型的公開 API
+- 不解釋如何運行專案的 README
+- 註釋掉的程式碼而不是刪除
+- 存在數週的 TODO 註釋
+- 專案中沒有關於重大架構選擇的 ADR
+- 文件記錄重述程式碼而不是解釋意圖
 
-## Verification
+## 驗證
 
-After documenting:
+記錄完成後：
 
-- [ ] ADRs exist for all significant architectural decisions
-- [ ] README covers quick start, commands, and architecture overview
-- [ ] API functions have parameter and return type documentation
-- [ ] Known gotchas are documented inline where they matter
-- [ ] No commented-out code remains
-- [ ] Rules files (CLAUDE.md etc.) are current and accurate
+- [ ] 所有重大的架構決策都有 ADR
+- [ ] README 涵蓋快速開始、命令和架構概述
+- [ ] API 函式有參數和回傳類型文件記錄
+- [ ] 在需要的地方內嵌記錄已知陷阱
+- [ ] 沒有註釋掉的程式碼殘留
+- [ ] 規則文件（CLAUDE.md 等）是最新的和準確的

@@ -1,17 +1,17 @@
 ---
-description: Start spec-driven development — write a structured specification before writing code
+description: 開始規格驅動開發 — 在編寫程式碼之前先撰寫結構化的規格
 ---
 
-Invoke the agent-skills:spec-driven-development skill.
+呼叫代理技能：spec-driven-development。
 
-Begin by understanding what the user wants to build. Ask clarifying questions about:
-1. The objective and target users
-2. Core features and acceptance criteria
-3. Tech stack preferences and constraints
-4. Known boundaries (what to always do, ask first about, and never do)
+首先了解使用者想要建立的是什麼。就以下事項提出澄清問題：
+1. 目標和目標使用者
+2. 核心功能和驗收標準
+3. 技術棧偏好和限制
+4. 已知的邊界（總是要做的事、需要先詢問的事、以及絕對不該做的事）
 
-Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
+然後生成涵蓋所有六個核心領域的結構化規格：目標、指令、專案結構、程式碼風格、測試策略和邊界。
 
-If the request bundles several independently testable capabilities, first propose a capability map (module ids, dependency direction, build order) per the skill's Phase 0 and get it approved, then spec each module in dependency order.
+如果請求包含了幾個可以獨立測試的能力，則應先根據技能的階段 0 提出能力地圖（模組 ID、依賴方向、建置順序），並獲得批准，然後依依賴順序對每個模組進行規格說明。
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+將規格儲存為專案根目錄下的 SPEC.md，並在繼續之前與使用者確認。

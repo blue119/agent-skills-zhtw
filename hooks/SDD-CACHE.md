@@ -1,16 +1,16 @@
 # sdd-cache hook
 
-Cross-session citation cache for [`source-driven-development`](../skills/source-driven-development/SKILL.md). Skips redundant `WebFetch` calls without weakening the skill's "verify against current docs" guarantee.
+跨會話引用快取，用於 [`source-driven-development`](../skills/source-driven-development/SKILL.md)。在不削弱技能的「驗證當前文件」保證下，跳過冗餘的 `WebFetch` 呼叫。
 
-## Why
+## 原因
 
-`source-driven-development` fetches official docs for every framework-specific decision. Working on the same project across sessions means fetching the same pages over and over. Caching the content as local memory would contradict the skill — docs change, and a stale cache hides that.
+`source-driven-development` 會為每一個框架特定的決策獲取官方文件。在不同會話中對同一個專案進行工作意味著重複獲取相同的頁面。將內容作為本地記憶體快取會與該技能相矛盾——文件會改變，過時的快取會掩蓋這一點。
 
-This hook caches fetched content on disk, but **revalidates with the origin server on every reuse** via HTTP `If-None-Match` / `If-Modified-Since`. Content is only served from cache when the server responds `304 Not Modified`, which is a fresh verification — not a memory read.
+此鉤子將獲取的內容快取在磁碟上，但會透過 HTTP `If-None-Match` / `If-Modified-Since` **在每次重用時與來源伺服器重新驗證**。只有當伺服器回應 `304 Not Modified` 時，內容才會從快取中提供，這是一種最新的驗證——而不是記憶體讀取。
 
-## Setup
+## 設定
 
-1. Add hooks to `.claude/settings.json` (or `.claude/settings.local.json` for personal use):
+1. 將鉤子新增到 `.claude/settings.json`（或個人使用 `.claude/settings.local.json`）：
 
 ```json
 {
@@ -44,46 +44,46 @@ This hook caches fetched content on disk, but **revalidates with the origin serv
 }
 ```
 
-   `${CLAUDE_PROJECT_DIR}` resolves to the directory you launched Claude Code from. The snippet above works when the hooks live inside the same project. If you installed `agent-skills` elsewhere (e.g. as a shared plugin under `~/agent-skills`), replace `${CLAUDE_PROJECT_DIR}/hooks/...` with the absolute path to each script.
+   `${CLAUDE_PROJECT_DIR}` 解析為您啟動 Claude Code 的目錄。上述片段在鉤子位於同一專案內部時有效。如果您在其他地方安裝了 `agent-skills`（例如作為 `~/agent-skills` 下的共用插件），請將 `${CLAUDE_PROJECT_DIR}/hooks/...` 替換為每個腳本的絕對路徑。
 
-2. Make sure `.claude/sdd-cache/` is in your `.gitignore` (already included in this repo).
+2. 確保 `.claude/sdd-cache/` 包含在您的 `.gitignore` 中（已包含在此儲存庫中）。
 
-3. Use `/source-driven-development` (or the skill) as usual. No changes to the skill or the agent's workflow — the cache is transparent.
+3. 如往常使用 `/source-driven-development`（或該技能）。技能或代理的工作流程沒有任何更改——快取是透明的。
 
-## Mental model
+## 思維模型
 
-HTTP resource cache keyed by URL. Freshness is delegated to the origin via `ETag` / `Last-Modified`; no TTL, no prompt in the key.
+以 URL 為鍵的 HTTP 資源快取。新鮮度透過 `ETag` / `Last-Modified` 委託給來源，沒有 TTL，鍵中不包含提示。
 
-The stored body is not raw HTML — `WebFetch` post-processes each response through a model using the caller's prompt, so what we cache is one agent's reading of the page. The key stays URL-only so reads reuse across sessions; the original prompt is kept as metadata and surfaced in the hit message so the next agent can tell whether the earlier reading fits.
+儲存的內容不是原始 HTML——`WebFetch` 會使用呼叫者的提示對每個回應進行模型後處理，因此我們快取的內容是某個代理對頁面的閱讀。鍵僅保留 URL，以便在會話之間重複使用；原始提示作為元數據保留，並在命中訊息中顯示，以便下一個代理可以判斷先前的閱讀是否適用。
 
-## How it works
+## 工作方式
 
-One cache entry per URL, stored as JSON in `.claude/sdd-cache/<sha>.json`:
+每個 URL 一個快取條目，以 JSON 形式儲存在 `.claude/sdd-cache/<sha>.json` 中：
 
-| Event | Action |
+| 事件 | 行動 |
 |---|---|
-| `PreToolUse WebFetch` | If an entry exists, sends a `HEAD` request with `If-None-Match` / `If-Modified-Since`. On `304`, blocks the fetch and returns the cached content to the agent via stderr, with the original prompt surfaced as metadata. Otherwise allows the fetch. |
-| `PostToolUse WebFetch` | Captures the response, issues a `HEAD` request to record the current `ETag` / `Last-Modified`, and stores `{url, prompt, etag, last_modified, content, fetched_at}`. |
+| `PreToolUse WebFetch` | 如果存在條目，則發送帶有 `If-None-Match` / `If-Modified-Since` 的 `HEAD` 請求。在 `304` 時，會阻止獲取並透過標準錯誤輸出將快取內容返回給代理，並將原始提示作為元數據顯示。否則允許獲取。 |
+| `PostToolUse WebFetch` | 捕獲回應，發出 `HEAD` 請求以記錄當前的 `ETag` / `Last-Modified`，並儲存 `{url, prompt, etag, last_modified, content, fetched_at}`。 |
 
-**Freshness rules:**
+**新鮮度規則：**
 
-- Entry is served only if the origin confirms `304 Not Modified`.
-- Entries without an `ETag` or `Last-Modified` header are never cached — without a validator, the hook cannot verify freshness later, and caching would mean trusting memory.
-- Cache key is `sha256(url)`. The same URL asked with a different prompt hits the same entry; the cached body reflects the prompt used on the first fetch, and that prompt is shown alongside the hit so the agent can decide whether to re-use or re-fetch manually.
+- 僅在來源確認 `304 Not Modified` 時才提供條目。
+- 沒有 `ETag` 或 `Last-Modified` 標頭的條目永遠不會被快取——沒有驗證器，鉤子無法稍後驗證新鮮度，而快取意味著信任記憶體。
+- 快取鍵是 `sha256(url)`。使用不同提示詢問相同的 URL 會命中相同的條目；快取內容反映了第一次獲取時使用的提示，該提示會與命中一起顯示，以便代理可以決定是否手動重新使用或重新獲取。
 
-**What the agent sees:**
+**代理看到的內容：**
 
-- Cache hit: `WebFetch` is blocked via exit code 2. Claude Code delivers the hook's stderr payload back to the agent as a tool error — this is the intended signal for a cache hit, not a failure. The payload is prefixed with `[sdd-cache] Cache hit for <url>` and wraps the cached body between `----- BEGIN CACHED CONTENT -----` / `----- END CACHED CONTENT -----` markers so the agent can use it as if `WebFetch` had just returned it.
-- Cache miss or stale: `WebFetch` runs normally; the result is stored for next time.
+- 快取命中：`WebFetch` 透過退出代碼 2 被阻止。Claude Code 將鉤子的標準錯誤輸出傳遞回代理作為工具錯誤——這是快取命中的預期信號，而不是失敗。該有效載荷會以 `[sdd-cache] Cache hit for <url>` 開頭，並在 `----- BEGIN CACHED CONTENT -----` / `----- END CACHED CONTENT -----` 標記之間包圍快取內容，以便代理可以像 `WebFetch` 剛返回它一樣使用它。
+- 快取未命中或過期：`WebFetch` 正常運行；結果將為下次儲存。
 
-The skill itself is unchanged. It continues to follow `DETECT → FETCH → IMPLEMENT → CITE`. The hook only changes what happens under the hood when `FETCH` runs.
+技能本身保持不變。它繼續遵循 `DETECT → FETCH → IMPLEMENT → CITE`。鉤子僅改變在 `FETCH` 運行時的底層情況。
 
-## Local testing
+## 本地測試
 
-### 1. Smoke test the scripts directly
+### 1. 直接測試腳本
 
 ```bash
-# Simulate a PostToolUse payload: cache a page
+# 模擬 PostToolUse 有效載荷：快取一頁
 echo '{
   "tool_input": {
     "url": "https://react.dev/reference/react/useActionState",
@@ -92,11 +92,11 @@ echo '{
   "tool_response": "useActionState(action, initialState) returns [state, formAction, isPending]"
 }' | bash hooks/sdd-cache-post.sh
 
-# Inspect the stored entry
+# 檢查儲存的條目
 ls .claude/sdd-cache/
 cat .claude/sdd-cache/*.json | jq .
 
-# Simulate the next PreToolUse on the same URL + prompt
+# 模擬對同一 URL + 提示的下一個 PreToolUse
 echo '{
   "tool_input": {
     "url": "https://react.dev/reference/react/useActionState",
@@ -106,62 +106,62 @@ echo '{
 echo "exit=$?"
 ```
 
-Expected:
+預期結果：
 
-- First command creates one file under `.claude/sdd-cache/` (only if the server returned an `ETag` or `Last-Modified`).
-- Second command exits `2` with the cached content on stderr when the origin replies `304`, or exits `0` silently otherwise.
+- 第一個命令在 `.claude/sdd-cache/` 下創建一個文件（僅在伺服器返回了 `ETag` 或 `Last-Modified` 時）。
+- 第二個命令在來源回覆 `304` 時，在標準錯誤輸出中返回快取內容並以退出代碼 `2` 退出，否則靜默退出 `0`。
 
-### 2. End-to-end in a real session
+### 2. 在實際會話中進行端到端測試
 
-1. Register the hooks in `.claude/settings.local.json` as shown above.
-2. Start a Claude Code session in this repo.
-3. Ask the agent to fetch a documentation page (e.g. "fetch `https://react.dev/reference/react/useActionState` and summarize").
-4. Verify a file appears under `.claude/sdd-cache/`.
-5. Ask the agent to fetch the same page with the same prompt again.
-6. Verify the second `WebFetch` is blocked and the cached content is returned (visible in the session transcript as a tool error with `[sdd-cache]` prefix).
+1. 如上所示，在 `.claude/settings.local.json` 中註冊鉤子。
+2. 在此儲存庫中啟動一個 Claude Code 會話。
+3. 要求代理獲取一個文件（例如：「獲取 `https://react.dev/reference/react/useActionState` 並總結」）。
+4. 驗證 `.claude/sdd-cache/` 下出現了一個文件。
+5. 要求代理再次獲取相同的頁面並使用相同的提示。
+6. 驗證第二次 `WebFetch` 被阻止，並且返回了快取內容（在會話記錄中顯示為帶有 `[sdd-cache]` 前綴的工具錯誤）。
 
-### 3. Freshness verification
+### 3. 新鮮度驗證
 
-To confirm the cache invalidates when docs change, force an `ETag` mismatch. Pick one specific entry — `*.json` is unsafe once the cache holds more than one file:
+要確認文件更改時快取會失效，請強制 `ETag` 不匹配。選擇一個特定的條目——一旦快取保存多於一個文件，`*.json` 就不安全：
 
 ```bash
-# Pick the entry you want to corrupt (swap in the actual filename)
+# 選擇您要損壞的條目（替換為實際文件名）
 ENTRY=.claude/sdd-cache/e49c9f378670cfbb1d7d871b6dee16d9.json
 
-# Patch its ETag to something the origin will not recognize
+# 將其 ETag 更改為來源不會識別的值
 jq '.etag = "W/\"stale-etag-forced\""' "$ENTRY" > "$ENTRY.tmp" && mv "$ENTRY.tmp" "$ENTRY"
 
-# Next PreToolUse should miss (server returns 200, not 304)
+# 下一個 PreToolUse 應該會未命中（伺服器返回 200，而不是 304）
 echo '{"tool_input":{"url":"...", "prompt":"..."}}' | bash hooks/sdd-cache-pre.sh
-echo "exit=$?"   # expect 0 (fetch allowed through)
+echo "exit=$?"   # 預期 0（獲取允許通過）
 ```
 
-### 4. Debugging
+### 4. 除錯
 
-Both hooks write timestamped events to `.claude/sdd-cache/.debug.log` when debug mode is on. Enable it with either:
+當啟用除錯模式時，兩個鉤子會將時間戳事件寫入 `.claude/sdd-cache/.debug.log`：
 
 ```bash
-# Option A: env var (per-session)
+# 選項 A：環境變數（每個會話）
 SDD_CACHE_DEBUG=1 claude
 
-# Option B: sentinel file (persistent)
+# 選項 B：哨兵文件（持久化）
 mkdir -p .claude/sdd-cache && touch .claude/sdd-cache/.debug
-# …disable with: rm .claude/sdd-cache/.debug
+# …禁用時：rm .claude/sdd-cache/.debug
 ```
 
-The log captures URL, detected `tool_response` shape, HEAD status, and why each invocation hit or missed. Useful when a cache miss looks unexpected (typically: the origin stopped emitting validators).
+日誌記錄了 URL、檢測到的 `tool_response` 形狀、`HEAD` 狀態以及每次調用的命中或未命中的原因。當快取未命中看起來出乎意料時很有用（通常是：來源停止發出驗證器）。
 
-## Known limitations
+## 已知限制
 
-- **Body is prompt-shaped.** A hit returns the earlier agent's reading of the page, with the original prompt surfaced so the current agent can decide whether it applies. If it doesn't, delete the file under `.claude/sdd-cache/` to force a re-fetch.
-- **Every cache write costs an extra HEAD.** Claude Code doesn't expose the response headers that `WebFetch` already received, so the post hook re-queries the origin to capture `ETag` / `Last-Modified`. One extra roundtrip per miss — the price of keeping this a pure hook with no core changes.
-- **Servers without `ETag` or `Last-Modified` are never cached.** Most official doc sites (react.dev, docs.djangoproject.com, developer.mozilla.org) emit validators. Sites that don't are always re-fetched.
-- **A misbehaving server can serve a wrong `304`.** That's a server bug to diagnose, not a cache invariant to defend against; we don't paper over it with a TTL. Delete the entry if you spot a stale one.
-- **Cache is local and per-project.** There is no team-wide shared cache. Adding one would require a signed-content-addressable storage layer, which is out of scope.
+- **內容是提示形狀的。** 命中返回的是先前代理對頁面的閱讀，並顯示原始提示，以便當前代理可以決定是否適用。如果不是，請刪除 `.claude/sdd-cache/` 下的文件以強制重新獲取。
+- **每次快取寫入都額外花費一個 `HEAD`。** Claude Code 不會暴露 `WebFetch` 已經接收到的回應標頭，因此後鉤子會重新查詢來源以捕獲 `ETag` / `Last-Modified`。每次未命中額外一次往返——這是保持其作為純鉤子而沒有核心更改的代價。
+- **沒有 `ETag` 或 `Last-Modified` 的伺服器永遠不會被快取。** 大多數官方文件網站（react.dev, docs.djangoproject.com, developer.mozilla.org）會發出驗證器。那些沒有的網站總是會重新獲取。
+- **行為不良的伺服器可能會提供錯誤的 `304`。** 這是一個需要診斷的伺服器錯誤，而不是需要防禦的快取不變性；我們不會用 TTL 來掩蓋它。如果發現過期條目，請刪除該條目。
+- **快取是本地的且與專案相關的。** 沒有團隊範圍的共享快取。添加一個需要一個簽名內容可地址的儲存層，這超出了範圍。
 
-## Requirements
+## 要求
 
 - `jq`
 - `curl`
-- `shasum` or `sha256sum` (auto-detected)
+- `shasum` 或 `sha256sum`（自動檢測）
 - Bash 3.2+

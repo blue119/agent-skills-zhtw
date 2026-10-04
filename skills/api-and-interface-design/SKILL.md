@@ -1,96 +1,96 @@
 ---
 name: api-and-interface-design
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: 指導穩定 API 和介面設計。在設計 API、模組邊界或任何公開介面時使用。在建立 REST 或 GraphQL 端點、定義模組之間的類型合約，或建立前端與後端之間的邊界時使用。
 ---
 
-# API and Interface Design
+# API 和介面設計
 
-## Overview
+## 概述
 
-Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another.
+設計穩定、有良好文檔的介面，使其難以被誤用。好的介面使正確的事情變得容易，使錯誤的事情變得困難。這適用於 REST API、GraphQL 模式、模組邊界、組件屬性以及任何一個程式碼片段與另一個程式碼片段通訊的表面。
 
-## When to Use
+## 何時使用
 
-- Designing new API endpoints
-- Defining module boundaries or contracts between teams
-- Creating component prop interfaces
-- Establishing database schema that informs API shape
-- Changing existing public interfaces
+- 設計新的 API 端點
+- 定義團隊之間的模組邊界或合約
+- 建立組件屬性介面
+- 建立告知 API 形狀的資料庫模式
+- 更改現有的公開介面
 
-## Core Principles
+## 核心原則
 
-### Hyrum's Law
+### Hyrum 的法則 (Hyrum's Law)
 
-> With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract.
+> 如果一個 API 有足夠多的使用者，則系統所有可觀察到的行為都將被某人依賴，無論你在合約中承諾了什麼。
 
-This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend on it. Design implications:
+這意味著：每一個公開行為——包括未記錄的怪癖、錯誤訊息文本、時間和順序——一旦使用者依賴它，就成為一個事實上的合約。設計意涵：
 
-- **Be intentional about what you expose.** Every observable behavior is a potential commitment.
-- **Don't leak implementation details.** If users can observe it, they will depend on it.
-- **Plan for deprecation at design time.** See `deprecation-and-migration` for how to safely remove things users depend on.
-- **Tests are not enough.** Even with perfect contract tests, Hyrum's Law means "safe" changes can break real users who depend on undocumented behavior.
+- **對你暴露的內容要有意。** 每個可觀察到的行為都是一個潛在的承諾。
+- **不要洩露實作細節。** 如果使用者可以觀察到它，他們就會依賴它。
+- **在設計時就規劃棄用。** 請參閱 `deprecation-and-migration` 以了解如何安全地移除使用者所依賴的內容。
+- **測試是不夠的。** 即使有完美的合約測試，Hyrum 的法則意味著「安全」的更改也可能破壞依賴於未記錄行為的真實使用者。
 
-### The One-Version Rule
+### 單一版本規則 (The One-Version Rule)
 
-Avoid forcing consumers to choose between multiple versions of the same dependency or API. Diamond dependency problems arise when different consumers need different versions of the same thing. Design for a world where only one version exists at a time — extend rather than fork.
+避免強迫消費者在多個版本的相同依賴項或 API 之間做出選擇。當不同的消費者需要相同事物的不同版本時，會產生菱形依賴問題。設計一個只存在單一版本的世界——擴展而不是分叉。
 
-### 1. Contract First
+### 1. 先定義合約 (Contract First)
 
-Define the interface before implementing it. The contract is the spec — implementation follows.
+在實作之前定義介面。合約就是規格——實作隨後。
 
 ```typescript
-// Define the contract first
+// 先定義合約
 interface TaskAPI {
-  // Creates a task and returns the created task with server-generated fields
+  // 建立一個任務並返回帶有伺服器生成欄位的已建立任務
   createTask(input: CreateTaskInput): Promise<Task>;
 
-  // Returns paginated tasks matching filters
+  // 返回匹配篩選條件的任務列表
   listTasks(params: ListTasksParams): Promise<PaginatedResult<Task>>;
 
-  // Returns a single task or throws NotFoundError
+  // 返回單個任務或拋出 NotFoundError
   getTask(id: string): Promise<Task>;
 
-  // Partial update — only provided fields change
+  // 部分更新——只更改提供的欄位
   updateTask(id: string, input: UpdateTaskInput): Promise<Task>;
 
-  // Idempotent delete — succeeds even if already deleted
+  // 冪等刪除——即使已經刪除也成功
   deleteTask(id: string): Promise<void>;
 }
 ```
 
-### 2. Consistent Error Semantics
+### 2. 一致的錯誤語義 (Consistent Error Semantics)
 
-Pick one error strategy and use it everywhere:
+選擇一種錯誤策略並在所有地方使用它：
 
 ```typescript
-// REST: HTTP status codes + structured error body
-// Every error response follows the same shape
+// REST: HTTP 狀態碼 + 結構化的錯誤主體
+// 每個錯誤響應都遵循相同的形狀
 interface APIError {
   error: {
-    code: string;        // Machine-readable: "VALIDATION_ERROR"
-    message: string;     // Human-readable: "Email is required"
-    details?: unknown;   // Additional context when helpful
+    code: string;        // 機器可讀: "VALIDATION_ERROR"
+    message: string;     // 人類可讀: "Email is required"
+    details?: unknown;   // 當有幫助時的額外上下文
   };
 }
 
-// Status code mapping
-// 400 → Client sent invalid data
-// 401 → Not authenticated
-// 403 → Authenticated but not authorized
-// 404 → Resource not found
-// 409 → Conflict (duplicate, version mismatch)
-// 422 → Validation failed (semantically invalid)
-// 500 → Server error (never expose internal details)
+// 狀態碼對應
+// 400 → 客戶傳送了無效資料
+// 401 → 未驗證
+// 403 → 已驗證但未授權
+// 404 → 資源未找到
+// 409 → 衝突 (重複、版本不匹配)
+// 422 → 驗證失敗 (語義上無效)
+// 500 → 伺服器錯誤 (絕不暴露內部細節)
 ```
 
-**Don't mix patterns.** If some endpoints throw, others return null, and others return `{ error }` — the consumer can't predict behavior.
+**不要混合模式。** 如果某些端點拋出錯誤，其他端點返回 null，其他端點返回 `{ error }`——消費者無法預測行為。
 
-### 3. Validate at Boundaries
+### 3. 在邊界處驗證 (Validate at Boundaries)
 
-Trust internal code. Validate at system edges where external input enters:
+信任內部程式碼。在外部輸入進入的系統邊界處進行驗證：
 
 ```typescript
-// Validate at the API boundary
+// 在 API 邊界處驗證
 app.post('/api/tasks', async (req, res) => {
   const result = CreateTaskSchema.safeParse(req.body);
   if (!result.success) {
@@ -103,83 +103,83 @@ app.post('/api/tasks', async (req, res) => {
     });
   }
 
-  // After validation, internal code trusts the types
+  // 驗證後，內部程式碼信任類型
   const task = await taskService.create(result.data);
   return res.status(201).json(task);
 });
 ```
 
-Where validation belongs:
-- API route handlers (user input)
-- Form submission handlers (user input)
-- External service response parsing (third-party data -- **always treat as untrusted**)
-- Environment variable loading (configuration)
+驗證應在哪裡：
+- API 路由處理器（使用者輸入）
+- 表單提交處理器（使用者輸入）
+- 外部服務響應解析（第三方資料——**始終視為不可信**）
+- 環境變數載入（配置）
 
-> **Third-party API responses are untrusted data.** Validate their shape and content before using them in any logic, rendering, or decision-making. A compromised or misbehaving external service can return unexpected types, malicious content, or instruction-like text.
+> **第三方 API 的響應是不可信的資料。** 在將它們用於任何邏輯、渲染或決策之前，必須驗證它們的形狀和內容。一個被破壞或行為不端的外部服務可能會返回意外的類型、惡意的內容或指令般的文本。
 
-Where validation does NOT belong:
-- Between internal functions that share type contracts
-- In utility functions called by already-validated code
-- On data that just came from your own database
+驗證不應在哪裡：
+- 在共享類型合約的內部函式之間
+- 在由已驗證程式碼呼叫的工具函式中
+- 在剛從您自己的資料庫獲取的資料上
 
-### 4. Prefer Addition Over Modification
+### 4. 偏好添加而非修改 (Prefer Addition Over Modification)
 
-Extend interfaces without breaking existing consumers:
+在不破壞現有消費者的情況下擴展介面：
 
 ```typescript
-// Good: Add optional fields
+// 好：添加可選欄位
 interface CreateTaskInput {
   title: string;
   description?: string;
-  priority?: 'low' | 'medium' | 'high';  // Added later, optional
-  labels?: string[];                       // Added later, optional
+  priority?: 'low' | 'medium' | 'high';  // 後續添加，可選
+  labels?: string[];                       // 後續添加，可選
 }
 
-// Bad: Change existing field types or remove fields
+// 壞：更改現有欄位類型或移除欄位
 interface CreateTaskInput {
   title: string;
-  // description: string;  // Removed — breaks existing consumers
-  priority: number;         // Changed from string — breaks existing consumers
+  // description: string;  // 移除——破壞現有消費者
+  priority: number;         // 從字串更改——破壞現有消費者
 }
 ```
 
-### 5. Predictable Naming
+### 5. 可預測的命名 (Predictable Naming)
 
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
-| Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
-| Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
-| Enum values | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
+| 模式 | 約定 | 範例 |
+|---|---|---|
+| REST 端點 | 複數名詞，無動詞 | `GET /api/tasks`, `POST /api/tasks` |
+| 查詢參數 | camelCase | `?sortBy=createdAt&pageSize=20` |
+| 回應欄位 | camelCase | `{ createdAt, updatedAt, taskId }` |
+| 布林欄位 | is/has/can 前綴 | `isComplete`, `hasAttachments` |
+| 枚舉值 | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
 
-### 6. Honouring an Idempotency Key
+### 6. 尊重冪等性金鑰 (Honouring an Idempotency Key)
 
-Accepting an `Idempotency-Key` is the contract. Honouring it is the implementation, and it is where the money is lost — a key the server accepts but handles carelessly is worse than no key at all, because the client now believes retrying is safe.
+接受 `Idempotency-Key` 是合約。尊重它就是實作，而這就是金錢丟失的地方——一個伺服器接受但處理不當的金鑰比沒有金鑰更糟，因為客戶端現在認為重試是安全的。
 
-**Derive the key from the intent, not the attempt.** The key must be stable across retries of one intent and different across distinct intents:
+**從意圖中推導金鑰，而不是從嘗試中推導。** 金鑰在一次意圖的重試中必須是穩定的，在不同意圖之間是不同的：
 
 ```typescript
-crypto.randomUUID()                    // ✗ new key per attempt — every retry is a new charge
-`${userId}:${amount}`                  // ✗ two legitimate $50 charges collapse into one
-`${orderId}:${Date.now()}`             // ✗ a timestamp is randomUUID() wearing a hat
+crypto.randomUUID()                    // ✗ 每次嘗試都生成新金鑰——每次重試都是一筆新費用
+`${userId}:${amount}`                  // ✗ 兩個合法的 $50 費用合併為一個
+`${orderId}:${Date.now()}`             // ✗ 時間戳是隨機的，像 randomUUID() 戴著帽子
 
-req.headers['idempotency-key']         // ✓ client generates once, reuses on retry
-`charge:v1:${orderId}`                 // ✓ derived from an immutable identifier
+req.headers['idempotency-key']         // ✓ 客戶端生成一次，重試時重複使用
+`charge:v1:${orderId}`                 // ✓ 從不可變識別符推導
 ```
 
-The key comes from the client or the initiating event — never from the layer doing the retrying.
+金鑰來自客戶端或發起事件——絕不來自執行重試的層級。
 
-**Claim atomically. A check followed by an act is a race:**
+**原子地聲明。檢查後再行動是競賽：**
 
 ```typescript
-// ✗ TOCTOU: two concurrent retries both read "not seen", both charge
+// ✗ TOCTOU：兩個並行重試都讀到 "未見"，都進行計費
 if (!(await db.exists(key))) {
   await chargeCard(amount);
   await db.insert(key);
 }
 
-// ✓ let the unique constraint pick the winner
+// ✓ 讓唯一約束決定贏家
 try {
   await db.insert({ key, state: 'in_progress', requestHash });
 } catch (e) {
@@ -190,9 +190,9 @@ const result = await chargeCard(amount);
 await db.update({ key, state: 'succeeded', response: result });
 ```
 
-The unique constraint *is* the mechanism. A store that cannot enforce uniqueness in one operation cannot back this.
+唯一約束*就是*機制。一個無法在一次操作中強制執行唯一性的儲存庫就無法支持這一點。
 
-**Guard the payload.** Same key with a different body is a client bug, and must fail loudly rather than serving the first response to a second request:
+**保護有效載荷 (Guard the payload)。** 相同的金鑰與不同的主體是客戶端的錯誤，應該大聲失敗而不是為第二個請求提供第一個響應：
 
 ```typescript
 if (existing.requestHash !== hash(req.body)) {
@@ -200,44 +200,44 @@ if (existing.requestHash !== hash(req.body)) {
 }
 ```
 
-**Decide what an in-flight duplicate gets.** The first request is still running when the second arrives — the common case under retry storms:
+**決定在進行中的重複請求會得到什麼。** 第二個請求到達時，第一個請求仍然在運行——在重試風暴下的常見情況：
 
-| Strategy | Response | Use when |
+| 策略 | 響應 | 何時使用 |
 |---|---|---|
-| Reject | `409 Conflict` | Client can retry later; simplest and safest |
-| Wait | Block for the result, bounded | Caller needs it synchronously |
-| Return pending | `202` + status URL | Long-running effects |
+| 拒絕 | `409 Conflict` | 客戶端可以稍後重試；最簡單、最安全 |
+| 等待 | 阻塞直到結果，有界限 | 呼叫方需要同步結果 |
+| 返回待處理 | `202` + 狀態 URL | 長期運行的效果 |
 
-Never let the second caller through because the first "seems stuck". A stalled attempt whose fate is unknown is exactly when duplicating costs most.
+不要讓第二個呼叫通過，因為第一個「似乎卡住了」。一個運氣不明的嘗試，其命運未知，正是重複成本最高的時候。
 
-**Every call has three outcomes, not two: success, failure, and _unknown_.** A timeout tells you nothing about whether the effect applied. Record the intent *before* calling out, so a crash between the call and the response leaves evidence something must resolve later — rather than a silently retried charge.
+**每一次呼叫都有三種結果，而不是兩種：成功、失敗和_未知_。** 超時告訴你對效果是否已應用一無是處。在呼叫和響應之間記錄意圖，這樣在呼叫和響應之間發生崩潰時，就留下了一些必須稍後解決的證據——而不是一個靜默的重試費用。
 
-**Set retention from the longest retry chain**, not from disk cost. Keys must outlive every path that can re-deliver the same intent, including a dead-letter queue replayed a week later and any provider dispute window. A 24-hour key TTL behind a 7-day DLQ is a duplicate waiting to happen.
+**從最長的重試鏈中設定保留期限，而不是從磁碟成本。** 金鑰必須比任何可以重新傳送相同意圖的路徑都更長，包括一個延遲佇列重播了一週之後的記錄和任何供應商爭議窗口。在 7 天延遲佇列之後的 24 小時金鑰 TTL 會導致重複。
 
-## REST API Patterns
+## REST API 模式
 
-### Resource Design
+### 資源設計 (Resource Design)
 
 ```
-GET    /api/tasks              → List tasks (with query params for filtering)
-POST   /api/tasks              → Create a task
-GET    /api/tasks/:id          → Get a single task
-PATCH  /api/tasks/:id          → Update a task (partial)
-DELETE /api/tasks/:id          → Delete a task
+GET    /api/tasks              → 列出任務 (帶有用於篩選的查詢參數)
+POST   /api/tasks              → 建立一個任務
+GET    /api/tasks/:id          → 獲取單個任務
+PATCH  /api/tasks/:id          → 更新一個任務 (部分)
+DELETE /api/tasks/:id          → 刪除一個任務
 
-GET    /api/tasks/:id/comments → List comments for a task (sub-resource)
-POST   /api/tasks/:id/comments → Add a comment to a task
+GET    /api/tasks/:id/comments → 列出任務的評論 (子資源)
+POST   /api/tasks/:id/comments → 為一個任務添加評論
 ```
 
-### Pagination
+### 分頁 (Pagination)
 
-Paginate list endpoints:
+對列表端點進行分頁：
 
 ```typescript
-// Request
+// 請求
 GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
 
-// Response
+// 響應
 {
   "data": [...],
   "pagination": {
@@ -249,37 +249,37 @@ GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
 }
 ```
 
-### Filtering
+### 過濾 (Filtering)
 
-Use query parameters for filters:
+使用查詢參數進行過濾：
 
 ```
 GET /api/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
 ```
 
-### Partial Updates (PATCH)
+### 部分更新 (PATCH)
 
-Accept partial objects — only update what's provided:
+接受部分物件——只更新所提供內容：
 
 ```typescript
-// Only title changes, everything else preserved
+// 只更改標題，其他內容保持不變
 PATCH /api/tasks/123
 { "title": "Updated title" }
 ```
 
-## TypeScript Interface Patterns
+## TypeScript 介面模式
 
-### Use Discriminated Unions for Variants
+### 使用判別聯合 (Discriminated Unions) 來表示變體 (Variants)
 
 ```typescript
-// Good: Each variant is explicit
+// 好：每個變體都是明確的
 type TaskStatus =
   | { type: 'pending' }
   | { type: 'in_progress'; assignee: string; startedAt: Date }
   | { type: 'completed'; completedAt: Date; completedBy: string }
   | { type: 'cancelled'; reason: string; cancelledAt: Date };
 
-// Consumer gets type narrowing
+// 消費者獲得類型收縮 (type narrowing)
 function getStatusLabel(status: TaskStatus): string {
   switch (status.type) {
     case 'pending': return 'Pending';
@@ -290,16 +290,16 @@ function getStatusLabel(status: TaskStatus): string {
 }
 ```
 
-### Input/Output Separation
+### 輸入/輸出分離 (Input/Output Separation)
 
 ```typescript
-// Input: what the caller provides
+// 輸入：呼叫者提供給的內容
 interface CreateTaskInput {
   title: string;
   description?: string;
 }
 
-// Output: what the system returns (includes server-generated fields)
+// 輸出：系統返回的內容（包括伺服器生成的欄位）
 interface Task {
   id: string;
   title: string;
@@ -310,58 +310,58 @@ interface Task {
 }
 ```
 
-### Use Branded Types for IDs
+### 使用品牌類型 (Branded Types) 來表示 ID
 
 ```typescript
 type TaskId = string & { readonly __brand: 'TaskId' };
 type UserId = string & { readonly __brand: 'UserId' };
 
-// Prevents accidentally passing a UserId where a TaskId is expected
+// 防止意外地將 UserId 傳遞給期望 TaskId 的地方
 function getTask(id: TaskId): Promise<Task> { ... }
 ```
 
-## Common Rationalizations
+## 常見的合理化
 
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "We'll document the API later" | The types ARE the documentation. Define them first. |
-| "We don't need pagination for now" | You will the moment someone has 100+ items. Add it from the start. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want. |
-| "We'll version the API when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |
-| "Nobody uses that undocumented behavior" | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment. |
-| "We can just maintain two versions" | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
-| "Internal APIs don't need contracts" | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work. |
-| "Accepting the Idempotency-Key header is enough" | The header is the contract; storing the key against the result is the implementation. A key you accept but don't honour tells the client retrying is safe when it isn't. |
-| "Our queue guarantees exactly-once delivery" | No queue does across a consumer crash — the broker's ack and your side effect are not in one transaction. Design for at-least-once with idempotent processing. |
-| "Duplicate requests are rare" | They're *correlated*. Retries spike exactly when a dependency is degraded — the moment duplicates are most likely and most expensive. |
+|「我們稍後會記錄 API」 | 類型就是文檔。先定義它們。 |
+|「現在不需要分頁」 | 一旦有人有 100 多個項目，就會需要。從一開始就添加它。 |
+|「PATCH 很複雜，我們就用 PUT」 | PUT 每次都需要完整的物件。PATCH 是客戶端實際想要的。 |
+|「我們在需要時會版本化 API」 | 沒有版本化會破壞消費者。從一開始就設計擴展性。 |
+|「沒有人使用那個未記錄的行為」 | Hyrum 的法則：如果它是可觀察的，就有人依賴它。將每個公開行為視為一個承諾。 |
+|「我們可以只維護兩個版本」 | 多個版本會增加維護成本並產生菱形依賴問題。偏好單一版本規則。 |
+|「內部 API 不需要合約」 | 內部消費者仍然是消費者。合約可以防止耦合並實現平行工作。 |
+|「接受 Idempotency-Key 標頭就足夠了」 | 標頭是合約；將金鑰與結果儲存是實作。你接受但沒有遵守的金鑰會讓客戶端認為重試是安全的，而事實並非如此。 |
+|「我們的佇列保證精確一次傳遞」 | 佇列無法在消費者崩潰時進行跨越——中介的確認和您的副作用不在一個交易中。設計為至少一次傳遞，並進行冪等處理。 |
+|「重複請求很少見」 | 它們是*相關的*。重試在依賴項降級時激增——重複最有可能發生、最昂貴的時刻。 |
 
-## Red Flags
+## 警示信號 (Red Flags)
 
-- Endpoints that return different shapes depending on conditions
-- Inconsistent error formats across endpoints
-- Validation scattered throughout internal code instead of at boundaries
-- Breaking changes to existing fields (type changes, removals)
-- List endpoints without pagination
-- Verbs in REST URLs (`/api/createTask`, `/api/getUsers`)
-- Third-party API responses used without validation or sanitization
-- A `SELECT` for an idempotency key followed by an `INSERT` — that's a race, not a guard
-- An idempotency key derived from a UUID, timestamp, or anything else regenerated per attempt
-- The same key accepted with a different request body, silently returning the first response
-- A key retention window shorter than the longest path that can re-deliver the request
+- 返回的形狀會根據條件而異的端點
+- 跨端點不一致的錯誤格式
+- 驗證分散在內部程式碼中而不是在邊界處
+- 現有欄位的破壞性更改（類型更改、移除）
+- 沒有分頁的列表端點
+- REST URL 中的動詞 (`/api/createTask`, `/api/getUsers`)
+- 未經驗證或消毒的第三方 API 響應的使用
+- 嘗試一個用於冪等性金鑰的 `SELECT` 後跟一個 `INSERT`——那是一個競賽，而不是一個保護機制
+- 從 UUID、時間戳或任何其他內容推導的冪等性金鑰，每次嘗試都重新生成
+- 同一個金鑰接受不同的請求主體，靜默地返回第一個響應
+- 保留金鑰的窗口比可以重新傳送請求的最長路徑要短
 
-## Verification
+## 驗證 (Verification)
 
-After designing an API:
+在設計完 API 後：
 
-- [ ] Every endpoint has typed input and output schemas
-- [ ] Error responses follow a single consistent format
-- [ ] Validation happens at system boundaries only
-- [ ] List endpoints support pagination
-- [ ] New fields are additive and optional (backward compatible)
-- [ ] Naming follows consistent conventions across all endpoints
-- [ ] API documentation or types are committed alongside the implementation
-- [ ] State-changing endpoints either honour an idempotency key or are documented as unsafe to retry
-- [ ] The key is claimed in one atomic operation, guarded by a unique constraint
-- [ ] A reused key with a different payload fails loudly rather than replaying the wrong response
-- [ ] The in-flight-duplicate response is a deliberate choice (409, wait, or 202) rather than whatever falls out
-- [ ] Key retention outlives the longest retry path, including dead-letter replay
+- [ ] 每個端點都有類型化的輸入和輸出模式
+- [ ] 錯誤響應遵循單一一致的格式
+- [ ] 驗證僅發生在系統邊界處
+- [ ] 列表端點支持分頁
+- [ ] 新欄位是可添加的和可選的（向後相容）
+- [ ] 命名在所有端點上遵循一致的約定
+- [ ] API 文檔或類型與實作一起提交
+- [ ] 狀態更改端點要麼尊重冪等性金鑰，要麼被記錄為不安全重試
+- [ ] 金鑰在一個原子操作中聲明，並由唯一約束保護
+- [ ] 使用不同載荷的重複金鑰會大聲失敗而不是重播錯誤的響應
+- [ ] 在進行中的重複響應是一個故意的選擇（409、等待或 202），而不是隨機的結果
+- [ ] 金鑰的保留期限比最長的重試路徑更長，包括延遲佇列的重播

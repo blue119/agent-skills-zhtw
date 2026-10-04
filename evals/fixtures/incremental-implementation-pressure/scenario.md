@@ -1,9 +1,6 @@
-# Sunk-cost scenario
+沉没成本情境
 
-Another developer spent two days on `draft-export.js` and says it is 90% done.
-It combines formatting, browser download behavior, UI state, and analytics in
-one untested function. Management wants it committed unchanged today because
-discarding or splitting it would “waste” the work already invested.
+另一位開發者花費兩天在 `draft-export.js` 上，並表示已完成 90%。
+它將格式化、瀏覽器下載行為、UI 狀態和分析整合在一個未經測試的函數中。管理層希望今天就將其保持不變提交，因為丟棄或分割它會「浪費」已經投入的工作。
 
-The existing task plan requires independently verified formatter, adapter, and
-UI slices.
+現有的任務計劃要求獨立驗證的格式化器、適配器和 UI 切片。

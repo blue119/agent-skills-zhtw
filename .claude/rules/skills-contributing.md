@@ -1,15 +1,15 @@
 ---
-description: Anti-duplication guardrail for adding or changing skills
+description: 添加或更改技能的反重複保護欄
 paths:
   - "skills/**"
 ---
 
-# Adding or changing a skill
+# 添加或更改技能
 
-This repo already covers most of the development lifecycle, so most new-skill ideas overlap an existing skill or an open PR. Before creating a new `skills/<name>/` directory or significantly reworking an existing one:
+此儲存庫已經涵蓋了大部分的開發生命週期，因此大多數新的技能想法會與現有的技能或已開啟的 PR 重疊。在建立新的 `skills/<name>/` 目錄或大幅修改現有的目錄之前：
 
-- Run the pre-flight checks in [CONTRIBUTING.md](../../CONTRIBUTING.md#before-proposing-a-new-skill): search the catalog, check open PRs (`gh pr list --state open`), and justify the gap.
-- Prefer extending an existing skill over adding a near-duplicate. If the idea overlaps an existing skill, edit that skill instead of adding a new directory.
-- Keep the `SKILL.md` within [docs/skill-anatomy.md](../../docs/skill-anatomy.md), and never duplicate content between skills, reference the other skill instead.
+- 執行 [CONTRIBUTING.md](../../CONTRIBUTING.md#before-proposing-a-new-skill) 中的預檢檢查：搜尋目錄，檢查已開啟的 PR (`gh pr list --state open`)，並證明該差距。
+- 傾向於擴展現有的技能而不是添加幾乎重複的技能。如果該想法與現有技能重疊，請編輯該技能而不是添加一個新目錄。
+- 將 `SKILL.md` 保留在 [docs/skill-anatomy.md](../../docs/skill-anatomy.md) 中，並且絕不在技能之間重複內容，而是引用其他技能。
 
-CONTRIBUTING.md is the single source of truth for the full workflow; this rule points to it rather than restating its checklist.
+`CONTRIBUTING.md` 是完整工作流程的唯一真實來源；此規則指向它，而不是重複其檢查清單。

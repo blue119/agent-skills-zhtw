@@ -1,249 +1,248 @@
 ---
 name: incremental-implementation
-description: Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, or when picking up the next task from a plan. Use when rolling a change out behind a feature flag, when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: 在薄而可驗證的切片中逐步交付變更。當實作任何涉及多個檔案的功能或變更，或從計畫中獲取下一個任務時使用。在在功能標誌後部署變更時使用，當你即將一次寫下大量程式碼時使用，或當一個任務感覺太大，無法在單一步驟中完成時使用。
 ---
 
-# Incremental Implementation
+# 逐步實作
 
-## Overview
+## 概述
 
-Build in thin vertical slices — implement one piece, test it, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+以薄的垂直切片進行建構——實作一塊，測試它，驗證它，然後擴展。避免在一次通過中實作整個功能。每個增量都應使系統處於可運作、可測試的狀態。這就是使大型功能可管理的執行紀律。
 
-## When to Use
+## 何時使用
 
-- Implementing any multi-file change
-- Building a new feature from a task breakdown
-- Refactoring existing code
-- Any time you're tempted to write more than ~100 lines before testing
+- 實作任何多檔案變更
+- 從任務分解中建立新功能
+- 重構現有程式碼
+- 任何在你準備測試之前，就傾向於寫下超過約 100 行程式碼的時候
 
-**When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+**不應使用時：** 範圍已經最小的單檔案、單函數變更。
 
-## The Increment Cycle
+## 增量循環
 
 ```
 ┌──────────────────────────────────────┐
 │                                      │
-│   Implement ──→ Test ──→ Verify ──┐  │
+│   實作 ──→ 測試 ──→ 驗證 ──┐  │
 │       ▲                           │  │
-│       └───── Commit ◄─────────────┘  │
+│       └───── 提交 ◄─────────────┘  │
 │              │                       │
 │              ▼                       │
-│          Next slice                  │
+│          下一個切片                  │
 │                                      │
 └──────────────────────────────────────┘
 ```
 
-For each slice:
+對於每個切片：
 
-1. **Implement** the smallest complete piece of functionality
-2. **Test** — run the test suite (or write a test if none exists)
-3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-5. **Move to the next slice** — carry forward, don't restart
+1. **實作** 最小的完整功能片段
+2. **測試** — 運行測試套件（或如果沒有則編寫測試）
+3. **驗證** — 確認該切片按預期運行（測試通過、建置成功、手動檢查）
+4. **提交** -- 用描述性的訊息保存你的進度（請參閱 `git-workflow-and-versioning` 以獲取原子提交指南）
+5. **移動到下一個切片** — 繼續前進，不要重新開始
 
-## Slicing Strategies
+## 切片策略
 
-### Vertical Slices (Preferred)
+### 垂直切片（首選）
 
-Build one complete path through the stack:
-
-```
-Slice 1: Create a task (DB + API + basic UI)
-    → Tests pass, user can create a task via the UI
-
-Slice 2: List tasks (query + API + UI)
-    → Tests pass, user can see their tasks
-
-Slice 3: Edit a task (update + API + UI)
-    → Tests pass, user can modify tasks
-
-Slice 4: Delete a task (delete + API + UI + confirmation)
-    → Tests pass, full CRUD complete
-```
-
-Each slice delivers working end-to-end functionality.
-
-### Contract-First Slicing
-
-When backend and frontend need to develop in parallel:
+通過堆疊的單一完整路徑建構：
 
 ```
-Slice 0: Define the API contract (types, interfaces, OpenAPI spec)
-Slice 1a: Implement backend against the contract + API tests
-Slice 1b: Implement frontend against mock data matching the contract
-Slice 2: Integrate and test end-to-end
+切片 1: 建立一個任務（資料庫 + API + 基本 UI）
+    → 測試通過，使用者可以通過 UI 建立任務
+
+切片 2: 列出任務（查詢 + API + UI）
+    → 測試通過，使用者可以查看他們的任務
+
+切片 3: 編輯一個任務（更新 + API + UI）
+    → 測試通過，使用者可以修改任務
+
+切片 4: 刪除一個任務（刪除 + API + UI + 確認）
+    → 測試通過，完整的 CRUD 完成
 ```
 
-### Risk-First Slicing
+每個切片都交付了可運作的端到端功能。
 
-Tackle the riskiest or most uncertain piece first:
+### 先合約切片（Contract-First Slicing）
 
-```
-Slice 1: Prove the WebSocket connection works (highest risk)
-Slice 2: Build real-time task updates on the proven connection
-Slice 3: Add offline support and reconnection
-```
-
-If Slice 1 fails, you discover it before investing in Slices 2 and 3.
-
-## Implementation Rules
-
-### Rule 0: Simplicity First
-
-Before writing any code, ask: "What is the simplest thing that could work?"
-
-After writing code, review it against these checks:
-- Can this be done in fewer lines?
-- Are these abstractions earning their complexity?
-- Would a staff engineer look at this and say "why didn't you just..."?
-- Am I building for hypothetical future requirements, or the current task?
+當後端和前端需要並行開發時：
 
 ```
-SIMPLICITY CHECK:
-✗ Generic EventBus with middleware pipeline for one notification
-✓ Simple function call
-
-✗ Abstract factory pattern for two similar components
-✓ Two straightforward components with shared utilities
-
-✗ Config-driven form builder for three forms
-✓ Three form components
+切片 0: 定義 API 合約（類型、介面、OpenAPI 規範）
+切片 1a: 根據合約實作後端 + API 測試
+切片 1b: 根據合約實作前端 + 與合約匹配的模擬資料
+切片 2: 整合並測試端到端
 ```
 
-Three similar lines of code is better than a premature abstraction. Implement the naive, obviously-correct version first. Optimize only after correctness is proven with tests.
+### 先風險切片（Risk-First Slicing）
 
-### Rule 0.5: Scope Discipline
-
-Touch only what the task requires.
-
-Do NOT:
-- "Clean up" code adjacent to your change
-- Refactor imports in files you're not modifying
-- Remove comments you don't fully understand
-- Add features not in the spec because they "seem useful"
-- Modernize syntax in files you're only reading
-
-If you notice something worth improving outside your task scope, note it — don't fix it:
+首先處理風險最大或不確定性最高的部分：
 
 ```
-NOTICED BUT NOT TOUCHING:
-- src/utils/format.ts has an unused import (unrelated to this task)
-- The auth middleware could use better error messages (separate task)
-→ Want me to create tasks for these?
+切片 1: 證明 WebSocket 連線有效（風險最高）
+切片 2: 在已證實的連線上建立即時任務更新
+切片 3: 添加離線支援和重新連線
 ```
 
-### Rule 1: One Thing at a Time
+如果切片 1 失敗，你會在投資於切片 2 和 3 之前發現它。
 
-Each increment changes one logical thing. Don't mix concerns:
+## 實作規則
 
-**Bad:** One commit that adds a new component, refactors an existing one, and updates the build config.
+### 規則 0：簡潔優先
 
-**Good:** Three separate commits — one for each change.
+在編寫任何程式碼之前，問：「什麼是最簡單能運作的東西？」
 
-### Rule 2: Keep It Compilable
+寫完程式碼後，根據以下檢查進行審查：
+- 能否用更少的行完成？
+- 這些抽象是否值得它們的複雜性？
+- 一位資深工程師看到後會說：「你為什麼不直接...？」嗎？
+- 我是在為假設的未來需求還是當前的任務而建構？
 
-After each increment, the project must build and existing tests must pass. Don't leave the codebase in a broken state between slices.
+```
+簡潔性檢查：
+✗ 帶有中間件管道的通用 EventBus 僅用於一個通知
+✓ 簡單的函數呼叫
 
-### Rule 3: Feature Flags for Incomplete Features
+✗ 為兩個相似組件的抽象工廠模式
+✓ 兩個具有共享實用功能的直觀組件
 
-If a feature isn't ready for users but you need to merge increments:
+✗ 為三個表單的配置驅動表單建構器
+✓ 三個表單組件
+```
+
+三行相似的程式碼比過早的抽象要好。首先實作最簡單、顯而易見正確的版本。僅在通過測試證明正確後才進行優化。
+
+### 規則 0.5：範圍紀律
+
+只觸及任務所需的內容。
+
+不要：
+- 「清理」你變更周圍的程式碼
+- 重構你沒有修改的檔案中的導入
+- 移除你不完全理解的註釋
+- 添加規格中不存在的功能，因為它們「看起來很有用」
+- 在你只閱讀的檔案中現代化語法
+
+如果你注意到在你的任務範圍之外有值得改進的內容，請記下它——不要修復它：
+
+```
+注意但未觸及：
+- src/utils/format.ts 有一個未使用的導入（與此任務無關）
+- 認證中間件可以改進錯誤訊息（另一個任務）
+→ 我需要為這些創建任務嗎？
+```
+
+### 規則 1：一次只做一件事
+
+每個增量都改變一個邏輯事物。不要混淆關注點：
+
+**不好：** 一個提交同時添加一個新組件、重構一個現有組件並更新建置配置。
+
+**好：** 三個單獨的提交——一個用於每個變更。
+
+### 規則 2：保持可編譯
+
+在每個增量之後，專案必須能夠建置，並且現有的測試必須通過。不要讓程式碼庫在切片之間處於損壞狀態。
+
+### 規則 3：功能標誌用於不完整的特性
+
+如果一個功能尚未準備好供使用者使用，但你需要合併增量：
 
 ```typescript
-// Feature flag for work-in-progress
+// 工作進行中的功能標誌
 const ENABLE_TASK_SHARING = process.env.FEATURE_TASK_SHARING === 'true';
 
 if (ENABLE_TASK_SHARING) {
-  // New sharing UI
+  // 新的分享 UI
 }
 ```
 
-This lets you merge small increments to the main branch without exposing incomplete work.
+這允許你將小的增量合併到主分支中，而無需暴露不完整的作品。
 
-### Rule 4: Safe Defaults
+### 規則 4：安全預設值
 
-New code should default to safe, conservative behavior:
+新程式碼應預設為安全、保守的行為：
 
 ```typescript
-// Safe: disabled by default, opt-in
+// 安全：預設禁用，選擇加入
 export function createTask(data: TaskInput, options?: { notify?: boolean }) {
   const shouldNotify = options?.notify ?? false;
   // ...
 }
 ```
 
-### Rule 5: Rollback-Friendly
+### 規則 5：可回滾性
 
-Each increment should be independently revertable:
+每個增量都應該可以獨立回滾：
 
-- Additive changes (new files, new functions) are easy to revert
-- Modifications to existing code should be minimal and focused
-- Database migrations should have corresponding rollback migrations
-- Avoid deleting something in one commit and replacing it in the same commit — separate them
+- 添加性的變更（新檔案、新函數）易於回滾
+- 對現有程式碼的修改應最小化且集中
+- 資料庫遷移應有相應的回滾遷移
+- 避免在同一個提交中刪除某物並在同一個提交中替換它——將它們分開
 
-## Working with Agents
+## 與代理協作
 
-When directing an agent to implement incrementally:
+當指導代理以增量方式實作時：
 
 ```
-"Let's implement Task 3 from the plan.
+「讓我們從計畫中實作任務 3。
 
-Start with just the database schema change and the API endpoint.
-Don't touch the UI yet — we'll do that in the next increment.
+從資料庫結構變更和 API 端點開始。
+不要碰 UI——我們在下一個增量中會處理它。
 
-After implementing, run the repository's test and build commands to
-verify nothing is broken."
+實作後，運行儲存庫的測試和建置命令，以驗證沒有任何東西出錯。」
 ```
 
-Be explicit about what's in scope and what's NOT in scope for each increment.
+對於每個增量，要明確範圍內和範圍之外的內容。
 
-## Increment Checklist
+## 增量檢查清單
 
-After each increment, verify with the repository's own commands (see the test-driven-development skill's Discover the Stack First section):
+在每個增量之後，使用儲存庫自己的命令進行驗證（參見測試驅動開發技能的 Discover the Stack First 部分）：
 
-- [ ] The change does one thing and does it completely
-- [ ] All existing tests still pass (the repository's test command: `npm test`, `./gradlew test`, `pytest`, ...)
-- [ ] The build succeeds (the repository's build command)
-- [ ] Type checking passes, where the stack has one (`npx tsc --noEmit`, `mypy`, ...)
-- [ ] Linting passes (the repository's lint command)
-- [ ] The new functionality works as expected
-- [ ] The change is committed with a descriptive message
+- [ ] 變更只做一件事，並且完全完成
+- [ ] 所有現有測試仍然通過（儲存庫的測試命令：`npm test`，`./gradlew test`，`pytest`，...）
+- [ ] 建置成功（儲存庫的建置命令）
+- [ ] 型檢查通過，如果堆疊中有一個（`npx tsc --noEmit`，`mypy`，...）
+- [ ] 程式碼風格檢查通過（儲存庫的風格檢查命令）
+- [ ] 新功能按預期運行
+- [ ] 變更以描述性的訊息提交
 
-**Note:** Run each verification command after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no information.
+**注意：** 在發生可能影響它的變更後運行每個驗證命令。成功運行後，除非程式碼自那時以來有變更，否則不要重複運行相同的命令——在未變更的程式碼上重新運行不會增加任何資訊。
 
-## Common Rationalizations
+## 常見合理化
 
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "I'll test it all at the end" | Bugs compound. A bug in Slice 1 makes Slices 2-5 wrong. Test each slice. |
-| "It's faster to do it all at once" | It *feels* faster until something breaks and you can't find which of 500 changed lines caused it. |
-| "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
-| "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
-| "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
-| "Let me run the build command again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
+| 「我會在最後測試所有內容」 | Bug 會累積。切片 1 中的錯誤會使切片 2-5 錯誤。測試每個切片。 |
+| 「一次做完會更快」 | 直到有東西出錯，而你無法找出是哪 500 行程式碼導致了錯誤。 |
+| 「這些變更太小，不適合單獨提交」 | 小提交是免費的。大的提交會隱藏錯誤並使回滾變得痛苦。 |
+| 「我稍後會添加功能標誌」 | 如果功能不完整，它就不應該對使用者可見。現在就添加標誌。 |
+| 「這個重構足夠小，可以包含在內」 | 與功能混合的重構會使審查和除錯都更困難。將它們分開。 |
+| 「讓我再運行一次建置命令以確保萬無一失」 | 在成功運行後，除非程式碼自那時以來有變更，否則重複運行相同的命令不會增加任何資訊。在後續編輯後運行它，而不是作為保證。 |
 
-## Red Flags
+## 警報標誌
 
-- More than 100 lines of code written without running tests
-- Multiple unrelated changes in a single increment
-- "Let me just quickly add this too" scope expansion
-- Skipping the test/verify step to move faster
-- Build or tests broken between increments
-- Large uncommitted changes accumulating
-- Building abstractions before the third use case demands it
-- Touching files outside the task scope "while I'm here"
-- Creating new utility files for one-time operations
-- Running the same build/test command twice in a row without any intervening code change
+- 在不運行測試的情況下寫下超過 100 行程式碼
+- 在單個增量中進行多個不相關的變更
+- 「讓我再快速添加這個」的範圍擴展
+- 跳過測試/驗證步驟以加快速度
+- 增量之間建置或測試出錯
+- 大量的未提交變更累積
+- 在第三個使用案例要求之前就建立抽象
+- 在「我在此處」的任務範圍之外觸及檔案
+- 為一次性操作創建新的實用檔案
+- 在沒有任何中間程式碼變更的情況下連續兩次運行相同的建置/測試命令
 
-## Verification
+## 驗證
 
-After completing all increments for a task:
+完成一個任務的所有增量後：
 
-- [ ] Each increment was individually tested and committed
-- [ ] The full test suite passes
-- [ ] The build is clean
-- [ ] The feature works end-to-end as specified
-- [ ] No uncommitted changes remain
+- [ ] 每個增量都經過了單獨的測試和提交
+- [ ] 完整的測試套件通過
+- [ ] 建置是乾淨的
+- [ ] 功能如規範般端到端運行
+- [ ] 沒有未提交的變更
 
-## See Also
+## 另請參閱
 
-Per-increment verification is the local check. Before declaring a task done, apply the project-wide Definition of Done as the final gate, the standing bar every increment clears regardless of the task. See `../../references/definition-of-done.md`.
+增量驗證是本地檢查。在宣布任務完成之前，將專案範圍內的「完成定義」（Definition of Done）作為最終的門檻，它是每個增量都會清除的立標，而不論任務如何。請參閱 `../../references/definition-of-done.md`。

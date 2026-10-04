@@ -3,54 +3,54 @@ name: performance-optimization
 description: Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks.
 ---
 
-# Performance Optimization
+# 效能優化
 
-## Overview
+## 概述
 
-Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
+在優化之前先衡量。沒有衡量的效能工作就是猜測——而猜測會導致過早優化，這會增加複雜性，卻沒有改善真正重要的事情。先進行分析，找出實際的瓶頸，修復它，然後再衡量。只優化那些衡量證明重要的部分。
 
-## When to Use
+## 何時使用
 
-- Performance requirements exist in the spec (load time budgets, response time SLAs)
-- Users or monitoring report slow behavior
-- Core Web Vitals scores are below thresholds
-- You suspect a change introduced a regression
-- Building features that handle large datasets or high traffic
+- 規格中存在效能要求（載入時間預算、響應時間 SLA）
+- 用戶或監控報告緩慢的行為
+- 核心 Web Vitals 分數低於閾值
+- 你懷疑某個變更引入了退步
+- 建構處理大型資料集或高流量的功能
 
-**When NOT to use:** Don't optimize before you have evidence of a problem. Premature optimization adds complexity that costs more than the performance it gains.
+**不應使用時：** 不要在有問題證據之前就進行優化。過早優化會增加成本，其帶來的效能提升遠不如成本高。
 
-## Core Web Vitals Targets
+## 核心 Web Vitals 目標
 
-| Metric | Good | Needs Improvement | Poor |
-|--------|------|-------------------|------|
-| **LCP** (Largest Contentful Paint) | ≤ 2.5s | ≤ 4.0s | > 4.0s |
-| **INP** (Interaction to Next Paint) | ≤ 200ms | ≤ 500ms | > 500ms |
-| **CLS** (Cumulative Layout Shift) | ≤ 0.1 | ≤ 0.25 | > 0.25 |
+| 指標 | 良好 | 需要改進 | 差 |
+|---|---|---|---|
+| **LCP** (最大內容繪製時間) | ≤ 2.5s | ≤ 4.0s | > 4.0s |
+| **INP** (互動至下一次繪製時間) | ≤ 200ms | ≤ 500ms | > 500ms |
+| **CLS** (累積佈局偏移) | ≤ 0.1 | ≤ 0.25 | > 0.25 |
 
-## The Optimization Workflow
+## 優化工作流程
 
 ```
-1. MEASURE  → Establish baseline with real data
-2. IDENTIFY → Find the actual bottleneck (not assumed)
-3. FIX      → Address the specific bottleneck
-4. VERIFY   → Measure again; keep or revert
-5. GUARD    → Add monitoring or tests to prevent regression
+1. 衡量  → 使用真實數據建立基準線
+2. 識別 → 找出實際的瓶頸（而非假設）
+3. 修復  → 解決特定的瓶頸
+4. 驗證 → 再次衡量；保留或回滾
+5. 監護  → 添加監控或測試以防止退步
 ```
 
-### Step 1: Measure
+### 步驟 1：衡量
 
-Two complementary approaches — use both:
+兩種互補的方法——都使用：
 
-- **Synthetic (Lighthouse, DevTools Performance tab):** Controlled conditions, reproducible. Best for CI regression detection and isolating specific issues.
-- **RUM (web-vitals library, CrUX):** Real user data in real conditions. Required to validate that a fix actually improved user experience.
+- **合成測試 (Lighthouse, DevTools Performance 標籤)：** 受控條件，可重現。最適合 CI 退步檢測和隔離特定問題。
+- **RUM (web-vitals 函式庫, CrUX)：** 在真實條件下的真實用戶數據。需要驗證修復是否確實改善了用戶體驗。
 
-**Frontend:**
+**前端：**
 ```bash
-# Synthetic: Lighthouse in Chrome DevTools (or CI)
-# Chrome DevTools → Performance tab → Record
-# Chrome DevTools MCP → Performance trace
+# 合成測試：Chrome DevTools 中的 Lighthouse (或 CI)
+# Chrome DevTools → Performance 標籤 → 錄製
+# Chrome DevTools MCP → 效能追蹤
 
-# RUM: Web Vitals library in code
+# RUM：程式碼中的 Web Vitals 函式庫
 import { onLCP, onINP, onCLS } from 'web-vitals';
 
 onLCP(console.log);
@@ -58,210 +58,203 @@ onINP(console.log);
 onCLS(console.log);
 ```
 
-**Backend:**
+**後端：**
 ```bash
-# Response time logging
-# Application Performance Monitoring (APM)
-# Database query logging with timing
+# 響應時間記錄
+# 應用程式效能監控 (APM)
+# 帶有計時的資料庫查詢記錄
 
-# Simple timing
+# 簡單計時
 console.time('db-query');
 const result = await db.query(...);
 console.timeEnd('db-query');
 ```
 
-### Where to Start Measuring
+### 測量起點
 
-Use the symptom to decide what to measure first:
+使用症狀來決定首先測量什麼：
 
 ```
-What is slow?
-├── First page load
-│   ├── Large bundle? --> Measure bundle size, check code splitting
-│   ├── Slow server response? --> Measure TTFB in DevTools Network waterfall
-│   │   ├── DNS long? --> Add dns-prefetch / preconnect for known origins
-│   │   ├── TCP/TLS long? --> Enable HTTP/2, check edge deployment, keep-alive
-│   │   └── Waiting (server) long? --> Profile backend, check queries and caching
-│   └── Render-blocking resources? --> Check network waterfall for CSS/JS blocking
-├── Interaction feels sluggish
-│   ├── UI freezes on click? --> Profile main thread, look for long tasks (>50ms)
-│   ├── Form input lag? --> Check re-renders, controlled component overhead
-│   └── Animation jank? --> Check layout thrashing, forced reflows
-├── Page after navigation
-│   ├── Data loading? --> Measure API response times, check for waterfalls
-│   └── Client rendering? --> Profile component render time, check for N+1 fetches
-└── Backend / API
-    ├── Single endpoint slow? --> Profile database queries, check indexes
-    ├── All endpoints slow? --> Check connection pool, memory, CPU
-    └── Intermittent slowness? --> Check for lock contention, GC pauses, external deps
+什麼很慢？
+├── 首次頁面載入
+│   ├── 套件過大？ --> 衡量套件大小，檢查代碼分割
+│   ├── 伺服器響應慢？ --> 衡量 DevTools 網路瀑布圖中的 TTFB
+│   │   ├── DNS 慢？ --> 對已知來源添加 dns-prefetch / preconnect
+│   │   ├── TCP/TLS 慢？ --> 啟用 HTTP/2，檢查邊緣部署，keep-alive
+│   │   └── 等待 (伺服器) 慢？ --> 分析後端，檢查查詢和快取
+│   └── 渲染阻塞資源？ --> 檢查網路瀑布圖以查看 CSS/JS 是否阻塞
+├── 互動感覺遲緩
+│   ├── 點擊時 UI 凍結？ --> 分析主線程，尋找長時間任務 (>50ms)
+│   ├── 表單輸入延遲？ --> 檢查重新渲染，控制組件的額外開銷
+│   └── 動畫卡頓？ --> 檢查佈局抖動，強制重排
+├── 導航後頁面
+│   ├── 資料載入？ --> 衡量 API 響應時間，檢查瀑布圖
+│   └── 客戶端渲染？ --> 分析組件渲染時間，檢查 N+1 獲取
+└── 後端 / API
+    ├── 單一端點慢？ --> 分析資料庫查詢，檢查索引
+    ├── 所有端點慢？ --> 檢查連線池、記憶體、CPU
+    └── 間歇性緩慢？ --> 檢查鎖競爭、GC 暫停、外部依賴
 ```
 
-### Step 2: Identify the Bottleneck
+### 步驟 2：識別瓶頸
 
-Common bottlenecks by category:
+按類別的常見瓶頸：
 
-**Frontend:**
+**前端：**
 
-| Symptom | Likely Cause | Investigation |
-|---------|-------------|---------------|
-| Slow LCP | Large images, render-blocking resources, slow server | Check network waterfall, image sizes |
-| High CLS | Images without dimensions, late-loading content, font shifts | Check layout shift attribution |
-| Poor INP | Heavy JavaScript on main thread, large DOM updates | Check long tasks in Performance trace |
-| Slow initial load | Large bundle, many network requests | Check bundle size, code splitting |
+| 症狀 | 可能原因 | 調查方式 |
+|---|---|---|
+| LCP 慢 | 大圖片、渲染阻塞資源、伺服器緩慢 | 檢查網路瀑布圖、圖片大小 |
+| CLS 高 | 缺少尺寸的圖片、延遲載入的內容、字體偏移 | 檢查佈局偏移歸因 |
+| INP 差 | 主線程上的大量 JavaScript、大型 DOM 更新 | 檢查效能追蹤中的長時間任務 |
+| 初始載入慢 | 套件過大、網路請求多 | 檢查套件大小、代碼分割 |
 
-**Backend:**
+**後端：**
 
-| Symptom | Likely Cause | Investigation |
-|---------|-------------|---------------|
-| Slow API responses | N+1 queries, missing indexes, unoptimized queries | Check database query log |
-| Memory growth | Leaked references, unbounded caches, large payloads | Heap snapshot analysis |
-| CPU spikes | Synchronous heavy computation, regex backtracking | CPU profiling |
-| High latency | Missing caching, redundant computation, network hops | Trace requests through the stack |
+| 症狀 | 可能原因 | 調查方式 |
+|---|---|---|
+| API 響應慢 | N+1 查詢、缺少索引、未優化的查詢 | 檢查資料庫查詢日誌 |
+| 記憶體增長 | 洩漏的引用、無上限的快取、大型負載 | 堆快照分析 |
+| CPU 尖峰 | 同步的重計算、正規表達式回溯 | CPU 分析 |
+| 高延遲 | 缺少快取、冗餘計算、網路跳躍 | 追蹤請求通過堆棧 |
 
-### Step 3: Fix the Bottleneck
+### 步驟 3：修復瓶頸
 
-Fix the one thing Step 2 identified, nothing else. The anti-patterns below are the usual suspects; each entry gives the rule and the signature to recognize it, and links to a worked fix in [references/optimization-patterns.md](references/optimization-patterns.md). Open the one you need when you reach that code, not before.
+只修復步驟 2 識別出的單一問題，不要修復其他任何問題。以下反模式是常見的嫌疑犯；每一項都提供了識別它和識別其特徵的規則，並連結到 [references/optimization-patterns.md](references/optimization-patterns.md) 中的已解決修復。在到達該代碼時，而不是之前，才打開它。
 
-**Backend**
+**後端**
 
-- **N+1 queries.** One query per row is the most common backend bottleneck. Fetch the relation in the same query (join/include) instead of in the loop. [Pattern](references/optimization-patterns.md#n1-queries-backend).
-- **Unbounded data fetching.** Every list endpoint paginates with a limit and a stable order. [Pattern](references/optimization-patterns.md#unbounded-data-fetching).
-- **Queries that ignore their index.** "Add an index" is the guess; `EXPLAIN ANALYZE` is the measurement. A `Seq Scan` where you expected an index, a `rows=` estimate off by an order of magnitude, and a `Sort` node above the scan each call for a different fix; a bad `rows=` estimate means stale statistics, so run `ANALYZE` rather than adding an index. Index for the shape of the query (equality columns first, then the range or sort column). A plain index will not help a query on a low-selectivity dominant value (a partial index serves the rare value), a leading wildcard (needs trigram or full-text), or a function applied to the column (index the expression, as in `WHERE lower(email) = ?`), and every index taxes every write. Re-run the plan afterwards; an index that did not change it is a revert. [Pattern](references/optimization-patterns.md#queries-that-ignore-their-index).
-- **Connection pool exhaustion.** Signature: *every* endpoint slows at once, time is spent waiting for a connection rather than executing, and the database shows mostly idle sessions. One pool per process, sized so `instances × max` stays under the database's connection ceiling. Bigger is not faster; it relocates the queue to the database where it is harder to see. With unbounded instance counts (serverless, autoscaling), multiplex through a proxy (pgbouncer, RDS Proxy) instead of raising `max`. [Pattern](references/optimization-patterns.md#connection-pool-exhaustion).
-- **Missing caching.** Cache what is expensive to produce and read far more often than it changes; caching an already-fast query adds a network hop and a staleness bug in exchange for nothing. Pick the layer deliberately (in-process, shared, CDN). Every input that changes the response belongs in the key (tenant, locale, permissions, feature flags): a key that omits the viewer is how one user's data gets served to another. Choose one invalidation strategy (TTL, event or tag based, versioned keys) and state the acceptable staleness window explicitly. Guard hot keys against the stampede: serve stale while one request recomputes, or coalesce concurrent misses behind a single in-flight promise. Never cache what must be fresh (balances, permissions, inventory at checkout). [Pattern](references/optimization-patterns.md#missing-caching-backend); request coalescing, write strategies, and negative caching in `../../references/performance-checklist.md`.
+- **N+1 查詢。** 每行一條查詢是後端最常見的瓶頸。在迴圈中而不是在迴圈中獲取關係（連接/包含）的查詢。 [模式](references/optimization-patterns.md#n1-queries-backend)。
+- **無上限的資料獲取。** 每個列表端點都使用限制和穩定的順序進行分頁。 [模式](references/optimization-patterns.md#unbounded-data-fetching)。
+- **忽略索引的查詢。** 「添加索引」只是猜測；`EXPLAIN ANALYZE` 才是衡量。一個預期有索引的 `Seq Scan`，`rows=` 的估計誤差一個數量級，以及掃描後面的 `Sort` 節點，每次呼叫都為不同的修復；一個錯誤的 `rows=` 估計意味著統計數據過時，因此運行 `ANALYZE` 而不是添加索引。為查詢的形狀建立索引（首先是等值欄位，然後是範圍或排序欄位）。一個純索引對低選擇性主導值的查詢無幫助（部分索引服務於罕見值），前導通配符（需要三元組或全文搜索），或應用於欄位的函數（對表達式建立索引，如 `WHERE lower(email) = ?`），並且每個索引都會增加寫入的負擔。之後重新運行計劃；如果索引沒有改變它，那就是回滾。 [模式](references/optimization-patterns.md#queries-that-ignore-their-index)。
+- **連線池耗盡。** 特徵：*所有*端點都變慢，時間花在等待連線而不是執行，資料庫顯示大部分是閒置會話。每個進程一個連線池，大小設定為 `instances × max` 保持在資料庫的連線上限之下。更大不代表更快；它將佇列重新定位到資料庫，在那裡更難看到。對於無上限的實例計數（無伺服器、自動擴展），通過代理（pgbouncer, RDS Proxy）進行多路複用，而不是提高 `max`。 [模式](references/optimization-patterns.md#connection-pool-exhaustion)。
+- **缺少快取。** 快取那些產生和讀取的成本高，並且比更改的頻率高得多；快取一個已經快速的查詢不會帶來任何益處，反而會引入一個不一致的錯誤，沒有任何回報。刻意選擇層級（進程內、共享、CDN）。所有改變響應的輸入都應在鍵中（租戶、地區、權限、功能標誌）：一個省略查看者的鍵就是如何將某用戶的數據提供給另一個用戶。選擇一種失效策略（TTL、事件或標籤基、版本化鍵）並明確說明可接受的不一致時間窗口。保護熱鍵免受湧入攻擊：在一個請求重新計算時提供舊的數據，或在單個進行中的 Promise 後面合併並收斂並發的缺失。絕不要快取必須保持最新的內容（餘額、權限、結帳庫存）。 [模式](references/optimization-patterns.md#missing-caching-backend)；在 `../../references/performance-checklist.md` 中進行請求合併、寫入策略和負面快取。
 
-**Frontend**
+**前端**
 
-- **Missing image optimization.** Every image declares `width` and `height` (CLS). The LCP image gets `fetchpriority="high"`, modern formats (AVIF, WebP) through `<picture>`, and `srcset`/`sizes` for resolution switching; below-the-fold images get `loading="lazy"` and `decoding="async"`. [Pattern](references/optimization-patterns.md#missing-image-optimization-frontend).
-- **Unnecessary re-renders.** An object or function created in render is a new reference every time and re-renders every child that receives it. Hoist constants; reserve `React.memo` and `useMemo` for work the profile shows is expensive, since overuse is its own cost. [Pattern](references/optimization-patterns.md#unnecessary-re-renders-react).
-- **Large bundle size.** Modern bundlers tree-shake ESM named imports on their own; the real gains are route-level code splitting and lazy-loading heavy, rarely-used features behind `Suspense`. Profile before changing import styles. [Pattern](references/optimization-patterns.md#large-bundle-size).
+- **缺少圖片優化。** 每一張圖片都聲明了 `width` 和 `height` (CLS)。 LCP 圖片獲得 `fetchpriority="high"`，通過 `<picture>` 獲得現代格式（AVIF, WebP），通過 `srcset`/`sizes` 進行解析度切換；下方圖片獲得 `loading="lazy"` 和 `decoding="async"`。 [模式](references/optimization-patterns.md#missing-image-optimization-frontend)。
+- **不必要的重新渲染。** 在渲染中創建的物件或函式每次都會是新的引用，並且會重新渲染所有接收到它的子元素。提升常數；將 `React.memo` 和 `useMemo` 保留給分析顯示昂貴的工作，因為過度使用本身就是成本。 [模式](references/optimization-patterns.md#unnecessary-re-renders-react)。
+- **大型套件大小。** 現代打包器本身就對 ESM 名稱導入進行樹狀剪枝；真正的收益在於路由級別的代碼分割和在 `Suspense` 後面延遲載入不常使用的功能。在更改導入樣式之前進行分析。 [模式](references/optimization-patterns.md#large-bundle-size)。
 
-### Step 4: Verify (Keep or Revert)
+### 步驟 4：驗證（保留或回滾）
 
-A fix is a hypothesis until you re-measure. This step decides whether it survives.
+修復是一個假設，直到你重新衡量。此步驟決定了它是否能存活。
 
-**Re-measure the way you measured the baseline:** same command, same conditions, same fixed budget (wall-clock, sample count, or request count). A baseline taken on a cold cache against a result taken on a warm one measures the cache, not your change.
+**重新衡量你衡量基準線的方式：** 使用相同的命令、相同的條件、相同的限制（實際時間、樣本數或請求數）。在冷快取上獲取的基準線與在熱快取上獲取的結果衡量的是快取，而不是你的更改。
 
-**Change one thing at a time.** Three optimizations landed together produce one number, and you cannot attribute it. If they must ship together, measure each in isolation first.
+**一次只改變一件事。** 三個優化同時達成一個數字，你無法將其歸因。如果它們必須一起發布，請先單獨衡量它們。
 
-**Beat the noise, not just the mean.** Repeat the measurement and compare the delta against run-to-run variance. A 3% gain inside ±5% variance is not a gain; it is a different sample.
+**擊敗雜訊，而不僅僅是平均值。** 重複測量並將差異與運行間的變異性進行比較。在 ±5% 變異性內獲得 3% 的增益並不算增益；它只是另一個樣本。
 
-Then decide, strictly:
+然後嚴格決定：
 
-| Result vs. baseline | Action |
+| 結果與基準線比較 | 行動 |
 |---|---|
-| Past the threshold, tests green | **Keep.** Commit with the before/after numbers in the message. |
-| Within noise (no measurable change) | **Revert.** |
-| Worse | **Revert.** |
-| Improved, but a test went red | **Revert.** A regression wearing a win's clothing. |
+| 超過閾值，測試通過 | **保留。** 在訊息中附上前後數字進行提交。 |
+| 在雜訊範圍內（無可測量的變化） | **回滾。** |
+| 變差 | **回滾。** |
+| 改善，但某個測試變紅 | **回滾。** 一個勝利披著退步的外衣。 |
 
-**"Neutral" is a revert, not a keep.** This is the step teams skip: the change is already written, throwing it away feels wasteful, so it lands unmeasured, and the codebase accretes complexity that never bought anything. Code you keep, you maintain forever. Make it pay for itself.
+**「中立」是回滾，而不是保留。** 這是團隊跳過的一步：更改已經寫入，丟棄它感覺是浪費的，因此它未被衡量，並且代碼庫累積了從未獲得任何回報的複雜性。你保留的代碼，你將永遠維護它。讓它為自己付出代價。
 
-**Correctness gates the metric.** The suite stays green *and* the number moves. An "optimization" that wins by dropping work the product needed (skipping a validation, caching something that must be fresh, removing an `await` that was load-bearing) is a regression, not a win.
+**正確性決定了度量。** 套件保持綠色*並且*數字發生變化。一個以犧牲產品需要的工作（跳過驗證、快取必須保持最新的內容、移除負擔的 `await`）而贏得的「優化」，是一種退步，而不是勝利。
 
-#### Log every attempt, including the reverted ones
+#### 記錄每一次嘗試，包括回滾的嘗試
 
-Reverted work leaves no trace in git history, which is exactly why the same dead idea gets tried again next quarter. Keep a short ledger so a discarded idea stays discarded:
+回滾的更改不會在 git 歷史中留下任何痕跡，這正是為什麼同樣的死觀點會在下個季度再次嘗試。保持一個簡短的帳本，這樣被丟棄的想法就能保持被丟棄：
 
-| Idea | Baseline → Result | Verdict | Why |
+| 觀點 | 基準線 → 結果 | 判斷 | 原因 |
 |---|---|---|---|
-| Memoize the row component | INP 240ms → 235ms | reverted | Inside noise (±15ms). Rows weren't the bottleneck. |
-| Virtualize the list | INP 240ms → 90ms | kept | Long tasks gone from the trace. |
-| Preconnect to the API origin | LCP 2.8s → 2.8s | reverted | Already same-origin. |
+| 記憶化行組件 | INP 240ms → 235ms | 回滾 | 屬於雜訊（±15ms）。行組件不是瓶頸。 |
+| 虛擬化列表 | INP 240ms → 90ms | 保留 | 追蹤中消失了長時間任務。 |
+| 預連線到 API 來源 | LCP 2.8s → 2.8s | 回滾 | 已經是同源。 |
 
-A section in the PR description or a `PERF.md` in the repo both work. What matters is that the next person (or the next agent) reads it before proposing an experiment, and doesn't re-run one that already failed.
+PR 描述中的某個部分或儲存庫中的 `PERF.md` 都能奏效。重要的是下一個人（或下一個代理）在提出實驗之前閱讀它，並且不會重新運行已經失敗的實驗。
 
-### Step 5: Guard Against Regression
+### 步驟 5：防範退步
 
-Guard the metric the user actually feels, not every available number. Use the
-same LCP, INP, p95 latency, or other primary metric that justified the fix.
+保護用戶實際感受到的指標，而不是所有可用的數字。使用最初證明修復的 LCP、INP、p95 延遲或其他主要指標。
 
-Use two complementary layers when the surface is user-facing:
+當表面是面向用戶時，使用兩種互補的層級：
 
-- **Synthetic CI gate:** Catch reproducible regressions before merge with a
-  performance budget. Repeat noisy measurements or compare a median/trend so
-  normal run-to-run variance does not turn the gate into a flaky check.
-- **Field monitoring:** Alert on a meaningful p75 movement in RUM data. Use
-  attributed `web-vitals` data to locate the cause; treat CrUX's rolling window
-  as confirmation rather than an immediate alert.
+- **合成 CI 門：** 在合併之前捕獲可重現的退步，並設置效能預算。重複嘈雜的測量或比較中位數/趨勢，以防止正常的運行間變異性使門變成一個不可靠的檢查。
+- **現場監控：** 在 RUM 數據中對有意義的 p75 變動發出警報。使用歸因的 `web-vitals` 數據來定位原因；將 CrUX 的滾動窗口視為確認，而不是立即警報。
 
-When either guard fires, return to Step 1 and establish a fresh baseline before
-proposing another fix.
+當任一防護觸發時，請返回步驟 1，在提出另一個修復之前建立一個新的基準線。
 
-**Set budgets and enforce them:**
+**設置預算並強制執行：**
 
 ```
-JavaScript bundle: < 200KB gzipped (initial load)
-CSS: < 50KB gzipped
-Images: < 200KB per image (above the fold)
-Fonts: < 100KB total
-API response time: < 200ms (p95)
-Time to Interactive: < 3.5s on 4G
-Lighthouse Performance score: ≥ 90
+JavaScript 套件大小：< 200KB (壓縮後) (初始載入)
+CSS：< 50KB (壓縮後)
+圖片：< 200KB/張 (首屏)
+字體：< 100KB (總計)
+API 響應時間：< 200ms (p95)
+互動時間：在 4G 下 < 3.5s
+Lighthouse 效能分數：≥ 90
 ```
 
-**Enforce in CI:**
+**在 CI 中強制執行：**
 ```bash
-# Bundle size check
+# 套件大小檢查
 npx bundlesize --config bundlesize.config.json
 
 # Lighthouse CI
 npx lhci autorun
 ```
 
-## See Also
+## 相關參考
 
-For detailed performance checklists, optimization commands, and anti-pattern reference, see `../../references/performance-checklist.md`.
+有關詳細的效能檢查表、優化命令和反模式參考，請參閱 `../../references/performance-checklist.md`。
 
+## 常見合理化
 
-## Common Rationalizations
-
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "We'll optimize later" | Performance debt compounds. Fix obvious anti-patterns now, defer micro-optimizations. |
-| "It's fast on my machine" | Your machine isn't the user's. Profile on representative hardware and networks. |
-| "This optimization is obvious" | If you didn't measure, you don't know. Profile first. |
-| "Users won't notice 100ms" | Research shows 100ms delays impact conversion rates. Users notice more than you think. |
-| "The framework handles performance" | Frameworks prevent some issues but can't fix N+1 queries or oversized bundles. |
-| "The query is slow, add an index" | Read the plan first. The index may already exist and be unusable, and every index taxes writes forever. |
-| "Just cache it" | Caching an already-cheap call buys nothing and adds a staleness bug. Cache what is expensive *and* re-read far more than written. |
-| "Raise the pool size, we're running out of connections" | A pool bigger than the database can serve moves the queue somewhere less visible. Find what holds connections. |
-| "It didn't help much, but it doesn't hurt" | Neutral changes are a revert. You pay maintenance on them forever and got nothing back. |
-| "We already wrote it, may as well keep it" | Sunk cost. The measurement doesn't care how long the change took to write. |
-| "The improvement is obvious, no need to re-measure" | Then re-measuring is cheap and proves it. Unmeasured wins are how neutral complexity lands. |
+| 「我們稍後優化」 | 效能債務會累積。現在就修復明顯的反模式，延後微優化。 |
+| 「在我的機器上很快」 | 你的機器不是用戶的。在代表性的硬體和網路上進行分析。 |
+| 「這個優化很明顯」 | 如果你沒有衡量，你就不知道。先進行分析。 |
+| 「用戶不會注意到 100ms」 | 研究表明 100ms 的延遲會影響轉換率。用戶注意到的比你想像的更多。 |
+| 「框架處理效能」 | 框架可以防止一些問題，但無法修復 N+1 查詢或超大的套件。 |
+| 「查詢很慢，添加索引」 | 首先閱讀計劃。索引可能已經存在且無法使用，並且每個索引都會增加寫入的負擔。 |
+| 「只是快取它」 | 快取一個已經便宜的呼叫沒有帶來任何益處，反而引入了一個不一致的錯誤。快取那些昂貴的內容*並且*比寫入的次數多得多。 |
+| 「增加連線池大小，我們連線不足」 | 大於資料庫可以服務的連線池會將佇列移動到更難看到的某處。找出持有連線的對象。 |
+| 「它沒有幫助，但它沒有傷害」 | 中立的更改是回滾。你將永遠為它們付費維護，卻沒有獲得任何回報。 |
+| 「我們已經寫好了，就保留它吧」 | 沉沒成本。衡量不關心更改寫入花了多長時間。 |
+| 「改進很明顯，無需重新衡量」 | 那麼重新衡量是便宜的，並且可以證明它。未衡量的勝利就是中立複雜性落下的方式。 |
 
-## Red Flags
+## 警報標誌
 
-- Optimization without profiling data to justify it
-- N+1 query patterns in data fetching
-- An index added without a query plan before and after to justify it
-- A cache key that omits an input the response depends on (tenant, locale, viewer)
-- A cache with no stated staleness window and no invalidation strategy
-- Connection pool size raised in response to exhaustion, without finding what holds connections
-- List endpoints without pagination
-- Images without dimensions, lazy loading, or responsive sizes
-- Bundle size growing without review
-- No performance monitoring in production
-- `React.memo` and `useMemo` everywhere (overusing is as bad as underusing)
-- Optimizations kept without a re-measurement that justifies them
-- Several optimizations bundled into one measurement, so no single change can be attributed
-- A "win" that required a test to be changed, skipped, or deleted
-- The same failed optimization attempted more than once because nobody recorded the first attempt
+- 沒有效能數據來證明優化
+- 資料獲取中的 N+1 查詢模式
+- 在沒有前後查詢計劃的情況下添加的索引
+- 缺少響應依賴的輸入的快取鍵（租戶、地區、查看者）
+- 沒有說明不一致時間窗口和無失效策略的快取
+- 在耗盡的情況下增加連線池大小，而沒有找出持有連線的對象
+- 沒有分頁的列表端點
+- 沒有尺寸、惰性載入或響應式大小的圖片
+- 套件大小在沒有審查的情況下增長
+- 生產環境中沒有效能監控
+- 每個地方都使用 `React.memo` 和 `useMemo`（過度使用與使用不足一樣糟糕）
+- 保留的優化沒有經過證明其合理性的重新衡量
+- 多個優化被捆綁在一次衡量中，因此無法歸因於單一更改
+- 需要更改、跳過或刪除的「勝利」
+- 同一個失敗的優化被嘗試不止一次，因為沒有人記錄第一次嘗試
 
-## Verification
+## 驗證
 
-After any performance-related change:
+在任何效能相關的更改之後：
 
-- [ ] Before and after measurements exist (specific numbers)
-- [ ] The result was re-measured the same way as the baseline (same command, same conditions)
-- [ ] The improvement exceeds run-to-run variance, not just the mean
-- [ ] Changes that didn't beat the baseline were reverted, not kept as neutral
-- [ ] Attempts are logged, kept and reverted alike, so a dead idea isn't re-run
-- [ ] The specific bottleneck is identified and addressed
-- [ ] Core Web Vitals are within "Good" thresholds
-- [ ] Bundle size hasn't increased significantly
-- [ ] No N+1 queries in new data fetching code
-- [ ] Any new index is justified by a query plan before and after, and its write cost was considered
-- [ ] Any new cache states what it keys on and how it goes stale
-- [ ] The measured user-facing metric has a synthetic budget or field monitor that can detect regression
-- [ ] Existing tests still pass (optimization didn't break behavior)
+- [ ] 存在前後的衡量數據（具體數字）
+- [ ] 結果以與基準線相同的​​方式重新衡量（相同的命令、相同的條件）
+- [ ] 改善超過運行間變異性，而不僅僅是平均值
+- [ ] 沒有超過基準線的更改被回滾，而不是保留作為中立
+- [ ] 嘗試都被記錄，並被回滾，以確保死觀點不會被再次嘗試
+- [ ] 識別並解決了特定的瓶頸
+- [ ] 核心 Web Vitals 在「良好」的閾值內
+- [ ] 套件大小沒有顯著增加
+- [ ] 新的資料獲取代碼中沒有 N+1 查詢
+- [ ] 任何新的索引都經過前後查詢計劃的審查，並且考慮了其寫入成本
+- [ ] 任何新的快取狀態都說明了其鍵和如何失效
+- [ ] 衡量的面向用戶的指標有合成預算或現場監控可以檢測退步
+- [ ] 現有的測試仍然通過（優化沒有破壞行為）

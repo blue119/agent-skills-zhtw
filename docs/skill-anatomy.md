@@ -1,25 +1,25 @@
-# Skill Anatomy
+# 技能解剖學
 
-This document describes the structure and format of agent-skills skill files. Use this as a guide when contributing new skills or understanding existing ones.
+本文描述了代理技能檔案的結構和格式。在貢獻新技能或理解現有技能時，請以此為指南。
 
-## File Location
+## 檔案位置
 
-Every skill lives in its own directory under `skills/`:
+每個技能都位於 `skills/` 下的各自目錄中：
 
 ```
 skills/
   skill-name/
-    SKILL.md           # Required: The skill definition
-    scripts/           # Optional: Runnable helpers used by the skill workflow
-    references/        # Optional: Skill-specific reference documentation
-    supporting-file.md # Optional: Reference material loaded on demand
+    SKILL.md           # 必需：技能定義
+    scripts/           # 可選：技能工作流程中使用的可執行輔助程式
+    references/        # 可選：特定於技能的參考文件
+    supporting-file.md # 可選：按需載入的參考資料
 ```
 
-`SKILL.md` is the only required file. Add `scripts/` or `references/` only when the skill actually needs them, and omit them entirely for simpler skills.
+`SKILL.md` 是唯一必需的檔案。只有當技能確實需要它們時，才添加 `scripts/` 或 `references/`，對於更簡單的技能則完全省略它們。
 
-## SKILL.md Format
+## SKILL.md 格式
 
-### Frontmatter (Required)
+### 前置資料 (必需)
 
 ```yaml
 ---
@@ -28,176 +28,172 @@ description: Guides agents through [task/workflow]. Use when [specific trigger c
 ---
 ```
 
-**Rules:**
-- `name`: Lowercase, hyphen-separated. Must match the directory name.
-- `description`: Start with what the skill does in third person, then include one or more clear "Use when" trigger conditions. Include both *what* and *when*. Maximum 1024 characters.
-- Top-level keys are limited to the [Agent Skills specification](https://agentskills.io) fields: `name`, `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`. Vendor or runtime controls such as `model`, `tools`, `max_turns`, or `context` go under `metadata` or in a per-agent adapter file; see [docs/advanced-per-agent-configuration.md](advanced-per-agent-configuration.md). The validator rejects any other top-level key.
+**規則：**
+- `name`：小寫，由連字號分隔。必須與目錄名稱匹配。
+- `description`：以第三人稱描述技能的功能，然後包含一個或多個明確的「使用時」觸發條件。包含*什麼*和*何時*。最大 1024 個字元。
+- 頂層鍵僅限於 [代理技能規範](https://agentskills.io) 中的欄位：`name`、`description`、`license`、`compatibility`、`metadata` 和 `allowed-tools`。供應商或執行時控制，如 `model`、`tools`、`max_turns` 或 `context` 應放在 `metadata` 中或在每個代理的適配器檔案中；請參閱 [docs/advanced-per-agent-configuration.md](advanced-per-agent-configuration.md)。驗證器會拒絕任何其他頂層鍵。
 
-Published names are compatibility identifiers. In particular,
-`browser-testing-with-devtools` is the stable upstream name because other
-skills refer to it directly. A downstream catalog may rename it, but that
-catalog owns the alias or migration mapping; downstream-only aliases are not
-maintained in this repository.
+已發布的名稱是相容性識別碼。特別是，`browser-testing-with-devtools` 是穩定的上游名稱，因為其他技能直接引用它。下游目錄可能重新命名它，但該目錄擁有別名或遷移映射；此儲存庫中不維護下游專屬的別名。
 
-**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent both what the skill provides and when to activate it. Do not summarize the workflow — if the description contains process steps, the agent may follow the summary instead of reading the full skill.
+**這很重要：** 代理是透過閱讀描述來發現技能的。描述會被注入到系統提示中，因此它必須告訴代理技能提供了什麼以及何時要啟動它。不要總結工作流程——如果描述包含流程步驟，代理可能會根據總結而不是閱讀完整的技能來操作。
 
-### Standard Sections (Recommended Pattern)
+### 標準區段 (推薦模式)
 
-The frontmatter contract above is required. The section layout below is a recommended pattern, not a rigid template: equivalent headings are acceptable when they serve the same purpose clearly.
+上述前置資料合約是必需的。下方的區段佈局是一種推薦的模式，而非嚴格的模板：如果它們能清晰地服務於相同目的，則可接受等效的標題。
 
 ```markdown
-# Skill Title
+# 技能標題
 
-## Overview
-One-two sentences explaining what this skill does and why it matters.
+## 概述
+解釋此技能做了什麼以及它為何重要，兩到三句話。
 
-## When to Use
-- Bullet list of triggering conditions (symptoms, task types)
-- When NOT to use (exclusions)
+## 使用時
+- 觸發條件的項目清單（症狀、任務類型）
+- 不使用時（排除項）
 
-## [Core Process / The Workflow / Steps]
-The main workflow, broken into numbered steps or phases.
-Include code examples where they help.
-Use flowcharts (ASCII) where decision points exist.
+## [核心流程 / 工作流程 / 步驟]
+主要工作流程，分解為編號步驟或階段。
+包含有幫助的程式碼範例。
+在存在決策點時使用流程圖（ASCII）。
 
-## [Specific Techniques / Patterns]
-Detailed guidance for specific scenarios.
-Code examples, templates, configuration.
+## [特定技術 / 模式]
+針對特定場景的詳細指導。
+程式碼範例、模板、配置。
 
-## Common Rationalizations
-| Rationalization | Reality |
+## 常見合理化
+| 合理化 | 現實 |
 |---|---|
-| Excuse agents use to skip steps | Why the excuse is wrong |
+| 代理跳過步驟的藉口 | 藉口錯誤的原因 |
 
-## Red Flags
-- Behavioral patterns indicating the skill is being violated
-- Things to watch for during review
+## 警示信號
+- 表示技能被違反的行為模式
+- 審查期間需要注意的事項
 
-## Verification
-After completing the skill's process, confirm:
-- [ ] Checklist of exit criteria
-- [ ] Evidence requirements
+## 驗證
+完成技能流程後，確認：
+- [ ] 退出標準的檢查清單
+- [ ] 證據要求
 ```
 
-## Section Purposes
+### 區段目的
 
-### Overview
-The "elevator pitch" for the skill. Should answer: What does this skill do, and why should an agent follow it?
+### 概述
+技能的「電梯簡報」。應回答：這個技能做什麼，代理為何應該遵循它？
 
-### When to Use
-Helps agents and humans decide if this skill applies to the current task. Include both positive triggers ("Use when X") and negative exclusions ("NOT for Y").
+### 使用時
+幫助代理和人類決定此技能是否適用於當前的任務。包含正向觸發條件（「在 X 時使用」）和負向排除項（「不適用於 Y」）。
 
-### Core Process
-The heart of the skill. This is the step-by-step workflow the agent follows. Must be specific and actionable — not vague advice.
+### 核心流程
+技能的核心。這是代理遵循的逐步工作流程。必須具體且可操作——而不是模糊的建議。
 
-**Good:** "Run `npm test` and verify all tests pass"
-**Bad:** "Make sure the tests work"
+**好的：** 「執行 `npm test` 並驗證所有測試都通過」
+**壞的：** 「確保測試有效」
 
-### Common Rationalizations
-The most distinctive feature of well-crafted skills. These are excuses agents use to skip important steps, paired with rebuttals. They prevent the agent from rationalizing its way out of following the process.
+### 常見合理化
+良好設計的技能最顯著的特徵。這些是代理用來跳過重要步驟的藉口，配有反駁。它們能防止代理用合理化的方式逃避遵循流程。
 
-Think of every time an agent has said "I'll add tests later" or "This is simple enough to skip the spec" — those go here with a factual counter-argument.
+想到代理說「我稍後會添加測試」或「這足夠簡單可以跳過規範」的任何時候——這些都應放在這裡，並配有事實上的反駁。
 
-### Red Flags
-Observable signs that the skill is being violated. Useful during code review and self-monitoring.
+### 警示信號
+表示技能被違反的可觀察跡象。在程式碼審查和自我監控期間很有用。
 
-### Verification
-The exit criteria. A checklist the agent uses to confirm the skill's process is complete. Every checkbox should be verifiable with evidence (test output, build result, screenshot, etc.).
+### 驗證
+退出標準。代理用來確認技能流程完成的檢查清單。每個核取方塊都應能用證據（測試輸出、建置結果、螢幕截圖等）進行驗證。
 
-## Supporting Files
+## 輔助檔案
 
-Create supporting files only when:
-- Reference material exceeds 100 lines (keep the main SKILL.md focused)
-- Code tools or scripts are needed
-- Checklists are long enough to justify separate files
+僅在以下情況下創建輔助檔案：
+- 參考資料超過 100 行（保持主 `SKILL.md` 的重點）
+- 需要程式碼工具或腳本
+- 檢查清單足夠長，以證明需要單獨的檔案
 
-Keep patterns and principles inline when under 50 lines.
+如果少於 50 行，請將模式和原則內嵌。
 
-If a skill does not need runnable helpers, do not create an empty `scripts/` directory just to mirror other skills. Empty directories add noise without changing how the skill works.
+如果一個技能不需要可執行輔助程式，請不要僅為了模仿其他技能而創建一個空的 `scripts/` 目錄。空目錄會增加雜訊，而不會改變技能的工作方式。
 
-## Shared References
+## 共享參考資料
 
-Checklists used by more than one skill — testing, security, performance, accessibility, definition-of-done — live in `references/` at the repository root, deliberately *not* inside any skill directory.
+由多個技能使用的檢查清單——測試、安全、效能、無障礙、完成定義——位於儲存庫根目錄的 `references/` 中，故意*不*在任何技能目錄內部。
 
-This is a pack-level design choice. The Agent Skills spec describes a skill as a self-contained directory, but several skills here point at the same checklists. Colocating those would force one of two options: copy the checklist into every skill that uses it, or pick one skill to "own" it and have the others reach into that directory. Both drift over time. A single repo-root copy stays the source of truth.
+這是包級的設計選擇。代理技能規範將技能描述為一個自包含的目錄，但這裡的幾個技能指向相同的檢查清單。將它們放在一起會迫使以下兩種選擇之一：將檢查清單複製到每個使用它的技能中，或者選擇一個技能「擁有」它，讓其他技能可以進入該目錄。兩者都會隨著時間推移而產生漂移。單個儲存庫根目錄的複製保持了事實來源。
 
-The tradeoff is portability: a whole-repo install (such as the Claude Code marketplace plugin) carries `references/` along, but a per-skill install that copies only `skills/<name>/` leaves the repo-root sibling behind, and those links resolve to nothing. That gap is tracked in [#361](https://github.com/addyosmani/agent-skills/issues/361).
+權衡是可攜性：整個儲存庫安裝（如 Claude Code 市場插件）會攜帶 `references/`，但每個技能安裝只複製 `skills/<name>/` 的安裝會留下儲存庫根目錄的兄弟檔案，而這些連結指向無。這個差距在 [#361](https://github.com/addyosmani/agent-skills/issues/361) 中被追蹤。
 
-Current convention: material used by exactly one skill is a supporting file inside that skill's directory; material shared across skills goes in `references/`.
+當前慣例：僅由一個技能使用的資料是該技能目錄內的一個輔助檔案；跨技能共享的資料放在 `references/` 中。
 
-## Context Efficiency
+## 上下文效率
 
-Skills load on demand: only the skill name and description sit in context at startup. The full `SKILL.md` loads only when an agent decides the skill is relevant. To keep that load cheap:
+技能按需載入：只有技能名稱和描述在啟動時才出現在上下文中。完整的 `SKILL.md` 只在代理決定該技能相關時才載入。為保持載入成本低：
 
-- **Keep `SKILL.md` under 500 lines.** Move detailed reference material into supporting files.
-- **Write specific descriptions.** A precise description helps the agent activate the skill at the right moment and skip it otherwise.
-- **Use progressive disclosure.** Reference supporting files that are read only when the workflow reaches them.
-- **Prefer scripts over inline code.** Executing a script consumes no context; only its output does. Inline code blocks are paid for on every load.
-- **Keep file references one level deep.** Link directly from `SKILL.md` to supporting files rather than chaining through intermediate documents.
+- **將 `SKILL.md` 保持在 500 行以下。** 將詳細的參考資料移至輔助檔案中。
+- **撰寫具體的描述。** 精確的描述有助於代理在正確的時刻啟動技能，並在其他時候跳過它。
+- **使用漸進式揭露。** 僅在工作流程到達時才閱讀參考輔助檔案。
+- **優先使用腳本而非內嵌程式碼。** 執行腳本不消耗上下文；只消耗其輸出。內嵌程式碼區塊在每次載入時都會被計費。
+- **保持檔案參考層級不超過一層。** 直接從 `SKILL.md` 連結到輔助檔案，而不是通過中間文件鏈接。
 
-## Script Requirements
+## 腳本要求
 
-When a skill ships runnable helpers under `scripts/`, each script follows these conventions:
+當一個技能在 `scripts/` 下提供可執行輔助程式時，每個腳本遵循以下慣例：
 
-- Use a `#!/bin/bash` shebang.
-- Use `set -e` for fail-fast behavior.
-- Write status messages to stderr: `echo "Message" >&2`.
-- Write machine-readable output (JSON) to stdout.
-- Include a cleanup trap for temporary files.
-- Reference the script path as `skills/<skill-name>/scripts/<script>.sh` (repo-relative).
+- 使用 `#!/bin/bash` shebang。
+- 使用 `set -e` 以實現快速失敗行為。
+- 將狀態訊息寫入標準錯誤：`echo "Message" >&2`。
+- 將機器可讀的輸出（JSON）寫入標準輸出。
+- 包含一個用於臨時檔案的清理陷阱。
+- 將腳本路徑引用為 `skills/<skill-name>/scripts/<script>.sh`（相對於儲存庫）。
 
-## Writing Principles
+## 編寫原則
 
-1. **Process over knowledge.** Skills are workflows, not reference docs. Steps, not facts.
-2. **Specific over general.** "Run `npm test`" beats "verify the tests".
-3. **Evidence over assumption.** Every verification checkbox requires proof.
-4. **Anti-rationalization.** Every skip-worthy step needs a counter-argument in the rationalizations table.
-5. **Progressive disclosure.** Main SKILL.md is the entry point. Supporting files are loaded only when needed.
-6. **Token-conscious.** Every section must justify its inclusion. If removing it wouldn't change agent behavior, remove it.
-7. **Model-neutral.** Write the procedure, not the workaround. See [Write the Procedure, Not the Workaround](#write-the-procedure-not-the-workaround).
+1. **流程勝於知識。** 技能是工作流程，而不是參考文件。步驟，而非事實。
+2. **具體勝於一般。** 「執行 `npm test`」勝於「驗證測試」。
+3. **證據勝於假設。** 每個驗證核取方塊都需要證據。
+4. **反合理化。** 每個可以跳過的步驟都需要在合理化表中提供反駁。
+5. **漸進式揭露。** 主 `SKILL.md` 是入口點。輔助檔案僅在需要時載入。
+6. **注重 Token。** 每個區段都必須證明其包含的理由。如果移除它不會改變代理行為，就移除它。
+7. **模型中立。** 編寫程序，而不是變通方法。參見 [編寫程序，而非變通方法](#write-the-procedure-not-the-workaround)。
 
-## Write the Procedure, Not the Workaround
+## 編寫程序，而非變通方法
 
-Skills in this pack run on many agents and model generations. A step that exists because one model gets a specific call wrong is a liability on every other model: it constrains agents that would have solved the task directly, and it spends turns that stronger models need for the actual work. Cross-model transfer measurements ([WikiSkill, arXiv:2608.27454](https://arxiv.org/abs/2608.27454)) show skills authored against one model's execution failures can leave a stronger model performing *worse than with no skill at all*.
+此包中的技能在許多代理和模型生成中運行。一個步驟之所以存在是因為某個模型給出了特定的呼叫錯誤，這對所有其他模型來說都是一個負擔：它限制了那些本可以直接解決任務的代理，並佔用了更強大模型需要進行實際工作的回合。跨模型傳輸測量 ([WikiSkill, arXiv:2608.27454](https://arxiv.org/abs/2608.27454)) 表明針對單一模型執行失敗編寫的技能可能導致更強大模型表現得比完全沒有技能時還要差。
 
-**The rule:** if a step cannot be justified without naming a model, a model version, or one agent's private tool name, it belongs in an issue, not in a skill. Describe the capability ("run the focused test command", "write the file"), not the mechanism one runtime happens to expose (`run_command`, `write_to_file`).
+**規則：** 如果無法在不提及模型、模型版本或某個代理的私有工具名稱的情況下證明一個步驟，它就應該在問題中，而不是在技能中。描述能力（「執行聚焦測試指令」、「寫檔案」），而不是某個執行時恰好暴露的機制（`run_command`，`write_to_file`）。
 
-Two smells to check for before proposing skill content:
+在提出技能內容之前，需要檢查的兩個潛在問題：
 
-- **Over-specified mechanics.** Prescribing an exact command form or serialization detail where stating the goal alone would do. If the justification is "model X gets this wrong otherwise", it's a workaround, not a procedure.
-- **Fragmented diagnostics.** A multi-step inspection sequence where one step would confirm the same thing. Every extra step spends turns, and turn budget is finite.
+- **過度指定的機制。** 規定精確的指令形式或序列化細節，而僅僅說明目標就足夠了。如果理由是「模型 X 否則會這樣做錯誤」，那就是一個變通方法，而不是一個程序。
+- **碎片化的診斷。** 一個多步驟的檢查序列，其中一個步驟就能證實同樣的事實。每個額外的步驟都會消耗回合，而回合預算是有限的。
 
-This is about skill *content*; the portability of `references/` *paths* is a separate concern (see [Shared References](#shared-references)).
+這關乎技能*內容*；`references/` *路徑*的可攜性是另一個問題（參見 [共享參考資料](#shared-references)）。
 
-## Naming Conventions
+## 名稱慣例
 
-- Skill directories: `lowercase-hyphen-separated`
-- Skill files: `SKILL.md` (always uppercase)
-- Supporting files: `lowercase-hyphen-separated.md`
-- Shared references: stored in the root `references/` directory, not inside skill directories (see [Shared References](#shared-references) for why).
-- Skill-specific references: a single supporting doc can stay as a loose file in the skill directory (the `Supporting files` entry above); when several related docs travel with the skill, the emerging convention for self-contained, distributable skills is to group them in a `references/` directory inside the skill directory, so the skill carries its own supporting docs.
+- 技能目錄：`lowercase-hyphen-separated`
+- 技能檔案：`SKILL.md`（始終大寫）
+- 輔助檔案：`lowercase-hyphen-separated.md`
+- 共享參考資料：存放在根目錄的 `references/` 中，而不是在技能目錄內部（參見 [共享參考資料](#shared-references) 了解原因）。
+- 特定於技能的參考資料：一個輔助文件可以作為技能目錄中一個鬆散檔案保留（上述的「輔助檔案」條目）；當多個相關文件與技能一起傳遞時，自包含、可分發技能的出現慣例是將它們分組在技能目錄內的 `references/` 目錄中，這樣技能就攜帶了自己的輔助文件。
 
-## Cross-Skill References
+## 跨技能參考
 
-Reference other skills by name:
+透過名稱引用其他技能：
 
 ```markdown
-Follow the `test-driven-development` skill for writing tests.
-If the build breaks, use the `debugging-and-error-recovery` skill.
+遵循 `test-driven-development` 技能來編寫測試。
+如果建置失敗，請使用 `debugging-and-error-recovery` 技能。
 ```
 
-Don't duplicate content between skills — reference and link instead.
+不要在技能之間重複內容——請引用和連結。
 
-## Required vs Recommended
+## 必需與推薦
 
-Required:
+必需：
 
-- A `skills/<skill-name>/SKILL.md` file
-- Valid YAML frontmatter with `name` and `description`
-- A description that includes both what the skill does and when to use it
+- 一個 `skills/<skill-name>/SKILL.md` 檔案
+- 具有 `name` 和 `description` 的有效 YAML 前置資料
+- 一個包含技能功能和使用時的描述
 
-Recommended:
+推薦：
 
-- The standard section flow shown above
-- Equivalent headings such as `How It Works`, `Core Process`, or `Workflow` when they read more naturally for the skill
-- Supporting files only when they keep the main `SKILL.md` focused
+- 上述所示的標準區段流程
+- 當它們對技能來說更自然時的等效標題，例如 `How It Works`、`Core Process` 或 `Workflow`
+- 僅在它們能保持主 `SKILL.md` 的重點時才添加輔助檔案

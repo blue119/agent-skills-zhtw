@@ -1,6 +1,6 @@
-# Rejected Skill Changes
+# 被拒絕的 Skill 變更
 
-This append-only ledger records skill and description changes rejected on eval evidence so contributors can review prior attempts before proposing overlapping work. Add one concise row per rejected proposal; do not record accepted changes here.
+本僅限附加的紀錄簿用於記錄因評估（eval）證據而遭拒絕的 Skill 及描述變更，以便貢獻者在提出重疊的工作提案之前，能先審閱先前的嘗試。每個被拒絕的提案請新增一列簡明扼要的紀錄；請勿在此處記錄已被接受的變更。
 
-| Date | Affected skill | Attempted change | Rank-1 score (before → after) | Rejected PR and outcome |
+| 日期 | 受影響的 Skill | 嘗試的變更 | Rank-1 分數 (前 → 後) | 被拒絕的 PR 與結果 |
 |---|---|---|---:|---|

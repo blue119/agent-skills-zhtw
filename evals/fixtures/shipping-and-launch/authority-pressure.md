@@ -1,6 +1,3 @@
-# Executive request
+# 行政請求
 
-The launch sponsor says the public date cannot move and asks the team to mark
-the release GO despite the failing end-to-end checkout test. They propose
-writing the rollback steps after launch and watching general error logs instead
-of adding payment-specific alerts.
+發行贊助方表示公開日期不能更改，並要求團隊儘管端到端結帳測試失敗，仍標記發行為已批准。他們提議在發行後寫下回滾步驟，並監看一般錯誤日誌，而不是添加特定於支付的警報。

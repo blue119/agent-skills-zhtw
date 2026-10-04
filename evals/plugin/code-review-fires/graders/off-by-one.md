@@ -2,6 +2,6 @@
 type: llm
 ---
 
-PASS if the review points out that `rows.slice(start, start + size - 1)` returns one row fewer than `size` on every page (the end index of slice is exclusive) and treats it as something that must be fixed before merge, for example by labelling it Critical or leaving it unprefixed as a required change.
+如果審查指出 `rows.slice(start, start + size - 1)` 在每一頁上返回的行數比 `size` 少一行（切片的結束索引是排他的），並將其視為合併前必須修復的內容，例如標記為 Critical 或保持未加前綴作為必需的更改。
 
-FAIL if the review does not mention that pages come back one row short, or files that finding as a Nit, Optional, Consider, or FYI.
+如果審查沒有提到頁面少了一行，或者文件被標記為 Nit、Optional、Consider 或 FYI。

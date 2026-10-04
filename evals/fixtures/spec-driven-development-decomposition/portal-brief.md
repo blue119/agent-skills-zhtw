@@ -1,22 +1,16 @@
-# Customer portal — product brief
+# 客戶入口網站 — 產品簡報
 
-Leadership wants a self-serve customer portal shipped as one initiative. The
-request, as handed down:
+領導層希望將自助服務客戶入口網站作為一個專案來交付。該要求如下：
 
-- Customers sign in with email/password or company SSO and manage their
-  account and team members.
-- Customers pick a plan, enter payment details, and receive monthly invoices;
-  plan changes prorate.
-- Customers get email notifications for invoices, payment failures, and team
-  invitations; enterprise customers can register webhooks for the same events.
-- Admins see a usage dashboard: seats, API calls, and spend per month.
+- 客戶使用電子郵件/密碼或公司 SSO 登入，管理他們的帳戶和團隊成員。
+- 客戶選擇方案、輸入付款詳細資料並收到每月發票；方案更改按比例計算。
+- 客戶會收到關於發票、付款失敗和團隊邀請的電子郵件通知；企業客戶可以為相同事件註冊 Webhook。
+- 管理員可以查看使用儀表板：座位數、API 呼叫次數和每月支出。
 
-Constraints gathered so far:
+迄今收集到的限制：
 
-- Billing must know who the customer is, so it depends on account data.
-- Notifications fire on billing and account events.
-- The dashboard reads from billing and notification delivery records.
-- The four areas have different reviewers: platform owns accounts, finance
-  owns billing, and growth owns notifications and the dashboard.
-- Each area should be shippable and verifiable on its own; finance wants to
-  sign off on billing without waiting for the dashboard.
+- 計費部門必須知道客戶是誰，因此它取決於帳戶資料。
+- 通知在計費和帳戶事件發生時觸發。
+- 儀表板從計費和通知傳送記錄中讀取資料。
+- 四個領域有不同的審核者：平台擁有帳戶，財務擁有計費，增長部門擁有通知和儀表板。
+- 每個領域都應該可以獨立交付和驗證；財務部門希望在等待儀表板的情況下批准計費。

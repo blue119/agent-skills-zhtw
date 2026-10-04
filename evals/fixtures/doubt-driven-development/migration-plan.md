@@ -1,19 +1,18 @@
-# Customer identifier migration
+# 客戶識別碼遷移
 
-Plan: replace integer customer IDs with UUIDs in a single maintenance window.
+計畫：在單一維護視窗內，用 UUID 替換整數客戶 ID。
 
-1. Disable writes.
-2. Run `ALTER TABLE customers DROP COLUMN id CASCADE`.
-3. Add a UUID `id` column and populate it.
-4. Re-enable writes after fifteen minutes.
+1. 禁用寫入。
+2. 執行 `ALTER TABLE customers DROP COLUMN id CASCADE`。
+3. 新增一個 UUID `id` 欄位並填充其值。
+4. 十五分鐘後重新啟用寫入。
 
-Claims made by the author:
+作者聲明：
 
-- All foreign keys will be recreated automatically.
-- The table contains fewer than one million rows.
-- The operation completes within the maintenance window.
-- The backup from last night is sufficient rollback protection.
-- No external systems persist the integer identifier.
+- 所有外鍵將會自動重建。
+- 表格中的記錄少於一百萬筆。
+- 操作在維護視窗內完成。
+- 昨晚的備份足以提供回滾保護。
+- 沒有外部系統保留整數識別碼。
 
-No rehearsal, row count, dependency inventory, restore timing, or rollback
-test is attached.
+未附有任何演練、記錄數、依賴項清單、還原時間或回滾測試。

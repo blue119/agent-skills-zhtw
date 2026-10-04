@@ -1,6 +1,3 @@
-# Login regression report
+# 登入迴歸報告
 
-The login page began returning HTTP 500 after yesterday's deployment. The
-request reaches the authentication callback, then fails before a session cookie
-is written. There is no confirmed root cause yet. The user asked for help
-getting login working again, not for a new authentication design.
+登入頁面在昨天的部署後開始回傳 HTTP 500。請求到達身份驗證回呼，但在寫入會話 Cookie 之前就失敗了。尚未確認根本原因。使用者要求協助讓登入恢復運作，而不是要求新的身份驗證設計。

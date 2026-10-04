@@ -1,10 +1,9 @@
-# Bug report: cents lost on three-way splits
+# Bug 報告：三方分割時損失的紅點
 
-From finance reconciliation (ticket FIN-482):
+從財務對帳 (票號 FIN-482) 中：
 
-> Splitting $100.00 three ways returns `[3333, 3333, 3333]`. That sums to
-> $99.99, one cent short. Reconciliation flags every three-way invoice we
-> processed this month.
+> 將 $100.00 分成三份返回 `[3333, 3333, 3333]`。這總和為
+> $99.99，少了一個紅點。對帳標記了我們本月處理的每一張三方發票。
 
-Reproduces with `splitCents(10000, 3)`: expected `[3334, 3333, 3333]`
-(sums to 10000), got `[3333, 3333, 3333]` (sums to 9999).
+使用 `splitCents(10000, 3)` 重現：預期結果是 `[3334, 3333, 3333]`
+（總和為 10000），但實際得到的是 `[3333, 3333, 3333]`（總和為 9999）。

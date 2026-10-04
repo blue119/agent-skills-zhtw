@@ -1,8 +1,7 @@
-# CSV export plan
+# CSV 匯出計畫
 
-1. Add a pure report-to-CSV formatter with unit tests.
-2. Add a download adapter that uses the formatter.
-3. Wire an Export button to the reports page.
+1. 新增一個純粹的報告到 CSV 格式化器，並附帶單元測試。
+2. 新增一個使用該格式化器的下載適配器。
+3. 將匯出按鈕連接到報告頁面。
 
-Each task must be independently verified and committed before starting the
-next. Existing report filtering behavior must remain unchanged.
+每個任務必須在開始下一個任務之前獨立驗證並提交。現有的報告篩選行為必須保持不變。

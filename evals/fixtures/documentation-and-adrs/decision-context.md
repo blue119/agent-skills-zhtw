@@ -1,16 +1,11 @@
-# Orders architecture decision context
+# 訂單架構決策背景
 
-The orders service currently stores mutable order rows and emits best-effort
-webhooks. Auditors need a complete history of state transitions, and support
-must be able to reconstruct an order at a prior point in time.
+訂單服務目前儲存可變的訂單列，並發出盡力而為的 Webhook。稽核人員需要狀態轉換的完整歷史記錄，並且支援必須能夠在先前時間點重建訂單。
 
-Options discussed:
+討論的選項：
 
-1. Keep the current model and add an append-only audit table.
-2. Adopt event sourcing for orders and build read projections.
-3. Use database change-data capture as the audit history.
+1. 保留目前的模型並新增一個只追加的審核表。
+2. 為訂單採用事件溯源並建立讀取投影。
+3. 使用資料庫變更資料擷取作為審核歷史。
 
-Event sourcing improves traceability and replay, but adds projection rebuilds,
-event versioning, eventual consistency, and operational complexity. The team
-has event-stream experience, but the reporting service expects synchronous
-reads. The decision applies only to the orders bounded context.
+事件溯源改善了可追溯性和重放能力，但增加了投影重建、事件版本控制、最終一致性和操作複雜性。團隊有事件流的經驗，但報告服務期望同步讀取。此決策僅適用於訂單的邊界上下文。

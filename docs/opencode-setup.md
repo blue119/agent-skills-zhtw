@@ -1,67 +1,67 @@
-# OpenCode Setup
+# OpenCode 設定
 
-This guide explains how to use Agent Skills with OpenCode. The reusable assets are the markdown skills in the `skills/` directory; the root `AGENTS.md` file in this repository is repo-scoped and should not be copied into other projects.
+本指南解釋如何使用 OpenCode 中的 Agent Skills。可重複使用的資產是 `skills/` 目錄中的 markdown 技能；此儲存庫的根目錄 `AGENTS.md` 是針對儲存庫範圍的，不應複製到其他專案中。
 
-## Overview
+## 概述
 
-OpenCode discovers skills from several locations. Agent Skills provides two optional usage styles:
+OpenCode 從多個位置發現技能。Agent Skills 提供兩種可選的使用風格：
 
-- **Agent-driven workflow:** skills are selected automatically via the built-in `skill` tool and a project-local `AGENTS.md` that you write for your own repository.
-- **Command-driven workflow:** manually invoke lifecycle commands with `.opencode/commands/` (optional).
+- **Agent 驅動工作流程：** 技能透過內建的 `skill` 工具和您為自己儲存庫撰寫的專案本地 `AGENTS.md` 自動選擇。
+- **指令驅動工作流程：** 手動使用 `.opencode/commands/`（可選）來呼叫生命週期指令。
 
-## Installation
+## 安裝
 
-There are two ways to get the skills into your project:
+有兩種方法將技能導入您的專案：
 
-1. Install with the `skills` CLI (fastest).
-2. Clone this repository and copy the skill directories manually.
+1. 使用 `skills` CLI 安裝（最快）。
+2. 克隆此儲存庫並手動複製技能目錄。
 
-After either step, create your own project-local `AGENTS.md` and, if you want them, copy the `.opencode/commands/*.md` files.
+在完成任一步驟後，建立您自己的專案本地 `AGENTS.md`，如果您需要，請複製 `.opencode/commands/*.md` 文件。
 
-### Option 1: Install with `npx skills`
+### 選項 1：使用 `npx skills` 安裝
 
-The fastest path is the open [`skills` CLI](https://github.com/vercel-labs/skills):
+最快的路徑是使用公開的 [`skills` CLI](https://github.com/vercel-labs/skills)：
 
 ```bash
-npx skills add addyosmani/agent-skills            # install selected skills
-npx skills add addyosmani/agent-skills --list     # browse before installing
+npx skills add addyosmani/agent-skills            # 安裝選定的技能
+npx skills add addyosmani/agent-skills --list     # 安裝前瀏覽
 ```
 
-Install a single skill:
+安裝單個技能：
 
 ```bash
 npx skills add addyosmani/agent-skills --skill spec-driven-development
 ```
 
-By default `npx skills` installs into a tool-specific directory (often `.claude/skills/` or a shared location). OpenCode will discover skills placed there because it reads `.claude/skills/<name>/SKILL.md` and the generic `.agents/skills/<name>/SKILL.md` paths.
+預設情況下，`npx skills` 會安裝到特定工具的目錄中（通常是 `.claude/skills/` 或共用位置）。OpenCode 會發現這些技能，因為它會讀取 `.claude/skills/<name>/SKILL.md` 和通用的 `.agents/skills/<name>/SKILL.md` 路徑。
 
-If the skills land somewhere OpenCode does not scan, copy or symlink them into one of the discovery paths listed below, for example:
+如果技能被放置在 OpenCode 不掃描的某處，請將它們複製或建立符連結到以下發現路徑之一，例如：
 
 ```bash
 mkdir -p .opencode/skills
 cp -r .claude/skills/<skill-name> .opencode/skills/
 ```
 
-> **Note:** Per-skill installs copy only the skill directory itself. If a skill references shared files under `references/`, copy those into the installed skill directory or install the whole pack. See [#361](https://github.com/addyosmani/agent-skills/issues/361) for background.
+> **注意：** 每個技能的安裝僅複製技能目錄本身。如果一個技能引用 `references/` 下的共用文件，您可能需要將它們複製到已安裝的技能目錄中，或安裝整個套件。請參閱 [#361](https://github.com/addyosmani/agent-skills/issues/361) 以了解背景資訊。
 
-### Option 2: Clone this repository
+### 選項 2：克隆此儲存庫
 
-1. Clone the repository:
+1. 克隆儲存庫：
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
 ```
 
-2. Copy the desired skills into one of the OpenCode skill discovery paths.
+2. 將所需的技能複製到 OpenCode 的技能發現路徑之一。
 
-#### Project-local installation
+#### 專案本地安裝
 
 ```bash
 mkdir -p .opencode/skills
 cp -r /path/to/agent-skills/skills/<skill-name> .opencode/skills/
 ```
 
-For example, to install `spec-driven-development` and `incremental-implementation`:
+例如，要安裝 `spec-driven-development` 和 `incremental-implementation`：
 
 ```bash
 mkdir -p .opencode/skills
@@ -69,77 +69,77 @@ cp -r /path/to/agent-skills/skills/spec-driven-development .opencode/skills/
 cp -r /path/to/agent-skills/skills/incremental-implementation .opencode/skills/
 ```
 
-#### Global installation
+#### 全域安裝
 
 ```bash
 mkdir -p ~/.config/opencode/skills
 cp -r /path/to/agent-skills/skills/<skill-name> ~/.config/opencode/skills/
 ```
 
-#### Cross-compatible paths
+#### 跨相容路徑
 
-OpenCode also discovers skills placed in Claude-compatible or generic agent paths:
+OpenCode 還會發現放置在 Claude 相容或通用代理路徑中的技能：
 
 - `.claude/skills/<name>/SKILL.md`
 - `~/.claude/skills/<name>/SKILL.md`
 - `.agents/skills/<name>/SKILL.md`
 - `~/.agents/skills/<name>/SKILL.md`
 
-If you already share skills across Claude Code and OpenCode, any of these locations work.
+如果您已經在 Claude Code 和 OpenCode 之間共享技能，則以上任何位置都適用。
 
-### What to copy
+### 應複製的內容
 
-Copy the directories under `skills/` (for example `skills/spec-driven-development/`). Each directory must contain a `SKILL.md` file. Do not copy the repository's root `AGENTS.md` or `CLAUDE.md`; those files configure development of this repository itself.
+複製 `skills/` 下的目錄（例如 `skills/spec-driven-development/`）。每個目錄必須包含一個 `SKILL.md` 文件。請不要複製儲存庫的根目錄 `AGENTS.md` 或 `CLAUDE.md`；這些文件配置的是該儲存庫本身的開發。
 
-## Project `AGENTS.md`
+## 專案 `AGENTS.md`
 
-Create an `AGENTS.md` in **your own project** root. This is the system prompt that tells OpenCode when and how to invoke the installed skills. Unlike the repo-scoped `AGENTS.md` in `addyosmani/agent-skills`, this file belongs to your project and should be adapted to your stack.
+在**您自己的專案**根目錄中建立一個 `AGENTS.md`。這是告訴 OpenCode 何時以及如何呼叫已安裝的技能的系統提示。與 `addyosmani/agent-skills` 中的儲存庫範圍 `AGENTS.md` 不同，此文件屬於您的專案，應根據您的技術棧進行調整。
 
-Below is a template you can paste into your project's `AGENTS.md`:
+以下是一個您可以貼入專案 `AGENTS.md` 的範本：
 
 ```markdown
 # Agent Skills (OpenCode)
 
-This project uses skills installed under `.opencode/skills/` (or a compatible path).
+此專案使用安裝在 `.opencode/skills/`（或相容路徑）下的技能。
 
-## Core Rules
+## 核心規則
 
-- If a task matches a skill, invoke it with the `skill` tool before acting.
-- Skills are located in `.opencode/skills/<skill-name>/SKILL.md`.
-- Follow the skill workflow strictly; do not partially apply it.
-- Never skip required steps such as spec, plan, or test when a skill demands them.
+- 如果任務與某個技能匹配，則在採取行動前使用 `skill` 工具呼叫它。
+- 技能位於 `.opencode/skills/<skill-name>/SKILL.md`。
+- 嚴格遵循技能工作流程；不要部分應用它。
+- 當技能要求時，絕不跳過必要的步驟，例如規格、規劃或測試。
 
-## Intent → Skill Mapping
+## 意圖 → 技能對應
 
-Map the user's intent to the matching skill automatically:
+自動將使用者的意圖映射到匹配的技能：
 
-- Feature / new functionality → `spec-driven-development`, then `incremental-implementation` and `test-driven-development`
-- Planning / breakdown → `planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring / simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
-- UI work → `frontend-ui-engineering`
+- 功能/新功能 → `spec-driven-development`，然後是 `incremental-implementation` 和 `test-driven-development`
+- 規劃/分解 → `planning-and-task-breakdown`
+- Bug/失敗/意外行為 → `debugging-and-error-recovery`
+- 代碼審查 → `code-review-and-quality`
+- 重構/簡化 → `code-simplification`
+- API 或介面設計 → `api-and-interface-design`
+- UI 工作 → `frontend-ui-engineering`
 
-## Execution Model
+## 執行模型
 
-For every request:
+對於每一個請求：
 
-1. Determine if any skill applies (even a small chance).
-2. Load the skill with `skill({ name: "<skill-name>" })`.
-3. Follow the skill workflow exactly.
-4. Only proceed to implementation once required steps are complete.
+1. 確定是否有任何技能適用（即使是小概率）。
+2. 使用 `skill({ name: "<skill-name>" })` 加載該技能。
+3. 精確遵循技能工作流程。
+4. 僅在所需步驟完成後才進行實施。
 ```
 
-Save this as `AGENTS.md` in your project root. OpenCode will load it automatically.
+將此內容儲存為專案根目錄中的 `AGENTS.md`。OpenCode 將自動載入它。
 
-> **Note:** The root `AGENTS.md` inside the `addyosmani/agent-skills` repository is intended for contributors working on this repository and should not be copied into other projects. See [CONTRIBUTING.md](../CONTRIBUTING.md#repo-scoped-files).
+> **注意：** `addyosmani/agent-skills` 儲存庫中的根 `AGENTS.md` 是供在此儲存庫中工作的貢獻者使用的，不應複製到其他專案中。請參閱 [CONTRIBUTING.md](../CONTRIBUTING.md#repo-scoped-files)。
 
-## How It Works
+## 工作原理
 
-### 1. Skill Discovery
+### 1. 技能發現
 
-OpenCode walks the following paths (project-local first, then global):
+OpenCode 會遍歷以下路徑（優先考慮專案本地，然後是全域）：
 
 - `.opencode/skills/<name>/SKILL.md`
 - `~/.config/opencode/skills/<name>/SKILL.md`
@@ -148,112 +148,112 @@ OpenCode walks the following paths (project-local first, then global):
 - `.agents/skills/<name>/SKILL.md`
 - `~/.agents/skills/<name>/SKILL.md`
 
-Each skill must contain a `SKILL.md` file with a valid `name` and `description` in its frontmatter.
+每個技能必須在它的前置元數據中包含一個有效的 `name` 和 `description`。
 
-### 2. Automatic Skill Invocation
+### 2. 自動技能呼叫
 
-When your project's `AGENTS.md` instructs the agent to use skills, the agent evaluates every request and maps it to the appropriate skill.
+當您專案的 `AGENTS.md` 指示代理使用技能時，代理會評估每一個請求並將其映射到適當的技能。
 
-Examples:
+範例：
 
-- "build a feature" → `incremental-implementation` + `test-driven-development`
-- "design a system" → `spec-driven-development`
-- "fix a bug" → `debugging-and-error-recovery`
-- "review this code" → `code-review-and-quality`
+- "建立一個功能" → `incremental-implementation` + `test-driven-development`
+- "設計一個系統" → `spec-driven-development`
+- "修復一個 Bug" → `debugging-and-error-recovery`
+- "審查這段代碼" → `code-review-and-quality`
 
-### 3. Lifecycle Mapping (Implicit Commands)
+### 3. 生命週期對應（隱式指令）
 
-OpenCode does not require slash commands, but if you prefer them see the next section. In agent-driven mode the lifecycle is mapped implicitly:
+OpenCode 不需要斜線指令，但如果您偏好使用它們，請參閱下一節。在代理驅動模式下，生命週期是隱式映射的：
 
-- DEFINE → `spec-driven-development`
-- PLAN → `planning-and-task-breakdown`
-- BUILD → `incremental-implementation` + `test-driven-development`
-- VERIFY → `debugging-and-error-recovery`
-- REVIEW → `code-review-and-quality`
-- SHIP → `shipping-and-launch`
+- 定義 (DEFINE) → `spec-driven-development`
+- 規劃 (PLAN) → `planning-and-task-breakdown`
+- 建置 (BUILD) → `incremental-implementation` + `test-driven-development`
+- 驗證 (VERIFY) → `debugging-and-error-recovery`
+- 審查 (REVIEW) → `code-review-and-quality`
+- 發布 (SHIP) → `shipping-and-launch`
 
-### Copy the optional slash commands
+### 複製可選的斜線指令
 
-If you prefer explicit commands, copy the example command files from this repository into your project and adjust them to invoke the skills you installed:
+如果您偏好明確的指令，請將此儲存庫中的範例指令文件複製到您的專案中，並將它們調整為呼叫您安裝的技能：
 
 ```bash
 mkdir -p .opencode/commands
 cp /path/to/agent-skills/.opencode/commands/*.md .opencode/commands/
 ```
 
-> **Note:** The repository currently does not include `.opencode/commands/*.md` on `main`. You can create your own command files or watch PR #200, which proposes adding them. Once they exist, the pattern above applies.
+> **注意：** 該儲存庫的 `main` 分支目前不包含 `.opencode/commands/*.md`。您可以建立自己的指令文件，或關注 PR #200，該 PR 提議添加它們。一旦它們存在，上述模式就適用。
 
-A typical command file looks like:
+一個典型的指令文件看起來像這樣：
 
 ```markdown
 ---
-description: Break work into small verifiable tasks
+description: 將工作分解為可驗證的小任務
 ---
 
-Invoke the planning-and-task-breakdown skill. Read the spec and create tasks with acceptance criteria.
+呼叫 planning-and-task-breakdown 技能。閱讀規格並建立具有驗收標準的任務。
 ```
 
-Save it as `.opencode/commands/plan.md` to enable `/plan` in OpenCode.
+將其儲存為 `.opencode/commands/plan.md` 以在 OpenCode 中啟用 `/plan`。
 
-## Usage Examples
+## 使用範例
 
-### Example 1: Feature Development
+### 範例 1：功能開發
 
-User:
+使用者：
 ```
-Add authentication to this app
-```
-
-Agent behavior:
-- Detects feature work
-- Invokes `spec-driven-development`
-- Produces a spec before writing code
-- Moves to planning and implementation skills
-
-### Example 2: Bug Fix
-
-User:
-```
-This endpoint is returning 500 errors
+為這個應用程式新增身份驗證
 ```
 
-Agent behavior:
-- Invokes `debugging-and-error-recovery`
-- Reproduces → localizes → fixes → adds guards
+代理行為：
+- 偵測到功能工作
+- 呼叫 `spec-driven-development`
+- 在編寫代碼前產生規格
+- 轉向規劃和實施技能
 
-### Example 3: Code Review
+### 範例 2：修復 Bug
 
-User:
+使用者：
 ```
-Review this PR
+這個端點回傳 500 錯誤
 ```
 
-Agent behavior:
-- Invokes `code-review-and-quality`
-- Applies structured review (correctness, design, readability, etc.)
+代理行為：
+- 呼叫 `debugging-and-error-recovery`
+- 重現 → 定位 → 修復 → 添加保護措施
 
-## Agent Expectations
+### 範例 3：代碼審查
 
-For OpenCode to work correctly, the agent should:
+使用者：
+```
+審查這個 PR
+```
 
-- Always check if a skill applies before acting
-- Use the `skill` tool to load the skill when it applies
-- Never skip required workflows (spec, plan, test, etc.)
-- Not jump directly to implementation
+代理行為：
+- 呼叫 `code-review-and-quality`
+- 應用結構化審查（正確性、設計、可讀性等）
 
-These rules are enforced by your project's `AGENTS.md`, not by the copy of the skill itself.
+## 代理期望
 
-## Limitations
+為了讓 OpenCode 正確運作，代理應該：
 
-- Skill invocation depends on model compliance.
-- OpenCode does not install skills automatically; copy or install the directories you need.
-- If a skill references files under `references/`, you may need to copy those as well when installing manually.
+- 在採取行動前始終檢查是否有技能適用
+- 當技能適用時，使用 `skill` 工具來載入該技能
+- 絕不跳過必要的流程（規格、規劃、測試等）
+- 不直接跳到實施
 
-## Summary
+這些規則是由您專案的 `AGENTS.md` 執行的，而不是由技能本身。
 
-1. Install the skills you need, either with `npx skills add addyosmani/agent-skills` or by copying them from a clone of this repository into `.opencode/skills/` (project), `~/.config/opencode/skills/` (global), or a cross-compatible path such as `.claude/skills/` / `.agents/skills/`.
-2. Create your own project-local `AGENTS.md` with the rules and intent mapping above.
-3. OpenCode discovers the skills and your `AGENTS.md` guides the agent to invoke them.
-4. Optionally add `.opencode/commands/*.md` for explicit slash commands.
+## 限制
 
-This keeps the reusable assets (skills) separate from the repository-specific configuration (the `addyosmani/agent-skills` root `AGENTS.md`).
+- 技能呼叫取決於模型的相容性。
+- OpenCode 不會自動安裝技能；請複製或安裝您需要的目錄。
+- 如果一個技能引用 `references/` 下的文件，在手動安裝時您可能需要複製這些文件。
+
+## 總結
+
+1. 安裝您需要的技能，方法是使用 `npx skills add addyosmani/agent-skills`，或從此儲存庫的克隆中複製它們到 `.opencode/skills/`（專案）、`~/.config/opencode/skills/`（全域），或相容的路徑，例如 `.claude/skills/` / `.agents/skills/`。
+2. 建立您自己的專案本地 `AGENTS.md`，包含上述規則和意圖映射。
+3. OpenCode 發現技能，而您的 `AGENTS.md` 指引代理呼叫它們。
+4. 可選地添加 `.opencode/commands/*.md` 以啟用明確的斜線指令。
+
+這將可重複使用的資產（技能）與儲存庫特定的配置（`addyosmani/agent-skills` 的根 `AGENTS.md`）分開。

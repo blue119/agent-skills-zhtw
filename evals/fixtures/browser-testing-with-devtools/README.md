@@ -1,5 +1,3 @@
-# Signup reproduction
+# 註冊重現
 
-Run `node server.js`, open `http://127.0.0.1:4173`, enter an email, and submit
-the form. The report should be based on runtime console, network, and DOM
-evidence.
+執行 `node server.js`，開啟 `http://127.0.0.1:4173`，輸入電子郵件，並提交表單。報告應基於執行時控制台、網路和 DOM 證據。

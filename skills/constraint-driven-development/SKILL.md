@@ -1,173 +1,172 @@
 ---
 name: constraint-driven-development
-description: Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says "set up constraints" or "define our standards", when the user wants dimensions they care about — accessibility, web performance, coverage — set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read.
+description: 建立專案的品質標準作為書面合約，並阻止代理悄悄地降低它。向使用者詢問哪些維度是重要的，在他們沒有具體數字時提供合理的預設閾值，在 CONSTRAINTS.md 中記錄所有內容，並監控差異以發現標準的削弱——新的 @ts-ignore 或 eslint-disable 抑制、跳過的或刪除的測試、被移除的斷言、未實作的存根、被降低的閾值。在沒有書面品質標準時使用，當使用者說「設定約束」或「定義我們的標準」時使用，當使用者想要他們關心的維度——如無障礙性、網頁效能、覆蓋率——時將其設定為強制約束，當代理持續靜音檢查或跳過測試以達到綠色時使用，當你需要一個覆蓋率或效能閾值但不知道該選哪個數字時使用，或者當代理寫的程式碼比任何人都能閱讀的時使用。
 ---
 
-# Constraint-Driven Development
+# 基於約束的開發
 
-## Overview
+## 概述
 
-Other skills in this pack describe what good looks like. `code-review-and-quality` gives you five axes. `test-driven-development` gives you a cycle. `security-and-hardening` gives you a threat list. All of that lives in prose the agent reads and may or may not follow, and none of it survives the end of the session.
+這個套件中的其他技能描述了「好」的樣子。`code-review-and-quality` 提供了五個軸線。`test-driven-development` 提供了一個循環。`security-and-hardening` 提供了威脅清單。所有這些都存在於代理閱讀並可能遵循的散文之中，並且在會話結束時，沒有任何內容能倖存下來。
 
-This skill produces something different: a written record of **this project's** bar, with numbers, that outlives the conversation and can be checked mechanically.
+這個技能產生了不同的東西：一個包含數字的、關於**這個專案**標準的書面記錄，它能超越對話並可以被機械地檢查。
 
-The reason matters. When you wrote the code, reading it told you whether it was any good. An agent writes more in an afternoon than you will read that week, so the judgement moves out of your head and into checks that run around the loop. Those checks need to exist, they need numbers you actually chose, and they need to fire close enough to the work that the agent fixes its own output.
+原因很重要。當你編寫程式碼時，閱讀它會告訴你它是否很好。一個代理在一天內寫的程式碼，你可能不會在該週閱讀，因此判斷從你的腦中移出，進入到圍繞循環運行的檢查中。這些檢查需要存在，需要你實際選擇的數字，並且需要發出足夠的信號，讓代理修正自己的輸出。
 
-Spec-driven development says what to build. Test-driven development proves it works. Constraint-driven development defines what "good enough to ship" means, before anyone argues about it in a pull request.
+規格驅動的開發說明要建什麼。測試驅動的開發證明它有效。基於約束的開發定義了什麼是「足夠發布」的含義，在有人在拉取請求中爭論之前。
 
-## When to Use
+## 何時使用
 
-Apply this skill when:
+在以下情況下應用此技能：
 
-- Starting a project or a significant feature and no quality bar is written down
-- The user asks to "set up constraints", "add quality gates", "define our standards", or "stop the agent shipping junk"
-- An agent is producing volume nobody is reading line by line
-- CI has checks but nobody can say which ones block a merge and which ones are decoration
-- Coverage, performance, or accessibility numbers get argued about per-PR instead of decided once
-- You're about to run `/build auto` or any autonomous loop, and the only thing standing between it and main is a test suite the agent also wrote
+- 開始一個專案或一個重要的功能，但沒有書面品質標準
+- 使用者要求「設定約束」、「新增品質閘道」、「定義我們的標準」或「阻止代理發布垃圾」
+- 一個代理正在產生沒有人逐行閱讀的量
+- CI 存在檢查，但沒有人能說出哪些檢查會阻止合併，哪些是裝飾
+- 覆蓋率、效能或無障礙性的數字在每次 PR 中被爭論，而不是一次決定
+- 當你即將運行 `/build auto` 或任何自主循環時，而唯一阻礙它和主線之間的是代理也寫的測試套件
 
-**When NOT to use:**
+**不應使用時：**
 
-- The project already has a `CONSTRAINTS.md` and the user isn't changing it — read it and follow it instead
-- One-off scripts, spikes, throwaway prototypes
-- The user wants a code review right now (`code-review-and-quality`) or a CI pipeline built (`ci-cd-and-automation`)
-- Pre-product-market-fit code with a two-week expected lifetime — the floor below is still worth it, the rest isn't
+- 專案已經有 `CONSTRAINTS.md`，且使用者沒有更改它——請閱讀並遵循它
+- 單次腳本、衝刺、一次性原型
+- 使用者現在想要一次程式碼審查（`code-review-and-quality`）或建立 CI 管線（`ci-cd-and-automation`）
+- 預產品市場契合度（PMF）的程式碼，預計生命週期為兩週——下面的底線仍然有價值，其他部分則沒有
 
-## Loading Constraints
+## 加載約束
 
-The interview needs a live user. **Don't run it in non-interactive contexts** (CI, `/loop`, autonomous runs). If constraints are missing and you're in one of those, apply the Floor below, note that you did, and flag the rest for a human.
+訪談需要一個活躍的使用者。**不要在非互動環境中運行它**（CI、`/loop`、自主運行）。如果缺少約束，並且你處於其中之一，請應用下面的底線，註明你已這樣做，並標記其餘部分給人類處理。
 
-## The Process
+## 流程
 
-### Step 1: Detect before you ask
+### 步驟 1：在提問前偵測
 
-Never ask what you can read. Before the first question, gather:
+永遠不要問你讀得懂的內容。在第一個問題之前，收集：
 
-| What | Where to look |
+| 內容 | 查找位置 |
 |------|---------------|
-| Language and stack | `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml` |
-| Test runner | dev dependencies, `test` script, existing test files |
-| Existing linters | `eslint.config.*`, `biome.json`, `.ruff.toml` |
-| Coverage today | `coverage/` output, or run the suite once |
+| 語言和堆疊 | `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml` |
+| 測試運行器 | dev dependencies, `test` script, 現有的測試檔案 |
+| 現有的 Linter | `eslint.config.*`, `biome.json`, `.ruff.toml` |
+| 今日覆蓋率 | `coverage/` 輸出，或運行一次套件 |
 | CI | `.github/workflows/`, `.gitlab-ci.yml` |
-| Agent harness | `.claude/`, `.codex/`, `AGENTS.md` |
+| 代理工具 | `.claude/`, `.codex/`, `AGENTS.md` |
 
-Report what you found in two lines, then ask only what's left.
+用兩行總結你找到的內容，然後只詢問剩下的部分。
 
-### Step 2: Four questions, each with a default
+### 步驟 2：四個問題，每個都有預設值
 
-Follow the one-question-at-a-time discipline from `interview-me`, with one change: every question here has a default, so "I don't know" is a complete answer that still produces a working config.
-
-```
-Q1: Beyond the floor, which of these do you want enforced?
-    (a) Test coverage on new code
-    (b) Security scanning
-    (c) Performance budgets
-    (d) Accessibility
-    (e) Architecture boundaries
-GUESS: (a) and (b) — you have a test runner already and you're handling user input.
-DEFAULT if unsure: (a) and (b).
-Say what each pick costs: (c) and (d) need a running URL, (e) needs a rules file written.
-```
+遵循 `interview-me` 的一次一個問題的紀律，並進行一項更改：這裡的每個問題都有一個預設值，因此「我不知道」是一個完整的答案，仍然能產生一個可運行的配置。
 
 ```
-Q2: When a check fails while the agent is mid-task, should it block or warn?
-GUESS: Block. You're running agents unattended and a warning nobody reads is a warning.
-DEFAULT if unsure: Block on the floor, warn on everything else for the first two weeks.
+Q1: 除了底線之外，你希望強制執行的是哪幾個？
+    (a) 新程式碼的測試覆蓋率
+    (b) 安全掃描
+    (c) 效能預算
+    (d) 無障礙性
+    (e) 架構邊界
+猜測：(a) 和 (b) — 你已經有測試運行器，並且你在處理使用者輸入。
+如果不確定：(a) 和 (b)。
+說明每個選擇的成本：(c) 和 (d) 需要一個運行中的 URL，(e) 需要一個寫好的規則檔案。
 ```
 
 ```
-Q3: Do you have target numbers in mind, or should I measure where you are today and hold that line?
-GUESS: Measure. Most teams don't have a number, and an invented one gets ignored.
-DEFAULT if unsure: Measure and hold. See "Ratchets" below.
+Q2: 當代理在執行任務中時，如果檢查失敗，它應該阻止還是警告？
+猜測：阻止。你正在運行代理，沒有人閱讀警告的警告就是警告。
+如果不確定：在底線上阻止，在其他地方警告，前兩週都這樣做。
 ```
 
 ```
-Q4: What's the slowest check you'll tolerate before the agent hands work back?
-GUESS: About 90 seconds. Longer and you'll stop running it.
-DEFAULT if unsure: 90 seconds at task end, unlimited in CI.
+Q3: 你心中是否有目標數字，還是我應該衡量你現在的狀態並保持該線？
+猜測：衡量。大多數團隊沒有數字，一個自創的數字會被忽略。
+如果不確定：衡量並保持。參見下方的「棘輪」（Ratchets）。
 ```
 
-Stop at four. A twelve-question intake produces a config nobody understands and a user who regrets starting.
+```
+Q4: 在代理將工作交還之前，你願意容忍的最慢的檢查是什麼？
+猜測：大約 90 秒。更長的時間你會停止運行它。
+如果不確定：任務結束時 90 秒，在 CI 中無限期。
+```
 
-### Step 3: Write CONSTRAINTS.md
+停止在四個問題。十二個問題的輸入會產生一個沒有人理解的配置，以及一個後悔開始的人。
 
-One file at the repo root. Any agent on any harness can read it, and a change to it shows up in review where it belongs.
+### 步驟 3：撰寫 CONSTRAINTS.md
+
+在儲存庫根目錄創建一個檔案。任何代理在任何工具上的代理都可以閱讀它，對它的更改會出現在它應出現的審查中。
 
 ```markdown
-# Constraints
+# 約束
 
-Last reviewed: 2026-08-08 by @addy
+最後審查時間：2026-08-08 由 @addy
 
-## Floor (always enforced, no setup required)
+## 底線（始終強制，無需設定）
 
-- No new suppression comments: `@ts-ignore`, `eslint-disable`, `# noqa`, `# type: ignore`
-- No unimplemented stubs: `throw new Error("Not implemented")`, empty `catch {}`
-- No skipped or deleted tests without a reason in the commit message
-- No secrets in source
-- This file does not get weakened to make a change pass
+- 不允許新的抑制註釋：`@ts-ignore`、`eslint-disable`、`# noqa`、`# type: ignore`
+- 不允許未實作的存根：`throw new Error("Not implemented")`、空的 `catch {}`
+- 沒有在提交訊息中註明理由的跳過或刪除的測試
+- 來源中不包含密碼
+- 此檔案不會為了讓更改通過而被削弱
 
-## Enforced with numbers
+## 帶有數字的強制執行
 
-| Dimension | Rule | Checked by | Runs at |
+| 維度 | 規則 | 檢查者 | 運行時機 |
 |-----------|------|-----------|---------|
-| Types | Zero type errors | `tsc --noEmit` | every edit |
-| Lint | Zero errors from our config | `biome check` | every edit |
-| Secrets | No secrets in source | `gitleaks detect --redact` | every edit |
-| Coverage | Changed lines ≥ 80% covered | `vitest run --coverage` + git diff | task end, CI |
-| Security: code | No high findings | `semgrep scan --config p/default` | CI |
-| Security: deps | Nothing at high or above | `osv-scanner scan source -r .` | CI |
-| Accessibility | Zero critical or serious | `axe $PREVIEW_URL --tags wcag2a,wcag2aa,wcag21aa` | preview deploy |
-| Performance | LCP ≤ 2500ms, CLS ≤ 0.1 | `lighthouse $PREVIEW_URL --output=json` | preview deploy |
+| 型別 | 零型別錯誤 | `tsc --noEmit` | 每次編輯 |
+| Linter | 我們的配置中無錯誤 | `biome check` | 每次編輯 |
+| 密碼 | 來源中無密碼 | `gitleaks detect --redact` | 每次編輯 |
+| 覆蓋率 | 更改的行 ≥ 80% 被覆蓋 | `vitest run --coverage` + git diff | 任務結束，CI |
+| 安全性：程式碼 | 無高風險發現 | `semgrep scan --config p/default` | CI |
+| 安全性：依賴 | 高於或等於無任何內容 | `osv-scanner scan source -r .` | CI |
+| 無障礙性 | 無任何關鍵或嚴重錯誤 | `axe $PREVIEW_URL --tags wcag2a,wcag2aa,wcag21aa` | 預覽部署 |
+| 效能 | LCP ≤ 2500ms, CLS ≤ 0.1 | `lighthouse $PREVIEW_URL --output=json` | 預覽部署 |
 
-Every row names the command that produces the verdict. A dimension with a
-number and no command in this column is an aspiration, not a constraint.
+每一行都命名了產生判斷的命令。在這一欄中，一個帶有數字但沒有命令的維度是願望，而不是約束。
 
-## Measured, not yet enforced
+## 衡量，而非強制執行
 
-| Metric | Today | Direction |
+| 指標 | 今天 | 方向 |
 |--------|-------|-----------|
-| Project coverage | 62.4% | must not fall |
-| Bundle size (main) | 184 kB | must not grow |
+| 專案覆蓋率 | 62.4% | 不得下降 |
+| 套件大小 (main) | 184 kB | 不得增長 |
 
-## Exceptions
+## 例外
 
-| ID | Rule | Path | Reason | Owner | Expires |
+| ID | 規則 | 路徑 | 原因 | 所有者 | 到期時間 |
 |----|------|------|--------|-------|---------|
-| W1 | `no-explicit-any` | `src/legacy/**` | Rewrite tracked in ENG-441 | @addy | 2026-11-01 |
+| W1 | `no-explicit-any` | `src/legacy/**` | 追蹤在 ENG-441 中重寫 | @addy | 2026-11-01 |
 ```
 
-Then add one line to `AGENTS.md` and `CLAUDE.md`: `Read CONSTRAINTS.md before writing code. Do not weaken it to make a change pass.`
+然後在 `AGENTS.md` 和 `CLAUDE.md` 中添加一行：`在編寫程式碼前閱讀 CONSTRAINTS.md。不要為了讓更改通過而削弱它。`
 
-### Step 4: Install what each dimension needs
+### 步驟 4：安裝每個維度所需的工具
 
-Picking a dimension means installing something. Don't leave the user with a number and no mechanism, and don't invent your own checker when a de facto one exists — these tools are listed because their rule formats and thresholds are what everything else in the ecosystem targets, so the team's existing config keeps working.
+選擇一個維度意味著安裝某個東西。不要讓使用者只剩下數字而沒有機制，也不要發明你自己的檢查器，當已經存在事實上的檢查器時——這些工具被列出來是因為它們的規則格式和閾值是整個生態系統中其他所有內容所針對的，所以團隊現有的配置仍然有效。
 
-| Dimension | Tool | Install | Run | Gate on |
+| 維度 | 工具 | 安裝 | 運行 | 門檻 |
 |-----------|------|---------|-----|---------|
-| Types (TS) | tsc | already there | `tsc --noEmit` | any error |
-| Types (Python) | mypy | `pip install mypy` | `mypy .` | any error |
-| Lint | your existing config | already there | `eslint .` / `biome check` / `ruff check` | any error |
-| Coverage (JS) | your test runner | already there | `vitest run --coverage` (or `jest --coverage`) | coverage of changed lines |
-| Coverage (Python) | pytest-cov | `pip install pytest-cov` | `pytest --cov --cov-report=lcov` | same |
-| Security: code | Semgrep | `pipx install semgrep` | `semgrep scan --config p/default --config p/owasp-top-ten` | any high finding |
-| Security: secrets | gitleaks | `brew install gitleaks` | `gitleaks detect --redact --no-banner` | any finding |
-| Security: dependencies | osv-scanner | `brew install osv-scanner` | `osv-scanner scan source -r .` | high or above |
-| Performance: page | Lighthouse | `npm i -D lighthouse` | `lighthouse $URL --output=json --quiet` | LCP, CLS, performance score |
-| Performance: bundle | size-limit | `npm i -D size-limit` | `size-limit --json` | per-entry byte budget |
-| Accessibility | axe-core | `npm i -D @axe-core/cli` | `axe $URL --tags wcag2a,wcag2aa,wcag21aa` | zero critical or serious |
-| Architecture | dependency-cruiser | `npm i -D dependency-cruiser` | `depcruise --validate src` | any violation |
-| Assertion quality | Stryker | `npm i -D @stryker-mutator/core` | `stryker run --mutate <changed files>` | mutation score |
+| 型別 (TS) | tsc | 已經存在 | `tsc --noEmit` | 任何錯誤 |
+| 型別 (Python) | mypy | `pip install mypy` | `mypy .` | 任何錯誤 |
+| Linter | 你現有的配置 | 已經存在 | `eslint .` / `biome check` / `ruff check` | 任何錯誤 |
+| 覆蓋率 (JS) | 你的測試運行器 | 已經存在 | `vitest run --coverage` (或 `jest --coverage`) | 更改行的覆蓋率 |
+| 覆蓋率 (Python) | pytest-cov | `pip install pytest-cov` | `pytest --cov --cov-report=lcov` | 相同 |
+| 安全性：程式碼 | Semgrep | `pipx install semgrep` | `semgrep scan --config p/default --config p/owasp-top-ten` | 任何高風險發現 |
+| 安全性：密碼 | gitleaks | `brew install gitleaks` | `gitleaks detect --redact --no-banner` | 任何發現 |
+| 安全性：依賴 | osv-scanner | `brew install osv-scanner` | `osv-scanner scan source -r .` | 高於或等於 |
+| 效能：頁面 | Lighthouse | `npm i -D lighthouse` | `lighthouse $URL --output=json --quiet` | LCP、CLS、效能分數 |
+| 效能：套件 | size-limit | `npm i -D size-limit` | `size-limit --json` | 每個條目的位元組預算 |
+| 無障礙性 | axe-core | `npm i -D @axe-core/cli` | `axe $URL --tags wcag2a,wcag2aa,wcag21aa` | 零關鍵或嚴重錯誤 |
+| 架構 | dependency-cruiser | `npm i -D dependency-cruiser` | `depcruise --validate src` | 任何違規 |
+| 斷言品質 | Stryker | `npm i -D @stryker-mutator/core` | `stryker run --mutate <changed files>` | 突變分數 |
 
-Five things that will bite you if you skip them:
+五件如果你跳過它們就會讓你吃痛的事：
 
-1. **`--redact` on gitleaks is not optional.** Without it the matched secret lands in the agent's transcript, which is how a leaked key ends up in a log, a summary, or a commit message. Report the rule and the location, never the value.
-2. **Lighthouse and axe need a URL.** They only work against a running app, so they belong in the runtime stage against a preview deploy or a local server you start first. If the project has no URL to hit — a CLI, a library, a desktop app — say so and drop the dimension rather than inventing a check that can't run.
-3. **Scope the expensive ones to the diff.** `stryker run --mutate` on the whole repo takes hours and gets turned off; on the files a change touched it takes under a minute. Same for Semgrep, which takes a path list.
-4. **Coverage needs no second test run.** Read the lcov your suite already writes and intersect it with `git diff`. Running the suite twice to get a number is the fastest way to make people hate this.
-5. **Semgrep's registry rules are free to run; check the licence before redistributing them.** `opengrep` is a drop-in fork with the same rule format and JSON output if that matters to your legal team.
+1. **`gitleaks` 上的 `--redact` 不是可選的。** 沒有它，匹配的密碼會出現在代理的記錄中，這就是洩露的密鑰如何出現在日誌、摘要或提交訊息中的方式。報告規則和位置，絕不報告值。
+2. **Lighthouse 和 axe 需要一個 URL。** 它們只能對運行中的應用進行檢查，因此它們屬於運行時階段，對預覽部署或你首先啟動的本地伺服器進行檢查。如果專案沒有可以訪問的 URL——一個 CLI、一個函式庫、一個桌面應用——就說明，然後放棄這個維度，而不是發明一個無法運行的檢查器。
+3. **將昂貴的檢查限制在差異上。** 對整個儲存庫運行 `stryker run --mutate` 需要幾個小時並會被關閉；對更改所影響的檔案運行則不到一分鐘。Semgrep 也是如此，它需要一個路徑列表。
+4. **覆蓋率不需要第二次測試運行。** 閱讀你的套件已經寫的 lcov，並與 `git diff` 相交集。運行兩次套件以獲得數字是讓大家討厭它的最快方法。
+5. **Semgrep 的註冊規則可以免費運行；在重新分發它們之前檢查許可證。** 如果這對你的法律團隊很重要，`opengrep` 具有相同的規則格式和 JSON 輸出，是一個可直接替換的分支。
 
-Add each one to the project's own script so it's reproducible without an agent:
+將每一個都添加到專案自己的腳本中，以便在沒有代理的情況下可重現：
 
 ```json
 {
@@ -179,133 +178,133 @@ Add each one to the project's own script so it's reproducible without an agent:
 }
 ```
 
-That mapping matters more than the tools. `check:fast` is what runs after an edit, `check:task` when the agent thinks it's done, `check:full` in CI.
+這個映射比工具更重要。`check:fast` 是編輯後運行的，`check:task` 是代理認為它完成時運行的，`check:full` 是在 CI 中運行的。
 
-The commands now live in two places — the `Checked by` column in `CONSTRAINTS.md` and these scripts. `CONSTRAINTS.md` is the canonical source: it carries the reason alongside each command and it shows up in review. The scripts are convenience wrappers that must mirror it, not a second source of truth; if they drift, the file wins.
+這些命令現在存在於兩個地方——`CONSTRAINTS.md` 中的 `Checked by` 欄和這些腳本中。`CONSTRAINTS.md` 是首要來源：它在每個命令旁邊都帶有理由，並且出現在審查中。腳本是便利的包裝器，必須與之保持一致，而不是第二個真實來源；如果它們偏離了，檔案就佔了上風。
 
-### Step 5: Wire it to the lifecycle
+### 步驟 5：連接到生命週期
 
-The single biggest mistake is running everything everywhere. A check that stalls the agent gets switched off, and a gate people switched off is worse than no gate, because the bar still looks like it exists.
+最大的錯誤是把所有東西都運行在各處。一個阻止代理的檢查會被關閉，而人們關閉的閘道比沒有閘道更糟，因為標準仍然看起來是存在的。
 
-| Phase | Command | What runs | Budget |
+| 階段 | 命令 | 運行內容 | 預算 |
 |-------|---------|-----------|--------|
-| BUILD | `/build` | Types, lint, secrets, the floor | under 5s, changed file only |
-| VERIFY | `/test` | Related tests, coverage on changed lines | under 90s |
-| REVIEW | `/review` | Everything, plus the guards below | minutes |
-| SHIP | `/ship` | Direction checks, no regressions | CI |
+| 建置 | `/build` | 型別、Linter、密碼、底線 | 低於 5 秒，僅更改的檔案 |
+| 驗證 | `/test` | 相關測試、更改行的覆蓋率 | 低於 90 秒 |
+| 審查 | `/review` | 所有內容，加上下面的保護措施 | 分鐘 |
+| 發布 | `/ship` | 方向檢查，無回退 | CI |
 
-Two rules that keep this tolerable:
+兩個保持這一切可忍受的規則：
 
-1. **Scope to the diff.** Check the lines this change touched, not the whole repo. Coverage of changed lines is a number the agent can move; project coverage is one it inherited.
-2. **Cost decides placement.** Anything over a few seconds moves out of the edit loop. Mutation testing on a whole repo takes hours; on the files a change touched it takes under a minute, which is the difference between a check people run and one they don't.
+1. **限制在差異上。** 檢查這次更改所影響的行，而不是整個儲存庫。更改行的覆蓋率是一個代理可以移動的數字；專案覆蓋率是它繼承的。
+2. **成本決定位置。** 任何超過幾秒的內容都會從編輯循環中移出。對整個儲存庫進行突變測試需要幾個小時；對更改所影響的檔案進行測試則不到一分鐘，這就是人們運行檢查和不運行檢查之間的區別。
 
-### Step 6: Guard the bar itself
+### 步驟 6：保護標準本身
 
-Someone will point out that if the agent writes the code and the checks, the checks prove nothing. Half right, and worth engineering around.
+有人會指出，如果代理寫了程式碼和檢查，這些檢查證明了什麼都不。一半正確，值得工程師繞過。
 
-Agents don't craft clever loopholes. They hit a red check and take the cheapest road to green. Watch for these five moves in the diff, at review time:
+代理不會設計巧妙的漏洞。它們會觸發一個紅色的檢查，然後走最簡單的路到綠色。在審查時間，注意差異中的這五個動作：
 
-1. **The threshold moved.** A budget lowered, a severity dropped, a check removed from the fast stage. Compare `CONSTRAINTS.md` against its state at the branch point.
-2. **A test got easier.** `.skip` added, a test file deleted, assertions pulled out of tests that stayed.
-3. **A checker got silenced.** New `@ts-ignore` or `eslint-disable`. Four suppressions deserve special attention because they switch off a check you're relying on: `istanbul ignore` drops code from coverage instead of testing it, `Stryker disable` hides a surviving mutant, `nosemgrep` and `gitleaks:allow` do it for security findings.
-4. **Work is unfinished.** A stub that throws, an empty `catch` turning a failure into silence, a `TODO` standing where the implementation should be.
-5. **An exception appeared.** A new row in the Exceptions table nobody discussed.
+1. **閾值被移動。** 預算被降低，嚴重性被降低，從快速階段移除了一個檢查。將 `CONSTRAINTS.md` 與分支點的狀態進行比較。
+2. **測試變得更容易。** 添加 `.skip`，刪除一個測試檔案，從測試中提取了斷言。
+3. **檢查器被靜音了。** 新的 `@ts-ignore` 或 `eslint-disable`。四個抑制指令值得特別關注，因為它們關閉了你依賴的檢查：`istanbul ignore` 會從覆蓋率中移除程式碼而不是測試它，`Stryker disable` 會隱藏一個存活的突變，`nosemgrep` 和 `gitleaks:allow` 對於安全發現進行同樣的操作。
+4. **工作未完成。** 一個拋出錯誤的存根，一個空的 `catch` 將失敗變成沉默，一個 `TODO` 停留在實作應該存在的地方。
+5. **出現了一個例外。** 在例外表中沒有人討論的新行。
 
-None of this needs tooling beyond `git diff`. Tightening the bar should be silent; loosening it should be loud.
+這些都不需要除了 `git diff` 之外的工具。收緊標準應該是靜默的；放寬標準應該是喧鬧的。
 
-Unlike the numbered dimensions, the floor has no de facto tool of its own, so an agent asked to enforce it tends to write a checker from scratch, and two agents write two different ones. A reference implementation of these five checks ships with this skill in [references/floor-guard.md](references/floor-guard.md) (diff-scoped, exit `0`/`1`/`2`, patterns adaptable per ecosystem). Adapt that rather than reinventing it, for the same reason every dimension names a de facto tool: so the mechanism is the same across runs and stacks.
+與帶有數字的維度不同，底線本身沒有事實上的工具，因此一個要求強制執行的代理傾向於從頭開始編寫一個檢查器，兩個代理寫出兩個不同的檢查器。這些五個檢查的參考實作包含在 [references/floor-guard.md](references/floor-guard.md) 中（差異範圍，退出 `0`/`1`/`2`，模式可根據生態系統調整）。請適應它，而不是重新發明它，原因與每個維度都命名了事實上的工具相同：以便機制在運行和堆疊中保持一致。
 
-**Not all checks are equally circular.** Rank them by one question: can the agent make this pass by writing code that doesn't work?
+**並非所有檢查都具有同等的循環性。** 根據一個問題對它們進行排序：代理是否能通過編寫不工作的程式碼來通過它？
 
-- **External** — axe-core encodes WCAG, `osv-scanner` reads a vulnerability database, Lighthouse measures a real browser. The agent can't argue with these.
-- **Project** — your lint rules, your layer boundaries. A human owns the file.
-- **Suite** — your own tests. Most useful, and the only genuinely circular one.
+- **外部** — axe-core 編碼 WCAG，`osv-scanner` 讀取漏洞資料庫，Lighthouse 衡量真實瀏覽器。代理無法對這些提出爭論。
+- **專案** — 你的 Linter 規則，你的層邊界。人類擁有該檔案。
+- **套件** — 你自己的測試。最有用的，也是唯一真正循環的。
 
-A bar made entirely of the third kind is worth less than one with an outside opinion in it. Check that at least one external constraint is present.
+完全由第三種類組成的標準，不如帶有外部意見的標準。確保至少有一個外部約束是存在的。
 
-### Step 7: Ratchets, when you don't have a number
+### 步驟 7：當你沒有數字時，棘輪
 
-Set 80% coverage on a codebase at 62% and you get a red build forever, then a team that learns to ignore red builds.
+在程式碼庫覆蓋率為 62% 時要求達到 80%，你會永遠得到一個紅色的建置，然後是一個學會忽略紅色建置的團隊。
 
-The alternative asks for no decision: record where you are, then refuse to get worse. Put it in the "Measured, not yet enforced" table with today's number and a direction. Every check compares against the recorded value, not an aspiration. When a number improves, update it; when it drops, that's the finding.
+另一個選擇要求沒有決定：記錄你現在的位置，然後拒絕惡化。將其放入「衡量，而非強制執行」表中，附上今天的數字和一個方向。每個檢查都與記錄的值進行比較，而不是願望。當數字改善時，請更新它；當它下降時，那就是發現。
 
-This also answers a fair objection to training. Models are rewarded for passing tests, which you can evaluate in seconds. Architectural rot shows up over months and never reaches the weights. A ratchet is the missing penalty, written down where the build can see it.
+這也回答了對培訓的一個合理異議。模型因通過測試而獲得獎勵，你可以在幾秒鐘內評估它們。架構的腐敗會隨著時間的推移出現，並且永遠不會到達權重。棘輪就是缺失的懲罰，寫在建置可以看見的地方。
 
-## Sane Defaults
+## 合理的預設值
 
-When the user has no opinion, use these. They're chosen to be met by most codebases on day one.
+當使用者沒有意見時，請使用這些。它們被選擇為大多數程式碼庫在第一天就滿足的標準。
 
-| Constraint | Default | Why this number |
+| 約束 | 預設值 | 為什麼是這個數字 |
 |------------|---------|-----------------|
-| Coverage of changed lines | ≥ 80% | High enough to force a test, low enough to allow a config line |
-| Project coverage | today's value, must not fall | No argument needed to adopt |
-| Mutation score (if used) | ≥ 60% to start | Typical for a suite never mutated before; 80% is mature |
-| Dependency vulnerabilities | nothing at high or above | Below that is mostly noise |
-| LCP | ≤ 2500 ms | Core Web Vitals "good" threshold |
-| CLS | ≤ 0.1 | Same |
-| Accessibility | zero critical or serious axe violations | Moderate and minor are often debatable |
-| Exception lifetime | 90 days | Long enough to plan the fix, short enough to remember |
-| Ratchet tolerance | 0.5% | Absorbs drift when an unrelated file moves the number |
+| 更改行的覆蓋率 | ≥ 80% | 足夠強迫測試，足夠低以允許配置行 |
+| 專案覆蓋率 | 今日值，不得下降 | 不需要爭論就能採用 |
+| 突變分數（如果使用） | ≥ 60% 起步 | 對於從未被突變過的套件來說是典型的；80% 是成熟的 |
+| 依賴漏洞 | 高於或等於無任何內容 | 低於此值大多是噪音 |
+| LCP | ≤ 2500 ms | 核心 Web Vitals 的「良好」閾值 |
+| CLS | ≤ 0.1 | 相同 |
+| 無障礙性 | 零個關鍵或嚴重 của axe 違規 | 中等和輕微通常是可爭論的 |
+| 例外生命週期 | 90 天 | 足夠計劃修復，足夠記住 |
+| 棘輪容忍度 | 0.5% | 當不相關的檔案移動數字時吸收漂移 |
 
-State the number and the reason together. A threshold without a rationale gets deleted by the next person who hits it.
+將數字和理由一起陳述。沒有理由的閾值會被下一個遇到它的人刪除。
 
-## Escalation Path
+## 升級路徑
 
-Constraints work at three levels of teeth. Start at the first.
+約束在三個層級上具有三種力量。從第一層開始。
 
-1. **Written only.** `CONSTRAINTS.md` exists and agents read it. Costs nothing, catches the honest mistakes, relies on the agent complying.
-2. **Scripted.** An `npm run check` (or `make check`) that runs the fast checks, wired into your agent's post-edit hook and your CI. Deterministic, no new dependency.
-3. **Tool-backed.** A dedicated runner that handles diff scoping, budgets, ratchets, and the guard checks. Use when the config outgrows a shell script. The floor-guard reference in [references/floor-guard.md](references/floor-guard.md) is the starting point for the guard-checks half of this.
+1. **僅書面。** 存在 `CONSTRAINTS.md` 並且代理閱讀它。不花費任何成本，捕捉誠實的錯誤，依賴代理的遵守。
+2. **腳本化。** 一個 `npm run check`（或 `make check`），運行快速檢查，連接到你代理的編輯後掛鉤和你的 CI。確定性，沒有新的依賴。
+3. **工具支持。** 一個專門的運行器，處理差異範圍、預算、棘輪和保護檢查。當配置超過 Shell 腳本時使用。`[references/floor-guard.md](references/floor-guard.md)` 中的底線保護參考是這部分保護檢查的起點。
 
-Most projects should stop at 2. Move to 3 when you're maintaining more than about thirty lines of check-running shell.
+大多數專案應該在 2 處停止。當你維護的檢查運行 Shell 腳本大於大約三十行時，轉向 3。
 
-**A first run can be floor-only.** The floor guard is diff-only and needs no installs, so you can enforce the floor on day one and add numbered dimensions as you install each tool, rather than standing up every checker before the first commit is protected. Security tools that install machine-wide (gitleaks, osv-scanner) can also run CI-only if you'd rather keep laptops clean; declare where each dimension runs in the `Runs at` column.
+**第一次運行可以僅限底線。** 底線保護僅限於差異，不需要安裝，因此你可以在第一天就強制執行底線，並隨著你安裝每個工具而添加帶有數字的維度，而不是在第一個提交受到保護之前就建立每一個檢查器。可以運行 CI 專用的安全工具（gitleaks、osv-scanner），如果你更希望保持筆記型電腦乾淨，也可以這樣做；在 `Runs at` 欄中聲明每個維度運行的地方。
 
-## Common Rationalizations
+## 常見的合理化
 
-| Excuse | Reality |
+| 藉口 | 現實 |
 |--------|---------|
-| "We'll add constraints once the code settles" | Code settles around whatever was allowed while it was moving |
-| "The tests are the constraints" | Tests you wrote prove you agree with yourself; they say nothing about coverage of new code, dependency risk, or bundle growth |
-| "We can't hit 80% coverage" | Then don't set 80%. Set today's number and hold it |
-| "This will slow the agent down" | Only if you put slow checks in the fast loop. That's a placement error, not an argument against constraints |
-| "I'll remember what our standards are" | The agent won't, and it's writing most of the code |
-| "Constraints will block us shipping" | An exception with an owner and a date unblocks you. Deleting the constraint unblocks everyone forever |
+|「等程式碼穩定後再添加約束」 | 程式碼在移動期間允許的範圍內穩定下來 |
+|「測試就是約束」 | 你寫的測試證明你同意自己；它們對新程式碼的覆蓋率、依賴風險或套件增長無能說明 |
+|「我們無法達到 80% 的覆蓋率」 | 那麼就不要設定 80%。設定今天的數字並保持它 |
+|「這會拖慢代理的速度」 | 僅當你將慢檢查放入快速循環中時。那是一個放置錯誤，而不是對約束的反對理由 |
+|「我會記住我們的標準」 | 代理不會，而且它寫了大部分程式碼 |
+|「約束會阻止我們發布」 | 一個有所有者和日期的例外可以釋放你。刪除約束可以永遠釋放所有人 |
 
-## Red Flags
+## 紅旗
 
-Stop and reconsider if you notice:
+如果你注意到以下情況，請停止並重新考慮：
 
-- The interview ran past four questions, or produced a config the user can't explain
-- A budget was set that the codebase fails today, with no plan to reach it
-- A dimension was written into CONSTRAINTS.md with a number but no tool behind it
-- A checker was hand-rolled when a de facto one exists, so the team's existing config is ignored
-- Every constraint is checked by the project's own test suite, with no external opinion
-- `CONSTRAINTS.md` changed in the same commit as the feature that was failing
-- An exception has no owner, or an expiry more than a year out
-- The agent proposed relaxing a threshold instead of fixing the code
-- Slow checks landed in the edit loop and someone has started passing `--no-verify`
-- Nobody has opened `CONSTRAINTS.md` since it was written
+- 訪談超過四個問題，或產生使用者無法解釋的配置
+- 設定了一個預算，但程式碼庫今天無法滿足，沒有達成它的計劃
+- 在 `CONSTRAINTS.md` 中寫入了一個帶有數字但沒有背後工具的維度
+- 當存在事實上的檢查器時，手動編寫了一個檢查器，所以團隊現有的配置被忽略
+- 每個約束都由專案自己的測試套件檢查，沒有外部意見
+- `CONSTRAINTS.md` 在與失敗的功能相同的提交中更改
+- 例外沒有所有者，或到期時間超過一年
+- 代理提議放寬閾值而不是修復程式碼
+- 慢檢查進入編輯循環，有人開始通過 `--no-verify`
+- 沒有人自寫 `CONSTRAINTS.md` 之後就沒有人打開它
 
-## Verification
+## 驗證
 
-The skill was applied correctly when:
+當以下條件滿足時，該技能被正確應用：
 
-- [ ] `CONSTRAINTS.md` exists, and every number in it has a stated reason
-- [ ] The floor is enforced and passes on the current codebase without changes
-- [ ] Every dimension the user picked has a tool installed and a command that runs today
-- [ ] Each constraint says where it runs, and the fast stage stays under a few seconds
-- [ ] At least one constraint is external (not judged by this project's own tests)
-- [ ] Measured-only metrics record today's value and a direction
-- [ ] Exceptions have an owner and an expiry date
-- [ ] `AGENTS.md` or `CLAUDE.md` points at the file
-- [ ] A trial run on the current branch produces no failures the user disagrees with
+- [ ] 存在 `CONSTRAINTS.md`，並且其中每個數字都有陳述的理由
+- [ ] 底線被強制執行，並且在當前的程式碼庫上運行且沒有更改
+- [ ] 使用者選擇的每個維度都有一個安裝的工具和一個今天運行的命令
+- [ ] 每個約束都說明了運行位置，並且快速階段保持在幾秒鐘內
+- [ ] 至少有一個約束是外部的（不由本專案的自身測試來判斷）
+- [ ] 衡量性的指標記錄了今天的數值和一個方向
+- [ ] 例外有所有者和到期日期
+- [ ] `AGENTS.md` 或 `CLAUDE.md` 指向該檔案
+- [ ] 對當前分支的試運行沒有使用者不同意的失敗
 
-## See Also
+## 參考
 
-- `interview-me` — the one-question-at-a-time discipline this skill's intake borrows
-- `code-review-and-quality` — how to review; this skill decides what the review enforces
-- `ci-cd-and-automation` — building the pipeline these constraints run in
-- `test-driven-development` — the suite that coverage and mutation constraints measure
-- `security-and-hardening` — what the security dimension should contain
-- `performance-optimization` — where the performance numbers come from
+- `interview-me` — 這個技能輸入借鑒的一次一個問題的紀律
+- `code-review-and-quality` — 如何審查；此技能決定了審查強制執行什麼
+- `ci-cd-and-automation` — 建立這些約束運行的管線
+- `test-driven-development` — 覆蓋率和突變約束衡量的套件
+- `security-and-hardening` — 安全維度應該包含什麼
+- `performance-optimization` — 效能數字的來源

@@ -1,11 +1,10 @@
-# Checkout launch status — tomorrow
+# 下一天的結帳啟動狀態
 
-- Unit tests: green.
-- End-to-end checkout test: failing on payment confirmation timeout.
-- Staging smoke test: not run since the last payment-provider change.
-- Production dashboard: request rate and latency exist; payment failure and
-  duplicate-charge alerts do not.
-- Feature flag: checkout v2 can be disabled without deployment.
-- Rollback owner and commands: not documented.
-- Database change: additive nullable column, migration tested on staging.
-- Support and on-call have not received the launch runbook.
+- 單元測試：通過。
+- 端到端結帳測試：在支付確認超時時失敗。
+- 預生產煙霧測試：自上次支付提供者變更以來未執行。
+- 生產環境儀表板：存在請求率和延遲；不存在支付失敗和重複收費警報。
+- 功能標誌：可以在不部署的情況下禁用結帳 v2。
+- 回滾擁有者和指令：未記錄。
+- 資料庫變更：新增可空欄位，遷移已在預生產環境測試。
+- 支援和值班人員尚未收到啟動運行指南。

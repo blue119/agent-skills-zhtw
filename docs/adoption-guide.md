@@ -1,129 +1,129 @@
-# Adoption Guide: New Projects vs. Established Codebases
+# 採用指南：新專案與既有程式碼庫
 
-How to roll out agent-skills depends heavily on where your codebase is in its life. A greenfield project can adopt the full lifecycle from commit one. A codebase with years of history needs an incremental path that respects what already exists, its conventions, its undocumented decisions, and its lack of test coverage in places you'd rather not touch blind.
+代理技能的部署方式在很大程度上取決於您的程式碼庫所處的生命週期階段。一個綠地專案可以從第一筆提交開始採用完整的生命週期。一個擁有多年歷史的程式碼庫需要一個漸進的途徑，尊重現有內容、其慣例、其未記錄的決策，以及在您不希望盲目觸碰的地方缺乏的測試覆蓋。
 
-This guide covers both paths. For installation mechanics, see [getting-started.md](getting-started.md) and the per-tool setup guides. For what each skill does, see the [skill catalog in the README](../README.md#all-25-skills).
-
----
-
-## Which path are you on?
-
-| Signal                     | Greenfield                      | Brownfield                                   |
-| -------------------------- | ------------------------------- | -------------------------------------------- |
-| Age of codebase            | Days to weeks                   | Months to years                              |
-| Test coverage              | You control it from day one     | Uneven; some areas untested                  |
-| Conventions                | Defined as you go               | Established, often undocumented              |
-| Team habits                | Forming                         | Entrenched (for better or worse)             |
-| Risk of a bad agent change | Low blast radius                | Can break things nobody remembers how to fix |
-| Adoption strategy          | **Full lifecycle, immediately** | **Incremental, verification-first**          |
-
-If you're somewhere in between (a young project that already shipped to production), start with the brownfield path and accelerate, it converges on the same end state.
+本指南涵蓋這兩種路徑。有關安裝機制，請參閱 [getting-started.md](getting-started.md) 和各工具的設定指南。有關每個技能的作用，請參閱 [README](../README.md#all-25-skills) 中的技能目錄。
 
 ---
 
-## Path A | Greenfield: full lifecycle from day one
+## 您在哪條路徑上？
 
-A new project is the best-case scenario: there's no legacy behavior to preserve, so the skills' quality gates cost almost nothing and compound from the first commit.
+| 信號 | 綠地專案 (Greenfield) | 棕地專案 (Brownfield) |
+| :--- | :--- | :--- |
+| 程式碼庫年齡 | 天到幾週 | 月到年 |
+| 測試覆蓋率 | 您從第一天開始控制它 | 不均衡；有些領域未測試 |
+| 慣例 | 隨著建立而定義 | 已確立，通常未記錄 |
+| 團隊習慣 | 正在形成中 | 根深蒂固（無論好壞） |
+| 代理變更的風險 | 較小的影響範圍 | 可能破壞無人記得如何修復的東西 |
+| 採用策略 | **完整生命週期，立即執行** | **漸進式，以驗證為先** |
 
-### Day 0 | Install and wire up
+如果您處於中間（一個已經部署到生產環境的年輕專案），請從棕地路徑開始並加速，它會收斂到相同的終點狀態。
 
-1. Install the pack (`npx skills add addyosmani/agent-skills`, or the native integration for your tool, see [getting-started.md](getting-started.md)).
-2. If the host has no native skill router, load `using-agent-skills` (the meta-skill) so the agent can route work to the right skill on its own. On hosts with native routing, install the individual skills and do not preload the meta-skill as always-on context.
-3. Add a short project rules file (`CLAUDE.md`, `.cursorrules`, etc.) with your stack, commands, and boundaries, `context-engineering` describes what belongs there.
+---
 
-### Day 0 | Define before you build
+## 路徑 A | 綠地專案：從第一天開始的完整生命週期
 
-Run the lifecycle in order for the project's first real feature:
+新專案是最佳情況：沒有需要保留的遺留行為，因此技能的品質門檻幾乎不花費成本，並從第一次提交開始累積。
+
+### 第 0 天 | 安裝與設定
+
+1. 安裝套件 (`npx skills add addyosmani/agent-skills`，或您工具的原生整合，請參閱 [getting-started.md](getting-started.md))。
+2. 如果主機沒有原生的技能路由器，則載入 `using-agent-skills`（元技能），以便代理可以自行將工作路由到正確的技能。對於具有原生路由的主機，請安裝單獨的技能，不要將元技能預載入為常駐上下文。
+3. 添加一個簡短的專案規則檔案（`CLAUDE.md`、`.cursorrules` 等），包含您的技術棧、命令和邊界，`context-engineering` 描述了屬於該領域的內容。
+
+### 第 0 天 | 在建構前定義
+
+依序執行生命週期，以實現專案的第一個實際功能：
 
 ```
 /spec   →  SPEC.md            (spec-driven-development)
 /plan   →  tasks/plan.md      (planning-and-task-breakdown)
-/build  →  one slice at a time (incremental-implementation + test-driven-development)
-/review →  before every merge  (code-review-and-quality)
-/ship   →  when going live     (shipping-and-launch)
+/build  →  一次一塊 (incremental-implementation + test-driven-development)
+/review →  每次合併前 (code-review-and-quality)
+/ship   →  上線時 (shipping-and-launch)
 ```
 
-`/build auto` is a good fit for greenfield: you approve the plan once and every task still runs test-driven and commits individually. The spec and plan artifacts (`SPEC.md`, `tasks/`) are living documents, keep them in version control while the work is in flight. If the feature spans more than one session, those files are also the handoff, see [working across sessions](getting-started.md#working-across-sessions).
+`/build auto` 非常適合綠地專案：您只需一次批准計劃，每個任務仍然是測試驅動的，並且是單獨提交的。規格和計劃產物（`SPEC.md`、`tasks/`）是活的文件，在工作進行期間請將它們保留在版本控制中。如果功能跨越多個會話，這些文件也是交接的媒介，請參閱 [working across sessions](getting-started.md#working-across-sessions)。
 
-### From the start, treat these as always-on
+### 從一開始就將這些視為常駐
 
-- **test-driven-development**, coverage debt is cheapest to avoid at zero.
-- **git-workflow-and-versioning**, atomic commits and ~100-line changes are habits, not retrofits.
-- **security-and-hardening**, auth, input validation, and secrets handling are structural; bolting them on later is a migration project.
-- **documentation-and-adrs**, the first architectural decisions are exactly the ones nobody will remember the _why_ of in two years. An ADR now prevents the brownfield archaeology described in Path B.
+- **測試驅動開發 (test-driven-development)**，覆蓋率的債務在零時最容易避免。
+- **Git 工作流程與版本控制 (git-workflow-and-versioning)**，原子提交和約 100 行的變更是習慣，而不是事後補救。
+- **安全與加固 (security-and-hardening)**，身份驗證、輸入驗證和密鑰處理是結構性的；稍後添加它們是遷移專案。
+- **文件與 ADR (documentation-and-adrs)**，最初的架構決策正是兩年後沒有人會記住其「為什麼」的決策。現在的 ADR 可以防止路徑 B 中描述的棕地考古學。
 
-### Add as the project grows
+### 隨著專案的增長而添加
 
-| When                                | Load                                                          |
-| ----------------------------------- | ------------------------------------------------------------- |
-| First public API or module boundary | `api-and-interface-design`                                    |
-| First UI work                       | `frontend-ui-engineering` (+ `browser-testing-with-devtools`) |
-| First CI pipeline                   | `ci-cd-and-automation`                                        |
-| First production deploy             | `observability-and-instrumentation`, `shipping-and-launch`    |
-| Performance requirements appear     | `performance-optimization`                                    |
+| 何時 | 載入 |
+| :--- | :--- |
+| 第一個公開 API 或模組邊界 | `api-and-interface-design` |
+| 第一個 UI 工作 | `frontend-ui-engineering` (+ `browser-testing-with-devtools`) |
+| 第一個 CI 管線 | `ci-cd-and-automation` |
+| 第一個生產部署 | `observability-and-instrumentation`，`shipping-and-launch` |
+| 出現效能要求 | `performance-optimization` |
 
-### Greenfield anti-patterns
+### 綠地專案的反模式
 
-- **Skipping `/spec` because "it's just a prototype."** Prototypes become products. The spec is the cheapest artifact you'll ever write for this codebase.
-- **Loading all 25 skills into every session.** It wastes context and dilutes the ones that matter. Load by phase; let the host's native router or `using-agent-skills` route, but not both.
-- **Deferring observability until "there's something to observe."** Instrument as you build, retrofitting structured logging is a Path B problem you're choosing to create.
-
----
-
-## Path B | Brownfield: incremental, verification-first
-
-In an established codebase, the risk profile inverts: the danger isn't building the wrong thing, it's _changing_ something whose behavior nobody fully specified. The adoption order therefore starts with the skills that **read and protect** the codebase, and only later moves to the skills that **change** it.
-
-### Phase 1 | Context and read-only skills
-
-Goal: the agent understands the codebase before it modifies anything.
-
-1. **`context-engineering` first.** Write the project rules file describing the real conventions, the ones in the code, not the ones in the wiki. Include build/test commands, directory meaning, known landmines ("don't touch `legacy/billing`, it has no tests and three known workarounds").
-2. **`code-review-and-quality` on incoming changes.** Reviewing is zero-risk and immediately valuable: the five-axis review and its severity labels (which separate what blocks a merge, Critical and Required, from what doesn't) work on any PR regardless of the codebase's state.
-3. **`debugging-and-error-recovery` for the bugs you were fixing anyway.** The five-step triage (reproduce → localize → reduce → fix → guard) shines in unfamiliar code, and the "guard" step starts building the regression suite you don't have.
-4. **`doubt-driven-development` as a safety net.** Legacy code is exactly the "unfamiliar code, high cost of being wrong" scenario this skill targets. Adversarial fresh-context review of the agent's claims about how the legacy system works catches confident hallucinations before they become commits.
-
-### Phase 2 | Tests before change
-
-Goal: every area the agent will touch gets a safety net first.
-
-- **`test-driven-development`, applied selectively.** Don't aim for global coverage; aim for coverage _where change is planned_. For untested legacy behavior, write characterization tests, tests that pin down what the code currently does, right or wrong, before any modification. The Beyonce Rule applies: if the agent liked a behavior enough to depend on it, it should have put a test on it.
-- **`code-simplification` on the worst hotspots.** Chesterton's Fence is the operative principle: the skill forces the agent to understand _why_ code exists before removing it. Behavior-preserving simplification plus characterization tests is the lowest-risk way to make legacy code changeable.
-- **`git-workflow-and-versioning` everywhere.** Small atomic commits matter _more_ in brownfield: when a change to old code breaks something subtle, a ~100-line commit is bisectable; a 2,000-line "modernization" commit is not.
-
-### Phase 3 | New work runs the full lifecycle
-
-Goal: two-speed adoption, legacy code stays under the Phase 1–2 regime; **new features get the greenfield treatment**.
-
-- New feature in the old codebase? `/spec → /plan → /build → /review`. The spec's boundaries section is where you declare what legacy surface the feature may and may not touch.
-- **`api-and-interface-design` at the seams.** When new code must talk to old code, design the boundary contract-first. Hyrum's Law is not theoretical in a years-old codebase, someone depends on every observable behavior, including the bugs.
-- **`security-and-hardening` as an audit, then a gate.** Run it once across the existing attack surface (auth, input handling, dependencies, the dependency audit alone usually pays for the exercise), file what you find, then enforce it on new changes.
-
-### Phase 4 | Pay down, deprecate, observe
-
-- **`deprecation-and-migration`** is the brownfield skill par excellence: code-as-liability, compulsory vs. advisory deprecation, and zombie-code removal give you a disciplined way to shrink the legacy surface instead of just wrapping it.
-- **`observability-and-instrumentation`** retrofitted along the paths you actually debug: structured logging and RED metrics on the top incident sources first.
-- **`performance-optimization`** when regressions matter, its measure-first rule prevents the classic legacy trap of optimizing code that was never the bottleneck.
-
-### Brownfield anti-patterns
-
-- **"Big bang" adoption.** Loading the full lifecycle onto a legacy codebase on day one produces specs for code that already exists and refactors without safety nets. Sequence it.
-- **Letting the agent refactor untested code.** No characterization tests, no refactor. This is the single most expensive shortcut in brownfield adoption.
-- **Skipping `context-engineering` because "the code is the documentation."** The agent will infer conventions from the worst file it happens to read. Tell it the real ones.
-- **Treating the legacy system's behavior as wrong by default.** Chesterton's Fence: the weird retry loop may be load-bearing. Understand, then change.
-- **Ratcheting nothing.** Adoption should make quality monotonically better: each phase adds a gate that doesn't come back off. If a month in you can't name what's now enforced that wasn't before, the rollout has stalled.
+- **跳過 `/spec`，因為「這只是個原型」。** 原型會變成產品。規格是你為該程式碼庫寫的成本最低的產物。
+- **在每次會話中載入所有 25 個技能。** 這浪費了上下文，並稀釋了真正重要的技能。按階段載入；讓主機的原生路由器或 `using-agent-skills` 進行路由，但不要同時進行。
+- **將可觀察性推遲到「有東西可觀察」時。** 在建構時進行儀表化，事後添加結構化日誌是您選擇創造的路徑 B 問題。
 
 ---
 
-## The two paths converge
+## 路徑 B | 棕地專案：漸進式，以驗證為先
 
-Both end in the same steady state: `/spec → /plan → /build → /review → /ship` for new work, always-on TDD and git discipline, review gates before merge, and skills loaded by phase rather than in bulk. Greenfield gets there in days; brownfield gets there in a quarter, and the difference is exactly the safety nets (context, characterization tests, boundaries) that the old codebase never had.
+在既有的程式碼庫中，風險概況會反轉：危險不在於構建錯誤的東西，而在於**更改**那些行為沒有被任何人完全規範的東西。因此，採用順序始於**讀取和保護**程式碼庫的技能，然後才轉向**更改**它的技能。
 
-|                        | Greenfield                     | Brownfield                               |
-| ---------------------- | ------------------------------ | ---------------------------------------- |
-| First skill loaded     | Native router, or `using-agent-skills` + `/spec` | `context-engineering`                    |
-| First value delivered  | Spec'd, tested first feature   | Zero-risk reviews and safer bug fixes    |
-| TDD posture            | Universal from commit one      | Selective: tests where change is planned |
-| Refactoring rule       | Rare (little to refactor)      | Characterization tests first, always     |
-| Riskiest anti-pattern  | Skipping the spec              | Refactoring untested code                |
-| Time to full lifecycle | Day one                        | ~One quarter, two-speed in between       |
+### 階段 1 | 上下文與唯讀技能
+
+目標：代理在修改任何東西之前就理解程式碼庫。
+
+1. **首先是 `context-engineering`。** 撰寫專案規則檔案，描述真正的慣例，即程式碼中的慣例，而不是在 Wiki 中的慣例。包含建構/測試命令、目錄含義、已知危險點（「不要觸碰 `legacy/billing`，它沒有測試，並且有三個已知的變通方法」）。
+2. **對傳入的變更進行 `code-review-and-quality`。** 審查是零風險且立即有價值的：五軸審查及其嚴重性標籤（區分阻止合併的內容，如 Critical 和 Required，與不阻止的內容）無論程式碼庫的狀態如何，都能對任何 PR 生效。
+3. **對您原本就正在修復的錯誤進行 `debugging-and-error-recovery`。** 五步分類（重現 → 定位 → 減少 → 修復 → 保護）在不熟悉的程式碼中發揮作用，而「保護」步驟開始建立您沒有的迴歸套件。
+4. **`doubt-driven-development` 作為安全網。** 遺留程式碼正是這個技能所針對的「不熟悉代碼，錯誤的成本很高」場景。對代理關於遺留系統如何運作的主張進行對抗性新上下文審查，可以在它們成為提交之前捕捉到確定的幻覺。
+
+### 階段 2 | 更改前的測試
+
+目標：代理將要觸及的每個領域都先獲得安全網。
+
+- **選擇性地應用 `test-driven-development`。** 不要追求全局覆蓋率；追求**計劃更改的領域**的覆蓋率。對於未測試的遺留行為，編寫特性化測試，測試確定程式碼當前做什麼，是對是錯，然後再進行任何修改。貝葉斯規則適用：如果代理對某個行為足夠喜歡以至於依賴它，它就應該為它建立一個測試。
+- **對最差的熱點進行 `code-simplification`。** 切斯特頓的圍欄是操作原則：該技能迫使代理在移除代碼之前理解**為什麼**存在代碼。行為保持的簡化加上特性化測試是使遺留程式碼可變更的風險最低方式。
+- **在所有地方應用 `git-workflow-and-versioning`。** 在棕地專案中，小的原子提交更重要：當對舊程式碼的更改破壞了某個細微的東西時，約 100 行的提交是可被區分的；2,000 行的「現代化」提交則不是。
+
+### 階段 3 | 新工作執行完整生命週期
+
+目標：雙速採用，遺留程式碼保持在階段 1-2 的制度之下；**新功能獲得綠地專案的處理**。
+
+- 在舊程式碼庫中添加新功能？`/spec → /plan → /build → /review`。規格的邊界部分是您聲明該功能可能觸及或不應觸及的遺留表面的地方。
+- **在縫隙處應用 `api-and-interface-design`。** 當新程式碼必須與舊程式碼溝通時，首先設計邊界合約。在多年歷史的程式碼庫中，希魯姆定律並非理論，有人依賴於所有可觀察的行為，包括錯誤。
+- **將 `security-and-hardening` 作為審計，然後是門檻。** 首先在現有的攻擊表面（身份驗證、輸入處理、依賴項、僅依賴項審計通常就支付了這項工作的費用）上運行它，記錄您發現的內容，然後對新更改強制執行它。
+
+### 階段 4 | 減少、棄用、觀察
+
+- **`deprecation-and-migration`** 是棕地專案的典範技能：程式碼即負擔，強制性與建議性的棄用，以及殭屍程式碼的移除，為您提供了一種有紀律的方式來縮小遺留表面，而不是僅僅包裝它。
+- **`observability-and-instrumentation`** 沿著您實際除錯的路徑進行後加。首先在頂層事件來源上進行結構化日誌和 RED 指標。
+- **`performance-optimization`** 當迴歸很重要時，其衡量優先規則可以防止經典的遺留陷阱，即優化從未成為瓶頸的程式碼。
+
+### 棕地專案的反模式
+
+- **「一場大戰」採用。** 在第一天就將完整的生命週期載入到遺留程式碼庫上，會產生對已存在程式碼的規格，並在沒有安全網的情況下進行重構。按順序執行。
+- **讓代理重構未測試的程式碼。** 沒有特性化測試，沒有重構。這是棕地採用中最昂貴的捷徑。
+- **跳過 `context-engineering`，因為「程式碼就是文件」。** 代理將從它恰好讀到的最差檔案中推斷慣例。告訴它真正的慣例。
+- **預設將遺留系統的行為視為錯誤。** 切斯特頓的圍欄：奇怪的重試迴圈可能具有承重能力。理解，然後更改。
+- **不增加任何東西。** 採用應該使品質單調地更好：每個階段都增加了一個不會撤銷的門檻。如果您一個月都無法記住現在強制執行的內容，而以前沒有，那麼部署就停滯了。
+
+---
+
+## 兩條路徑的收斂
+
+兩者都以相同的穩定狀態結束：對於新工作，是 `/spec → /plan → /build → /review → /ship`，始終是持續的 TDD 和 Git 紀律，合併前的審查門檻，以及按階段而非批量載入技能。綠地專案在幾天內到達；棕地專案在一個季度內到達，兩者之間的差異正是舊程式碼庫從未擁有的安全網（上下文、特性化測試、邊界）。
+
+| | 綠地專案 | 棕地專案 |
+| :--- | :--- | :--- |
+| 第一個技能載入 | 原生路由器，或 `using-agent-skills` + `/spec` | `context-engineering` |
+| 交付的首次價值 | 規格化、首先測試的功能 | 零風險的審查和更安全的錯誤修復 |
+| TDD 立場 | 從第一筆提交開始的普遍適用 | 選擇性：在計劃更改的領域進行測試 |
+| 重構規則 | 罕見（很少重構） | 首先進行特性化測試，始終如此 |
+| 最具風險的反模式 | 跳過規格 | 重構未測試的程式碼 |
+| 完整生命週期所需時間 | 第一天 | 約一個季度，中間有雙速 |

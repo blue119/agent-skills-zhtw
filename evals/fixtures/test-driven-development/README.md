@@ -1,27 +1,22 @@
 # split-payment
 
-Utility for splitting an amount of money among `n` participants without
-losing or inventing cents. Amounts are integer cents throughout; the
-library never touches floating point.
+用於在 `n` 個參與者之間分割一筆金額，而不會丟失或編造分。金額在整個過程中都是整數分；該函式庫從不接觸浮點數。
 
 ## API
 
-`splitCents(totalCents, n)` returns an array of `n` integer cent amounts.
-`totalCents` is a non-negative integer, `n` is a positive integer.
+`splitCents(totalCents, n)` 返回一個包含 `n` 個整數分數的陣列。
+`totalCents` 是一個非負整數，`n` 是一個正整數。
 
-## Invariants
+## 不變式
 
-Every result must satisfy both invariants, for every input:
+對於每一個輸入，每個結果都必須滿足以下兩個不變式：
 
-1. **Exactness** — the shares sum to exactly `totalCents`. Money is never
-   lost or created.
-2. **Fairness** — no two shares differ by more than one cent. When the
-   total does not divide evenly, the leftover cents go to the earliest
-   shares, one cent each.
+1. **精確性** — 各份總和恰好等於 `totalCents`。錢從不丟失或產生。
+2. **公平性** — 任何兩份之間的差異都不超過一分。當總數不能整除時，剩餘的分被分配給最早的份，每份一分。
 
-For example, `splitCents(100, 7)` is `[15, 15, 14, 14, 14, 14, 14]`.
+例如，`splitCents(100, 7)` 是 `[15, 15, 14, 14, 14, 14, 14]`。
 
-## Tests
+## 測試
 
 ```
 npm test

@@ -1,11 +1,11 @@
 ---
-description: A pasted diff with a request that belongs to git-workflow-and-versioning. Guards the "even when the diff is pasted inline" clause of the review skill's description, since a pasted diff alone must not make the review skill fire.
-expected_outcome: A commit message; code-review-and-quality is never invoked.
+description: 貼上的差異內容，以及屬於 git-workflow-and-versioning 的請求。這會驗證審查技能描述中的「即使差異內容是內嵌貼上」條款，因為單獨貼上的差異不應觸發審查技能。
+expected_outcome: 一則提交訊息；絕不呼叫 code-review-and-quality。
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]
 ---
 
-Write me a commit message for this diff.
+請為這份差異內容撰寫提交訊息。
 
 ```diff
 diff --git a/src/orders.js b/src/orders.js

@@ -1,11 +1,11 @@
 ---
-description: A review request that names the axes, with a small diff inline. The skill should fire (through the review command or directly) and the reply should carry its severity labels.
-expected_outcome: A structured review with a verdict, findings labelled with the skill's severity taxonomy, and the off-by-one in pageOrders treated as a required change.
+description: 一個指明審查維度且包含內聯小型 diff 的審查請求。該技能應被觸發（透過 review 指令或直接觸發），且回覆應包含其嚴重性標籤。
+expected_outcome: 具有結論的結構化審查、使用技能的嚴重性分類標記的發現，並將 pageOrders 中的差一錯誤（off-by-one）視為必須修改的變更。
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]
 ---
 
-I want a code review of this diff across correctness, readability, security and performance before merging. It adds paging to the orders endpoint.
+在合併之前，我希望針對正確性、可讀性、安全性和效能對此 diff 進行程式碼審查。它為 orders 端點新增了分頁功能。
 
 ```diff
 diff --git a/src/orders.js b/src/orders.js

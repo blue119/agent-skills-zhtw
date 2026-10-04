@@ -1,32 +1,32 @@
 ---
-description: Define and enforce this project's quality bar — interview, sane defaults, CONSTRAINTS.md
+description: 定義和強制此專案的品質標準 — 面試、合理的預設值、CONSTRAINTS.md
 ---
 
-Invoke the agent-skills:constraint-driven-development skill.
+呼叫代理技能：constraint-driven-development。
 
 $ARGUMENTS
 
-Default behaviour with no arguments: set up constraints for this repository.
+無參數的預設行為：為此儲存庫設定約束。
 
-1. **Detect first.** Read package.json / pyproject.toml / go.mod, the test runner, existing lint configs, current coverage output, CI workflows, and the agent harness in use. Report what you found in two lines. Never ask for anything you can read.
+1. **先偵測。** 讀取 package.json / pyproject.toml / go.mod，測試執行器，現有的程式碼風格設定，當前的覆蓋率輸出，CI 工作流程，以及使用的代理工具。在兩行內報告你找到的內容。絕不要求你讀取你已經能讀到的內容。
 
-2. **Interview, at most four questions.** One at a time, each with your best guess and a usable default so "I don't know" still produces a working config:
-   - Which dimensions beyond the floor (coverage, security, performance, accessibility, architecture)
-   - Block or warn when a check fails mid-task
-   - Target numbers, or measure today's values and hold them
-   - Slowest check tolerated before handing work back
+2. **面試，最多四個問題。** 一個一次，每個問題都包含你最好的猜測和一個可用的預設值，以確保「我不知道」仍然能產生一個可運行的設定：
+   - 除了地板之外的哪些維度（覆蓋率、安全性、效能、無障礙性、架構）
+   - 在任務中途檢查失敗時，是否封鎖或發出警告
+   - 目標數字，或測量今天的數值並保持它們
+   - 在將工作交回之前容忍的最慢的檢查
 
-3. **Write CONSTRAINTS.md** at the repo root with a Floor section, enforced numbers, measured-only metrics with today's values, and an exceptions table with owners and expiry dates. Every number needs a stated reason.
+3. **在儲存庫根目錄下撰寫 CONSTRAINTS.md**，包含一個 Floor（底線）部分、強制執行的數字、僅測量指標（附帶今天的數值），以及一個例外表，其中包含擁有者和到期日期。每個數字都需要說明其原因。
 
-4. **Install what each picked dimension needs.** A dimension with a number and no tool behind it is an aspiration. Use the de facto tool so existing config keeps working: Semgrep for code scanning, gitleaks (always `--redact`) for secrets, osv-scanner for dependencies, axe-core for accessibility, Lighthouse for web vitals, size-limit for bundles, dependency-cruiser for boundaries, Stryker for assertion quality. Record the exact command next to each rule in CONSTRAINTS.md. Accessibility and performance need a running URL; if the project has none, say so and drop the dimension rather than inventing a check. Add the commands to package.json as check:fast / check:task / check:full.
+4. **安裝每個所選維度所需的工具。** 具有數字但沒有後端工具的維度是願望。使用事實上的工具，以確保現有設定仍然有效：Semgrep 進行程式碼掃描，gitleaks（始終使用 `--redact`）處理密碼，osv-scanner 處理依賴項，axe-core 處理無障礙性，Lighthouse 處理網頁指標，size-limit 處理套件，dependency-cruiser 處理邊界，Stryker 處理斷言品質。在 CONSTRAINTS.md 中為每個規則記錄確切的命令。無障礙性和效能需要一個正在運行的 URL；如果專案沒有，則說明並刪除該維度，而不是編造一個檢查。將這些命令添加到 package.json 中作為 check:fast / check:task / check:full。
 
-5. **Place each check by cost.** Types, lint and secrets in the edit loop (seconds). Related tests and changed-line coverage at task end (under 90s). Everything else at review or in CI. Scope checks to the diff, not the whole repo.
+5. **按成本放置每個檢查。** 在編輯循環中處理類型、風格和密碼（秒）。在任務結束時處理相關測試和變更行覆蓋率（低於 90 秒）。其他所有內容在審查或 CI 中處理。將範圍檢查限制在差異（diff）上，而不是整個儲存庫。
 
-6. **Point the agent at it.** Add a line to CLAUDE.md telling agents to read CONSTRAINTS.md and never weaken it to make a change pass.
+6. **將代理引導到它。** 在 CLAUDE.md 中添加一行，告知代理閱讀 CONSTRAINTS.md，並且絕不為了讓更改通過而削弱它。
 
-7. **Verify.** Run the constraints against the current branch. If anything fails that the user disagrees with, fix the constraint now rather than leaving a gate people will learn to ignore.
+7. **驗證。** 將約束應用於當前分支。如果出現任何用戶不同意的失敗，請立即修復該約束，而不是留下人們會學會忽略的門檻。
 
-Sub-commands:
-- `/constraints check` — run the current constraints against this branch and report
-- `/constraints guard` — inspect the diff for a weakened bar: lowered thresholds, skipped or deleted tests, new suppression comments, unfinished stubs, new exceptions
-- `/constraints ratchet` — record today's measured values as the floor that must not fall
+子命令：
+- `/constraints check` — 將當前約束應用於此分支並報告結果
+- `/constraints guard` — 檢查差異中是否有被削弱的標準：降低的閾值、跳過的或刪除的測試、新的抑制註釋、未完成的存根、新的例外
+- `/constraints ratchet` — 將今天的測量數值記錄為不得低於的底線

@@ -1,19 +1,16 @@
-# URL shortener service brief
+# URL 縮短服務簡介
 
-The service needs public operations to create a short URL, resolve a slug, and
-read aggregate click statistics. Clients include a browser extension and a
-mobile app, so contracts must remain backward compatible.
+該服務需要公開操作來建立短網址、解析 slug，以及讀取聚合點擊統計數據。客戶包括瀏覽器擴充功能和行動應用程式，因此合約必須保持向後相容性。
 
-Known constraints:
+已知限制：
 
-- Destination URLs are supplied by untrusted users.
-- Slugs are six to twelve URL-safe characters.
-- A missing slug and an expired slug must be distinguishable to operators, but
-  the public API must not expose internal storage details.
-- Statistics may be delayed by up to one minute.
+- 目標網址由不可信使用者提供。
+- Slug 是六到十二個 URL 安全字元。
+- 操作員必須能夠區分缺少 slug 和過期的 slug，但公開 API 不得暴露內部儲存細節。
+- 統計數據可能延遲最多一分鐘。
 
-Still undecided:
+尚未決定事項：
 
-- Whether callers may request custom slugs.
-- Whether links expire by default.
-- Whether statistics require authentication.
+- 是否允許呼叫者請求自訂 slug。
+- 連結是否預設過期。
+- 統計數據是否需要身份驗證。

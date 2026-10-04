@@ -1,35 +1,35 @@
-# Using agent-skills with Codex
+# 使用 agent-skills 與 Codex
 
-This repository is also a [Codex plugin](https://developers.openai.com/codex/plugins/build). The same root-level `skills/` directory used by Claude Code is consumed by Codex, so no files are copied or duplicated.
+此儲存庫也是一個 [Codex 外掛](https://developers.openai.com/codex/plugins/build)。與 Claude Code 使用的相同根層級 `skills/` 目錄被 Codex 消耗，因此沒有檔案被複製或重複。
 
-## Install
+## 安裝
 
 ```bash
 codex plugin marketplace add addyosmani/agent-skills
 codex plugin add agent-skills@agent-skills
 ```
 
-> Requires Codex CLI v0.122 or later. On older releases the command was `codex marketplace add`. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
+> 需要 Codex CLI v0.122 或更高版本。在舊版本中，該指令是 `codex marketplace add`。請參閱 [Codex CLI 文件](https://developers.openai.com/codex/cli)。
 
-The first command registers this repository as the `agent-skills` marketplace. The second command installs and enables the `agent-skills` plugin from that marketplace. Start a new Codex session after installation so the skills are discovered.
+第一個指令將此儲存庫註冊為 `agent-skills` 市場。第二個指令從該市場安裝並啟用 `agent-skills` 外掛。安裝後請開始一個新的 Codex 會話，以便發現這些技能。
 
-Local clones work too:
+本地克隆也可以：
 
 ```bash
 codex plugin marketplace add /path/to/your/clone
 codex plugin add agent-skills@agent-skills
 ```
 
-## Usage
+## 使用方法
 
-After install, invoke a skill in Codex chat with `@` (e.g. `@spec-driven-development`) or just describe the task and let Codex pick the right skill. All 25 skills under `skills/` are available.
+安裝後，在 Codex 聊天中用 `@` 呼叫一個技能（例如 `@spec-driven-development`），或者直接描述任務讓 Codex 選擇正確的技能。`skills/` 下的所有 25 個技能都可用。
 
-[Codex uses progressive disclosure](https://developers.openai.com/codex/skills): it starts with each skill's `name` and `description`, chooses skills on demand, then loads the full `SKILL.md` only when selected. Do not also paste `using-agent-skills/SKILL.md` into `AGENTS.md`, a system prompt, or other always-on context: that stacks the pack's meta-router on Codex's native router and adds unnecessary routing work. The meta-skill can remain installed with the pack; the warning is specifically against preloading its full instructions.
+[Codex 採用漸進式揭露](https://developers.openai.com/codex/skills)：它從每個技能的 `name` 和 `description` 開始，按需選擇技能，然後僅在選擇時才載入完整的 `SKILL.md`。不要將 `using-agent-skills/SKILL.md` 也貼到 `AGENTS.md`、系統提示或其他常駐上下文：這會將該套件的元路由堆疊在 Codex 的原生路由上，並增加不必要的路由工作。該元技能可以與套件一起保持安裝；警告是針對預先載入其完整指令的。
 
-## How it works
+## 工作原理
 
-- `.codex-plugin/plugin.json` — Codex plugin manifest at the repo root. Points `skills` at `./skills/` and provides the metadata required by Codex.
-- `.agents/plugins/marketplace.json` — marketplace entry declaring the repo root (`./`) as the plugin source.
-- `skills/<name>/SKILL.md` — unchanged. Codex and Claude Code share the same `name` + `description` frontmatter format, so one file serves both platforms.
+- `.codex-plugin/plugin.json` — 儲存庫根目錄下的 Codex 外掛標記。將 `skills` 指向 `./skills/` 並提供 Codex 所需的元數據。
+- `.agents/plugins/marketplace.json` — 市場入口，宣告儲存庫根目錄 (`./`) 為外掛來源。
+- `skills/<name>/SKILL.md` — 不變。Codex 和 Claude Code 共享相同的 `name` + `description` 前置元數據格式，因此一個檔案同時服務於這兩個平台。
 
-Slash commands in `.claude/commands/` and personas in `agents/` stay Claude Code-specific. The `SessionStart` script under `hooks/` is a standalone helper for hosts without native skill routing and is not wired by either plugin. On Codex, invoke the underlying skill directly instead of the slash command (e.g. `@spec-driven-development` instead of `/spec`).
+`.claude/commands/` 中的斜線指令和 `agents/` 中的角色保持特定於 Claude Code。`hooks/` 下的 `SessionStart` 腳本是針對沒有原生技能路由的主機的獨立輔助工具，並且未被任何外掛連接。在 Codex 中，請直接呼叫底層技能而不是斜線指令（例如 `@spec-driven-development` 而不是 `/spec`）。

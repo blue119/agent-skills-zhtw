@@ -1,18 +1,14 @@
-# Notifications specification
+# 通知規範
 
-Users can opt into email notifications when a task is assigned or becomes
-overdue. Preferences are stored per user and default to disabled. Assignment
-events already exist; overdue detection runs every fifteen minutes.
+使用者可以選擇在任務被指派或逾期時接收電子郵件通知。偏好設定是針對每個使用者的，預設為關閉。指派事件已存在；逾期偵測每十五分鐘執行一次。
 
-Requirements:
+要求：
 
-- Add preference read/update endpoints with boundary validation.
-- Publish notification jobs from assignment and overdue flows.
-- Deduplicate jobs by user, task, event type, and event version.
-- Send email through the existing provider adapter.
-- Record delivery status without storing message bodies.
-- Feature flag the sending path; disabled remains the safe default.
+- 新增帶有邊界驗證的偏好讀取/更新端點。
+- 從指派和逾期流程中發布通知工作。
+- 根據使用者、任務、事件類型和事件版本對工作進行去重。
+- 透過現有的供應商適配器發送電子郵件。
+- 記錄傳送狀態，但不儲存訊息內容。
+- 對發送路徑進行功能標記；關閉狀態保持安全預設。
 
-Verification must include preference API tests, job deduplication tests,
-provider-adapter integration tests, and one end-to-end assignment scenario.
-No SMS, push notifications, or notification history UI is in scope.
+驗證必須包括偏好 API 測試、工作去重測試、供應商適配器整合測試以及一個端到端指派場景。不包含 SMS、推送通知或通知歷史記錄使用者介面。

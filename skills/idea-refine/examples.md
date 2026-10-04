@@ -1,238 +1,238 @@
-# Ideation Session Examples
+# 構想會議範例
 
-These examples demonstrate what good ideation sessions look like across different kinds of ideas. Study the rhythm, tone, and structure — not just the content. The skill should feel equally at home with a vague startup concept, a feature for an existing product, or a process improvement.
-
----
-
-## Example 1: Vague Early-Stage Concept (Full 3-Phase Session)
-
-**User invokes:** `/ideate I want to help small local restaurants compete with the big delivery platforms`
-
-### Phase 1: Understand & Expand
-
-**Skill response:**
-
-> **How might we** give independent restaurants the reach and convenience customers expect from delivery platforms, without forcing them into a model that erodes their margins and brand?
-
-That's a big space. Let me sharpen it:
-
-1. **Which part of "compete"?** Customer acquisition? Delivery logistics? Online ordering UX? Loyalty/retention? Margin pressure from platform fees?
-2. **Who are you building for?** The restaurant owner? The diner? Both?
-3. **What's the constraint?** Are you thinking software? A cooperative model? Something physical?
-
-**User responds:** "Restaurant owners. The core pain is that they're paying 25-30% commission to delivery apps but feel they can't opt out because that's where the customers are. I'm thinking software but I'm open."
-
-**Skill continues:**
-
-So the problem isn't delivery logistics — it's **customer dependency**. The platforms own the customer relationship, and restaurants are renting access to their own customers at 30% of revenue. That's the leverage to break.
-
-Here are 6 variations:
-
-1. **Direct Channel Toolkit:** Give restaurants their own branded ordering — web, SMS, maybe a lightweight app — so they can move existing customers off-platform. The core bet: customers who *already know* a restaurant will order direct if it's easy enough. You don't need to compete with DoorDash for discovery, just for reordering.
-
-2. **Inversion — Charge the Customer, Not the Restaurant:** What if the delivery fee model flipped? Customers pay a small premium for direct ordering, restaurants pay zero commission. Position it as "support your local spot." The bet: enough customers care about supporting local businesses to pay $1-2 more per order.
-
-3. **Constraint Removal — What If Delivery Weren't Required?** The platforms bundle discovery + ordering + delivery, but most of their cost (and the restaurant's commission) is delivery. What if you only solved ordering and pickup? Pickup-first model. Restaurants keep 100% of revenue, customers save the delivery fee. Works best in dense neighborhoods.
-
-4. **Combination — Restaurant Collective:** A co-op model where 20-50 local restaurants in an area share a platform, split costs, and cross-promote each other. Individual restaurants can't afford marketing — but a neighborhood collective can. Think "local food hall" but digital.
-
-5. **Audience Shift — For Regular Customers:** Don't try to acquire new customers. Build exclusively for a restaurant's existing regulars — the people who come in weekly. A loyalty/reorder tool that's dead simple: "Your usual?" one-tap reorder. The 80/20 bet: 20% of customers drive 80% of revenue, and those people don't need DoorDash to discover the restaurant.
-
-6. **Expert Lens — What Restaurant Owners Actually Do:** Most small restaurant owners aren't looking at dashboards. They're in the kitchen. Any tool that requires them to "manage" something will fail. The winning approach might be something that runs itself — auto-texts regulars when they haven't ordered in 2 weeks, auto-posts the daily special, auto-handles reorders. Zero restaurant-side effort.
-
-Variation 5 and 6 together are interesting. Instead of trying to out-platform the platforms, you'd build something hyper-narrow: a reordering and retention tool for a restaurant's best existing customers. No discovery, no delivery, no marketplace. Just "keep your regulars ordering direct."
-
-Which directions interest you?
+這些範例展示了在不同類型的想法中，良好的構想會議是如何呈現的。請研究其節奏、語氣和結構——而不僅僅是內容。這項技能應該與模糊的創業概念、現有產品的功能、或流程改進一樣貼合。
 
 ---
 
-### Phase 2: Evaluate & Converge
+## 範例 1：模糊的早期概念（完整三階段會議）
 
-**User responds:** "I love the regulars angle (5 and 6). The direct channel toolkit (1) feels necessary but boring. The co-op idea (4) is interesting but complex. Let me focus on 1 + 5 + 6 combined."
+**使用者發出指令：** `/ideate 我想幫助小型在地餐廳與大型配送平台競爭`
 
-**Skill response:**
+### 階段 1：理解與擴展
 
-Good instincts. That combination has a clear thesis: **own the relationship with your best customers, make reordering effortless, and require zero effort from the restaurant owner.** Let me stress-test it.
+**技能回應：**
 
-**Direction A: The "Regulars Engine" (Variations 5 + 6 fused)**
-A tool focused entirely on a restaurant's existing repeat customers. Auto-reorder, auto-engagement, zero management.
+> **我們如何**在不迫使他們進入會侵蝕其利潤和品牌的模式的情況下，讓獨立餐廳獲得配送平台所期望的客戶能及的範圍和便利性？
 
-- **Core bet:** A restaurant's top 20% of customers will shift to direct ordering if the experience is frictionless and personal. The restaurant doesn't need *new* customers — it needs to stop paying 30% on customers it already has.
-- **User value:** High and immediate. Every direct reorder saves the restaurant 25-30% commission. If a regular orders $30/week, that's ~$400/year in saved fees per customer. 50 regulars = $20K/year. That's real money for a small restaurant.
-- **Feasibility:** Medium. The ordering/payment tech is commodity. The hard parts: (a) how do you identify and onboard "regulars" without the restaurant doing manual work? (b) How do you handle the cold start — the first reorder needs an order history that lives on the delivery platform, not with you.
-- **Differentiation:** High for the niche. Platforms optimize for marketplace dynamics (new customer discovery, driver logistics). Nobody is optimizing specifically for "keep your regulars ordering direct." It's too small for DoorDash to care about, which is exactly why it's a good wedge.
-- **Hidden assumptions:**
-  - Regulars will install/use yet another ordering method (assumption most likely to be wrong)
-  - Restaurant owners will share customer contact info or let you access it
-  - Direct ordering won't cannibalize dine-in revenue
-- **What could kill it:** If customers simply won't switch channels. Habit is powerful — even if DoorDash costs more, it's already on their phone.
+這是一個很大的領域。讓我來精煉一下：
 
-**Direction B: Direct Channel + Retention Hybrid (Variation 1 + 5)**
-Branded ordering for the restaurant *plus* the retention automation. More complete but more complex.
+1. **「競爭」的哪個部分？** 客戶獲取？配送物流？線上訂購體驗？忠誠度/留存？平台費用的利潤壓力？
+2. **你為誰在建立？** 餐廳業主？食客？兩者皆是？
+3. **限制條件是什麼？** 你在考慮軟體？合作模式？實體事物？
 
-- **Core bet:** Restaurants need both the channel (a way to accept orders) and the engine (a way to keep customers coming back through that channel).
-- **User value:** Higher ceiling, but only if both parts work together. The ordering channel alone is a commodity (Square, Toast already do this). The retention layer alone has no channel to retain customers *on*.
-- **Feasibility:** Lower. You're building two products and hoping they're better together.
-- **Differentiation:** Medium. The combination is interesting, but each piece individually has competitors.
-- **Hidden assumption:** That bundling these is better than partnering (e.g., retention layer on top of Square Online).
-- **What could kill it:** Scope. Building two things well is exponentially harder than building one thing well.
+**使用者回應：** 「餐廳業主。核心痛點是他們支付給配送應用程式 25-30% 的佣金，但他們感覺不能退出，因為那是客戶所在的地方。我在想軟體，但我持開放態度。」
 
-**The honest read:** Direction A is the sharper bet. Direction B is safer but less differentiated. The biggest risk for A is the channel-switching problem — getting customers to order through a new method. If you can crack that (and variation 6's "zero effort" approach might help — an SMS-based reorder doesn't require a new app), the rest follows.
+**技能繼續：**
 
-One thing I want to push back on: you said variation 1 feels "necessary but boring." That instinct to include the "necessary" thing is how products lose focus. If the regulars engine works, you can add a branded ordering channel later. But if you build the channel first, you're just another Square Online competitor.
+所以問題不在於配送物流——而在於**客戶依賴性**。平台擁有客戶關係，而餐廳只是以其收入的 30% 租用他們自己的客戶。這就是可以打破的槓桿。
 
----
+這裡有 6 種變體：
 
-### Phase 3: Sharpen & Ship
+1. **直接通路工具包：** 讓餐廳擁有自己的品牌訂購系統——網頁、簡訊，或許是一個輕量級的應用程式——以便他們能將現有客戶從平台上轉移。核心賭注：如果客戶*已經知道*一家餐廳，他們會因為方便而直接訂購。你不需要在發現方面與 DoorDash 競爭，只需要在重新訂購方面競爭。
 
-**Skill produces:**
+2. **反轉——向客戶收費，而非餐廳：** 如果配送費用的模式反轉了會怎樣？客戶為直接訂購支付一筆小額溢價，餐廳支付零佣金。將其定位為「支持你當地的店鋪」。賭注：足夠多的客戶關心支持本地企業，願意為每筆訂單多付 1-2 美元。
 
-# ReOrder: Keep Your Regulars Ordering Direct
+3. **限制移除——如果不需要配送會怎樣？** 平台將發現、訂購和配送打包在一起，但他們的大部分成本（以及餐廳的佣金）是配送。如果只解決訂購和取貨呢？取貨優先模式。餐廳保留 100% 的收入，客戶省下配送費用。在人口稠密的社區效果最好。
 
-## Problem Statement
-How might we help independent restaurants retain their best existing customers through direct ordering, eliminating the 25-30% platform commission on the revenue that matters most?
+4. **組合——餐廳集體：** 一種合作模式，該地區 20-50 家當地餐廳共享一個平台，分攤成本，互相推廣。單獨的餐廳無力進行行銷——但社區集體可以。想想「在地美食廣場」，但是數位化的。
 
-## Recommended Direction
-Build a **regulars-only retention engine** — not a marketplace, not a full ordering platform. Hyper-focused on one job: make it effortless for a restaurant's repeat customers to reorder directly.
+5. **受眾轉移——針對常客：** 不要試圖獲取新客戶。專門為餐廳現有的常客建立系統——那些每週光顧的人。一個非常簡單的忠誠度/重新訂購工具：「你常點的？」一鍵重新訂購。80/20 的賭注：20% 的客戶帶來 80% 的收入，而這些人不需要 DoorDash 來發現餐廳。
 
-The key insight is that restaurants don't need help *finding* their best customers — they know who walks in every Tuesday. They need help moving those relationships off-platform. And the tool needs to run itself, because the owner is in the kitchen, not at a dashboard.
+6. **專家視角——餐廳業主實際做什麼：** 大多數小型餐廳業主並不是在看儀表板。他們在廚房裡。任何需要他們「管理」某事才能成功的工具都會失敗。勝利的方法可能是自動運行的東西——當常客兩週未訂購時自動發送簡訊，自動發布每日特價，自動處理重新訂購。零餐廳端的努力。
 
-SMS-first (not app-first) is likely the right channel. A text saying "Hey, want your usual Thursday order from Marco's?" with a one-tap confirmation is lower friction than any app install.
+變體 5 和 6 結合起來很有趣。與其試圖在平台上超越平台，不如建立一個高度狹窄的工具：為餐廳最好的現有客戶提供重新訂購和留存工具。沒有發現、沒有配送、沒有市場。只是「讓你的常客直接訂購」。
 
-## Key Assumptions to Validate
-- [ ] Repeat customers will reorder via SMS/direct link instead of their usual delivery app — test with 5 restaurants, 20 regulars each, measure conversion over 4 weeks
-- [ ] Restaurant owners can identify their top 20-30 regulars and share contact info — test by asking 10 restaurant owners if they'd do this
-- [ ] The commission savings ($8-10 per order) is motivating enough for owners to invest initial setup effort — interview 10 owners about platform fee pain
-
-## MVP Scope
-- SMS-based reordering for a restaurant's self-identified regular customers
-- Restaurant owner adds regulars manually (name + phone + usual order) — 15-minute setup
-- Customer receives a text with their usual order, confirms with a reply, pays via link
-- Restaurant receives the order via text/simple dashboard
-- No delivery — pickup only in v1
-- No discovery, no marketplace, no app
-
-## Not Doing (and Why)
-- **Delivery logistics** — delivery is the expensive, complex part and not the core problem. Pickup-first validates demand without operational burden.
-- **Customer acquisition/discovery** — that's the platform's game. Competing on discovery means competing with DoorDash's budget. We compete on retention instead.
-- **Branded restaurant apps/websites** — commodity. Square and Toast already do this. Another branded channel doesn't solve the behavioral problem.
-- **Menu management, POS integration** — scope creep. "Your usual" doesn't need a dynamic menu. Start with static orders.
-- **Analytics dashboards** — the owner is in the kitchen. Build reporting that's passive (weekly text summary) not active (log in and look at charts).
-
-## Open Questions
-- What's the legal/compliance landscape for SMS marketing to restaurant customers?
-- How do you handle menu/price changes for "usual" orders?
-- Is there a way to bootstrap the regular customer list from existing POS data instead of manual entry?
-- What's the pricing model? Per-order fee? Monthly subscription?
+你對哪個方向感興趣？
 
 ---
 
-## Example 2: Feature Idea Within an Existing Product (Codebase-Aware)
+### 階段 2：評估與收斂
 
-**User invokes:** `/ideate adding real-time collaboration to our document editor`
+**使用者回應：** 「我喜歡常客角度（5 和 6）。直接通路工具包（1）感覺是必要的但無聊的。合作模式（4）很有趣但很複雜。讓我專注於 1 + 5 + 6 的組合。」
 
-### Phase 1: Understand & Expand
+**技能回應：**
 
-**Skill response:**
+很好的直覺。這個組合有一個明確的論點：**擁有你最好的客戶關係，讓重新訂購變得毫不費力，並要求餐廳業主付出零努力。** 讓我進行壓力測試。
 
-> **How might we** let multiple people work on the same document simultaneously in a way that feels natural, not chaotic?
+**方向 A：**「常客引擎」（變體 5 + 6 融合）
+一個完全專注於餐廳現有重複客戶的工具。自動重新訂購、自動互動、零管理。
 
-I scanned your codebase and see you're using a block-based editor architecture with a REST API for persistence. No WebSocket infrastructure currently. That's important context. A few questions:
+- **核心賭注：** 如果體驗是無摩擦且個人化的，餐廳的頂部 20% 客戶將轉向直接訂購。餐廳不需要*新*客戶——它需要停止對其已有的客戶收取 30% 的費用。
+- **使用者價值：** 高且即時。每一次直接重新訂購都為餐廳節省了 25-30% 的佣金。如果一位常客每週訂購 30 美元，這就為每位客戶每年節省約 400 美元的費用。50 位常客 = 每年 2 萬美元。這對小型餐廳來說是真正的錢。
+- **可行性：** 中等。訂購/支付技術是商品。困難的部分：(a) 如何在不讓餐廳進行手動工作的情況下識別和納入「常客」？(b) 如何處理冷啟動——第一次重新訂購需要一個存在於配送平台上的訂單歷史，而不是存在於你那裡。
+- **差異化：** 對於這個利基市場來說很高。平台優化的是市場動態（新客戶發現、司機物流）。沒有人專門優化「讓你的常客直接訂購」。這對於 DoorDash 來說太小了，這正是它成為一個好切入點的原因。
+- **隱藏假設：**
+  - 常客會安裝/使用另一種訂購方式（最可能錯誤的假設）
+  - 餐廳業主會分享客戶聯繫資訊或讓你能存取它
+  - 直接訂購不會侵蝕堂食收入
+- **可能扼殺它的是：** 如果客戶只是不願意切換管道。習慣是強大的——即使 DoorDash 更貴，它已經在他們的手機上了。
 
-1. **What's the collaboration pattern?** Are people editing the same paragraph at the same time (Google Docs style)? Or working in different sections (Notion style)? Or reviewing/commenting while one person edits?
-2. **How many simultaneous users?** 2-3 (pair editing)? 10+ (team workspace)?
-3. **What's driving this now?** Customer requests? Competitive pressure? Internal need?
+**方向 B：**直接通路 + 留存混合（變體 1 + 5）
+為餐廳提供品牌訂購系統*加上*留存自動化。更完整但更複雜。
 
-**User responds:** "2-5 people, usually working in different sections. Customers keep asking. We're losing deals to Notion because they assume any modern editor has this."
+- **核心賭注：** 餐廳需要管道（接受訂單的方式）*以及*引擎（通過該管道留住客戶的方式）。
+- **使用者價值：** 潛在上限更高，但前提是兩部分能協同工作。僅僅訂購管道本身就是商品（Square、Toast 已經做到了）。僅僅留存層本身沒有管道來留住客戶。
+- **可行性：** 較低。你是在建立兩個產品，希望它們能更好地結合。
+- **差異化：** 中等。組合很有趣，但每個部分單獨都有競爭對手。
+- **隱藏假設：** 將它們捆綁在一起比合作夥伴關係（例如，在 Square Online 上增加留存層）更好。
+- **可能扼殺它的是：** 範圍。建立兩件事比建立一件事情要困難得多。
 
-**Skill continues:**
+**誠實的判斷：** 方向 A 是更銳利的賭注。方向 B 更安全但差異化較小。A 的最大風險是管道切換問題——讓客戶通過新方法訂購。如果你能解決這個問題（而變體 6 的「零努力」方法可能有所幫助——基於簡訊的重新訂購不需要新的應用程式），那麼其他部分就會跟上。
 
-The competitive pressure framing matters — this might be a checkbox feature (must-have to stay in the consideration set) rather than a differentiator. That changes how much you should invest.
-
-I see your document model uses independent blocks with a flat ordering system (`src/models/document.ts:45`). That's actually favorable — block-level granularity means conflicts are rarer than character-level editing.
-
-Here are 5 variations:
-
-1. **Block-Level Locking (Simplest Path):** When someone starts editing a block, it's locked for others. They see a presence indicator ("Alex is editing...") but can edit any other block freely. No conflict resolution needed. Your existing block model supports this with minimal changes — add a `locked_by` field and a WebSocket layer for presence.
-
-2. **Inversion — Async-First Collaboration:** Instead of real-time co-editing, lean into async. Inline suggestions, comments, and proposed edits that the document owner merges. Like suggestion mode, but as the *primary* collaboration model. Bet: for 2-5 people in different sections, async might actually be *better* than real-time.
-
-3. **Simplification — Presence Without Co-Editing:** Show who's viewing the document and what section they're looking at (cursors, avatars in margins), but don't enable simultaneous editing. People coordinate verbally. Sounds primitive, but might be 80% of the value at 10% of the engineering cost.
-
-4. **Combination — Collaboration + Version Branches:** Let people create "branches" of a document, edit independently, then merge. Each person gets their own space, no conflicts during editing, and you build a merge UI. Plays to your existing versioning system.
-
-5. **10x Version — AI-Mediated Collaboration:** Multiple people describe what they want in a section, and AI synthesizes their inputs into a draft they all iterate on. Nobody directly edits the same text — they all influence it. Radical, possibly too early, but worth naming.
-
-Given your architecture and the competitive context, I'd push you toward variation 1 or 3. You need to close deals, which means you need this shipped, which means you need the simplest version that checks the box. Variation 1 gives you real co-editing. Variation 3 is even cheaper but might not satisfy the "we need real-time" checkbox.
+我希望反駁一點：你說變體 1 感覺是「必要但無聊的」。納入「必要」事物的直覺就是產品失去焦點的方式。如果常客引擎奏效，你之後可以增加一個品牌訂購管道。但如果你先建立管道，你只是另一個 Square Online 的競爭對手。
 
 ---
 
-*Phase 2 would cluster into "minimum viable co-editing (1 or 3)" vs. "differentiated collaboration model (2 or 4)" — evaluating whether to check the competitive box quickly or invest in something that becomes a selling point.*
+### 階段 3：精煉與執行
 
-*Phase 3 would produce a one-pager recommending block-level locking as the MVP, with a "Not Doing" list that includes character-level CRDT (too complex), offline sync (not needed for 2-5 users), and AI features (premature).*
+**技能產出：**
 
----
+# ReOrder：讓你的常客直接訂購
 
-## Example 3: Process/Workflow Idea (Non-Product)
+## 問題陳述
+我們如何幫助獨立餐廳通過直接訂購來留住他們最好的現有客戶，消除對最重要收入的 25-30% 平台佣金？
 
-**User invokes:** `/ideate a better way to run our weekly team retrospectives — they've gotten stale and people dread them`
+## 建議方向
+建立一個**僅針對常客的留存引擎**——而不是一個市場，也不是一個完整的訂購平台。高度專注於一件事：讓餐廳的重複客戶直接重新訂購變得毫不費力。
 
-### Phase 1: Understand & Expand
+關鍵洞察是：餐廳不需要幫助*尋找*最好的客戶——他們知道每個星期二會來的人。他們需要幫助將這些關係從平台上轉移。而且這個工具需要自動運行，因為業主在廚房裡，而不是儀表板上。
 
-**Skill response:**
+基於簡訊（而非應用程式）是正確的管道。一條訊息：「嘿，想點你週四的 Marco's 的常點嗎？」加上一鍵確認，比安裝任何應用程式的摩擦更小。
 
-> **How might we** make retrospectives genuinely useful — something the team looks forward to — instead of a recurring meeting people endure?
+## 需要驗證的關鍵假設
+- [ ] 重複客戶會通過簡訊/直接連結而不是他們通常的配送應用程式重新訂購——與 5 家餐廳、每家 20 位常客一起測試，在 4 週內衡量轉換率
+- [ ] 餐廳業主可以識別他們最頂尖的 20-30 位常客並分享聯繫資訊——通過詢問 10 位餐廳業主是否願意做這件事來測試
+- [ ] 佣金的節省（每筆訂單 8-10 美元）足以激勵業主投入初始設置努力——向 10 位業主詢問平台費用的痛點
 
-Before expanding:
+## MVP 範圍
+- 為餐廳自我識別的常客提供基於簡訊的重新訂購
+- 餐廳業主手動添加常客（姓名 + 電話 + 常點）——15 分鐘設置
+- 客戶收到包含他們常點的簡訊，通過回覆確認，通過連結支付
+- 餐廳通過簡訊/簡單儀表板收到訂單
+- 第一階段不提供配送——僅提供取貨
+- 不提供發現、不提供市場、不提供應用程式
 
-1. **What's stale about them?** Same format every time? Same people talking? Action items that never get done? Topics feel repetitive?
-2. **Team size and dynamic?** 5 people who all speak up, or 15 where 3 dominate?
-3. **What does a *good* retro look like to you?** Have you had one that worked? What made it different?
+## 不做（以及原因）
+- **配送物流**——配送是昂貴、複雜的部分，而不是核心問題。取貨優先驗證了需求，同時避免了運營負擔。
+- **客戶獲取/發現**——這是平台的遊戲。在發現方面競爭意味著與 DoorDash 的預算競爭。我們競爭的是留存。
+- **品牌餐廳應用程式/網站**——商品。Square 和 Toast 已經做到了。另一個品牌管道無法解決行為問題。
+- **菜單管理、POS 整合**——範圍蔓延。你常點的不需要動態菜單。從靜態訂單開始。
+- **分析儀表板**——業主在廚房裡。建立被動的報告（每週簡訊摘要）而不是主動的（登錄查看圖表）。
 
-**User responds:** "8 people, maybe 3-4 actually talk. Same 'what went well / what didn't / action items' format for a year. The action items pile up and nothing changes. People think it's theater."
-
-**Skill continues:**
-
-The action item problem is the real signal. If nothing changes after the retro, people rationally disengage. The meeting isn't stale — it's **broken at the output layer**. The format might be fine if the follow-through worked.
-
-Here are 6 variations:
-
-1. **Fix the Output, Not the Meeting:** Keep the retro format but completely change what happens after. One action item max per retro. Assigned an owner and a deadline during the meeting. Next retro starts with a 5-minute demo of the completed action. If it's not done, that *becomes* the retro topic. The constraint of one item forces prioritization.
-
-2. **Inversion — Kill the Meeting:** Replace the synchronous retro with an async one. Everyone submits reflections in writing during the week. A rotating facilitator synthesizes themes and proposes one change. The "meeting" is a 15-minute standup to agree or disagree. Bet: writing produces more honest feedback than speaking in a group.
-
-3. **Audience Shift — Retro for the Quiet Ones:** Design the format for the 4-5 people who don't talk. Anonymous submission of topics. Dot-voting to prioritize. Small-group breakouts (pairs) before full-group discussion. The loud voices still participate, but the structure prevents them from dominating.
-
-4. **Simplification — The One Question Retro:** Each retro has exactly one question, and it changes every week. "What's one thing that slowed you down?" "What did you learn that the team should know?" "If you could change one thing about how we work, what?" The constraint forces depth over breadth.
-
-5. **Combination — Retro + Experimentation:** Treat each retro output as a hypothesis. "We believe that [change] will improve [outcome]." Run it as a 2-week experiment. Next retro: did it work? Keep, modify, or kill. Turns the retro into a continuous improvement engine with built-in accountability.
-
-6. **Expert Lens — What Facilitators Know:** Experienced facilitators say the #1 retro killer is lack of safety, not format. People won't say what's really wrong if they fear consequences. The fix might not be structural — it might be starting with an anonymous "team health check" score (1-5) each week. When safety is high, retros naturally improve.
-
-The interesting tension: variations 1 and 5 fix the *output* problem (nothing changes). Variations 2, 3, and 4 fix the *input* problem (same voices, same topics). Variation 6 says both are symptoms of a deeper issue. Where do you think the real bottleneck is?
+## 開放問題
+- 向餐廳客戶發送簡訊的法律/合規環境是什麼？
+- 如何處理「常點」的菜單/價格變更？
+- 是否有辦法從現有的 POS 資料中建立常客名單，而不是手動輸入？
+- 定價模式是什麼？每筆訂單費用？每月訂閱？
 
 ---
 
-*Phase 2 would evaluate in terms of: effort to try (most are free — just change how you run the next meeting), risk (variation 2 is the biggest departure), and whether the team's real problem is output (action items die) or input (not enough honesty).*
+## 範例 2：現有產品中的功能想法（程式碼庫感知）
 
-*Phase 3 would produce a one-pager recommending starting with variation 1 (one action item, demo next week) as a zero-cost experiment, combined with variation 3's anonymous submission. "Not Doing" list: new tools, elaborate facilitation techniques, or anything requiring budget. The first fix should take 0 minutes of prep and $0.*
+**使用者發出指令：** `/ideate 在我們的文檔編輯器中添加即時協作`
+
+### 階段 1：理解與擴展
+
+**技能回應：**
+
+> **我們如何**讓多個人在同一時間同時編輯同一份文件，以一種自然、非混亂的方式進行？
+
+我掃描了你的程式碼庫，看到你使用的是基於區塊的編輯器架構，並使用 REST API 進行持久化。目前沒有 WebSocket 基礎設施。這是一個重要的背景資訊。幾個問題：
+
+1. **協作模式是什麼？** 人們是否同時編輯同一個段落（Google Docs 風格）？或者在不同部分工作（Notion 風格）？或者在一方編輯時另一方審閱/評論？
+2. **同時用戶數是多少？** 2-3 人（配對編輯）？還是 10+ 人（團隊工作空間）？
+3. **這現在是由什麼驅動的？** 客戶請求？競爭壓力？內部需求？
+
+**使用者回應：** 「2-5 個人，通常在不同的部分工作。客戶一直問。我們輸給 Notion，因為他們假設任何現代編輯器都有這個功能。」
+
+**技能繼續：**
+
+競爭壓力的框架很重要——這可能是一個勾選功能（必須有，才能留在考慮範圍內），而不是一個差異化因素。這改變了你應該投入的精力。
+
+我看到你的文檔模型使用獨立的區塊和扁平的排序系統 (`src/models/document.ts:45`)。這實際上是有利的——區塊級的粒度意味著衝突比字符級編輯更少。
+
+這裡有 5 種變體：
+
+1. **區塊鎖定（最簡單的路徑）：** 當有人開始編輯一個區塊時，它會被鎖定給其他人。他們會看到一個存在指示（「Alex 正在編輯...」），但可以自由編輯其他區塊。不需要衝突解決。你現有的區塊模型可以以最小的更改支持這一點——添加一個 `locked_by` 欄位和一個 WebSocket 層來處理存在性。
+
+2. **反轉——先異步協作：** 不要追求即時共同編輯，而是側重於異步。內聯建議、評論和提議的編輯，由文件所有者合併。就像建議模式一樣，但作為*主要*協作模式。賭注：對於在不同部分工作的 2-5 個人來說，異步可能實際上比即時更好。
+
+3. **簡化——無協作的在場狀態：** 顯示誰正在查看文件以及他們在看哪個部分（邊欄中的光標、頭像），但不要啟用同時編輯。人們通過口頭協調。聽起來很原始，但可能佔了 80% 的價值，只花 10% 的工程成本。
+
+4. **組合——協作 + 版本分支：** 允許人們創建文件的「分支」，獨立編輯，然後合併。每個人都有自己的空間，編輯時沒有衝突，並且你建立一個合併介面。這利用了你現有的版本控制系統。
+
+5. **10 倍版本——AI 介導的協作：** 多個人在描述他們想要的部分，然後 AI 將他們的輸入綜合成他們可以迭代的草稿。沒有人直接編輯相同的文本——他們都影響它。這很激進，可能太早了，但值得稱之。
+
+鑑於你的架構和競爭背景，我會建議你選擇變體 1 或 3。你需要贏得交易，這意味著你需要這個功能，這意味著你需要最簡單的能滿足要求的版本。變體 1 提供了真正的共同編輯。變體 3 更便宜，但可能無法滿足「我們需要即時」的勾選框。
 
 ---
 
-## What to Notice in These Examples
+*階段 2 將分組為「最小可行協作（1 或 3）」與「差異化協作模式（2 或 4）」——評估是快速滿足競爭要求還是投資於成為賣點的某個東西。*
 
-1. **The restatement changes the frame.** "Help restaurants compete" becomes "retain existing customers." "Add real-time collaboration" becomes "let people work simultaneously without chaos." "Fix stale retros" becomes "fix the output layer."
+*階段 3 將產出一份建議區塊鎖定作為 MVP 的單頁文件，以及一個包含「不做」清單的列表，其中包括字符級 CRDT（太複雜）、離線同步（對 2-5 個用戶不需要）和 AI 功能（過於早熟）。*
 
-2. **Questions diagnose before prescribing.** Each question determines which *type* of problem this actually is. The retro example reveals the problem is action item follow-through, not meeting format — and that changes every variation.
+---
 
-3. **Variations have reasons.** Each one explains *why* it exists (what lens generated it), not just *what* it is. The label (Inversion, Simplification, etc.) teaches the user to think this way themselves.
+## 範例 3：流程/工作流想法（非產品）
 
-4. **The skill has opinions.** "I'd push you toward 1 or 3." "Variation 6 is worth sitting with." It tells you what it thinks matters and why — not just neutral options.
+**使用者發出指令：** `/ideate 一種改進我們每週團隊回顧的更好方式——它們變得陳舊了，人們對它們感到畏懼`
 
-5. **Phase 2 is honest.** Ideas get called out for low differentiation or high complexity. The skill pushes back: "That instinct to include the 'necessary' thing is how products lose focus."
+### 階段 1：理解與擴展
 
-6. **The output is actionable.** The one-pager ends with things you can *do* (validate assumptions, build the MVP, try the experiment), not things to *think about*.
+**技能回應：**
 
-7. **The "Not Doing" list does real work.** It's specific and reasoned. Each item is something you might *want* to do but shouldn't yet.
+> **我們如何**讓回顧真正有用——讓團隊期待它——而不是一個人們忍受的定期會議？
 
-8. **The skill adapts to context.** A codebase-aware example references actual architecture. A process idea generates zero-cost experiments instead of products. The framework stays the same but the output matches the domain.
+在擴展之前：
+
+1. **它們的陳舊之處在哪裡？** 每次都相同的格式？相同的幾個人在談論？行動項目從未完成？主題感覺重複？
+2. **團隊規模和動態如何？** 5 個人都願意發言，還是 15 人中 3 人佔據主導地位？
+3. **對你來說一個「好的」回顧是什麼樣子？** 你是否進行過一次成功的回顧？是什麼讓它不同？
+
+**使用者回應：** 「8 個人，也許有 3-4 個人真正發言。一整年都使用相同的「做了什麼/沒做什麼/行動項目」格式。行動項目堆積起來，但沒有任何改變。人們認為這只是表演。」
+
+**技能繼續：**
+
+行動項目的問題才是真正的信號。如果回顧後沒有任何改變，人們會理性地退出。會議本身並不陳舊——它在**輸出層面是破壞的**。格式可能沒問題，如果後續的跟進奏效。
+
+這裡有 6 種變體：
+
+1. **修復輸出，而非會議：** 保留回顧的格式，但完全改變之後發生的事情。每次回顧最多一個行動項目。在會議中指派負責人和截止日期。下一次回顧從完成的行動的 5 分鐘演示開始。如果沒有完成，那*就成為*回顧的主題。單一項目的限制迫使優先順序。
+
+2. **反轉——取消會議：** 用異步方式取代同步的回顧。每個人在整週內以書面形式提交反思。一個輪流的協調者綜合主題並提出一項變更。會議變成一個 15 分鐘的站立會議，以同意或不同意。賭注：書面記錄比在團體中發言更能產生誠實的反饋。
+
+3. **受眾轉移——為沉默的人設計回顧：** 為那些不發言的 4-5 個人設計格式。匿名提交主題。點票以確定優先順序。在全體討論之前進行小組分組（兩人組）。發言者仍然參與，但結構阻止了他們主導。
+
+4. **簡化——單一問題回顧：** 每次回顧只問一個問題，而且這個問題每週都改變。「有什麼是讓你慢下來的？」、「你學到了什麼團隊應該知道？」、「如果你可以改變我們工作方式中的一件事，會是什麼？」限制迫使深度而非廣度。
+
+5. **組合——回顧 + 實驗：** 將每次回顧的輸出視為一個假設。「我們相信 [改變] 將改善 [結果]。」將其作為為期兩週的實驗進行。下一次回顧：它有效嗎？保留、修改或廢除。將回顧變成一個帶有內建問責制的持續改進引擎。
+
+6. **專家視角——協調者的知識：** 有經驗的協調者說，最大的回顧殺手是缺乏安全感，而不是格式。如果人們害怕後果，他們就不會說出真正存在的問題。解決方案可能不是結構性的——而是從每週匿名「團隊健康檢查」分數（1-5）開始。當安全感高時，回顧自然會改進。
+
+有趣的張力：變體 1 和 5 解決了*輸出*問題（沒有改變）。變體 2、3 和 4 解決了*輸入*問題（相同的聲音，相同的主題）。變體 6 表示這兩者都是更深層問題的症狀。你認為真正的瓶頸在哪裡？
+
+---
+
+*階段 2 將從以下方面進行評估：嘗試的精力（大多數都是免費的——只需改變下一次會議的方式）、風險（變體 2 是最大的偏離）、以及團隊的真正問題是輸出（行動項目死亡）還是輸入（不夠誠實）。*
+
+*階段 3 將產出一份建議從變體 1（下週演示一個行動項目）開始的單頁文件，結合變體 3 的匿名提交。一份「不做」清單：新的工具、複雜的協調技巧，或任何需要預算的項目。第一個解決方案應該在 0 分鐘的準備時間和 $0 的成本下完成。*
+
+---
+
+## 關於這些範例需要注意的事項
+
+1. **重述改變了框架。**「幫助餐廳競爭」變成了「留住現有客戶」。添加即時協作變成了「讓人們在沒有混亂的情況下同時工作」。修復陳舊的回顧變成了「修復輸出層面」。
+
+2. **問題診斷在處於處方之前。** 每個問題都決定了這實際上是哪種問題。回顧範例揭示了問題在於行動項目的跟進，而不是會議格式——這改變了每個變體。
+
+3. **變體都有理由。** 每個變體都解釋了*為什麼*它存在（是哪個視角產生它的），而不僅僅是*它是什麼*。標籤（反轉、簡化等）教導使用者如何以這種方式思考。
+
+4. **技能有意見。**「我會建議你選擇 1 或 3。」「變體 6 值得坐下來討論。」它告訴你它認為什麼是重要的以及為什麼——而不僅僅是中立的選項。
+
+5. **階段 2 是誠實的。** 想法會被指出是差異化不足或複雜性過高。技能會反駁：「納入『必要』事物的直覺就是產品失去焦點的方式。」
+
+6. **輸出是可執行的。** 單頁文件以你可以*做*的事情結束（驗證假設、建立 MVP、進行實驗），而不是需要*思考*的事情。
+
+7. **「不做」清單確實有作用。** 它很具體且有根據。每一項都是你*可能想*做但現在不該做的事情。
+
+8. **技能適應上下文。** 一個感知程式碼庫的範例引用了實際的架構。一個流程想法產生了零成本實驗而不是產品。框架保持不變，但輸出與領域相匹配。

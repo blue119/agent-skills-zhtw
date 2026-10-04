@@ -1,9 +1,9 @@
-# v1 API inventory
+# v1 API 存量
 
-- Public consumers: 200 organizations.
-- Replacement: `/v2/orders`, available in production but not yet announced.
-- Current v1 traffic: 48,000 requests/day from 173 active API keys.
-- Largest consumer contract requires 90 days' notice for breaking changes.
-- Existing telemetry records API key, route, status, and response latency.
-- Support can contact 188 consumers directly; 12 use reseller-managed accounts.
-- v1 currently has no response deprecation headers or migration guide.
+- 公共消費者：200 個組織。
+- 替代方案：`/v2/orders`，在生產環境中可用但尚未公佈。
+- 當前 v1 流量：來自 173 個活躍 API 金鑰的每日 48,000 個請求。
+- 最大消費者合約要求在進行變更時提前 90 天通知。
+- 現有遙測記錄 API 金鑰、路由、狀態和響應延遲。
+- 支援可以直接聯繫 188 個消費者；12 個使用經銷商管理的帳戶。
+- v1 目前沒有響應棄用標頭或遷移指南。

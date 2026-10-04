@@ -1,129 +1,123 @@
-<!--
-  This document is for developers evaluating the project. It is NOT a skill and
-  is not meant to be loaded into an agent's context. It lives in docs/ so it
-  stays out of the agent's working set.
--->
+# agent-skills 如何比較
 
-# How agent-skills compares
+人們經常問 **agent-skills** 與他們聽說過的其他兩個「程式碼代理技能」集合：**Superpowers** (Jesse Vincent / obra) 和 **Matt Pocock 的技能** 有什麼關係。這三者都很好，共享許多 DNA，值得學習。本文是關於它們是如何被**塑造**不同的誠實地地描繪，這樣你就可以選擇最適合你工作方式的，或者在三者之間互相借用。
 
-People often ask how **agent-skills** relates to the two other "skills for coding agents" collections they hear about most: **Superpowers** (Jesse Vincent / obra) and **Matt Pocock's skills**. All three are good, share a lot of DNA, and are worth learning from. This page is an honest map of how they are *shaped* differently, so you can pick the one that fits how you work, or borrow across all three.
-
-> **TL;DR** — They optimize for different moments. **agent-skills** organizes the *whole product lifecycle* (Define, Plan, Build, Verify, Review, Ship) with review personas, anti-rationalization guards, and an in-repo eval framework that checks the skills actually route and behave. **Superpowers** leans into *autonomous, reasoning-heavy* runs with subagents, a strict pipeline, and worktree isolation. **Matt Pocock's skills** are a *sharp, opinionated Claude Code toolkit* distilled from one expert's daily workflow, with a signature "grill me" interrogation loop. None is "best" in the abstract; it depends on the work in front of you.
+> **簡而言之** — 他們針對不同的時刻進行優化。**agent-skills** 組織的是**整個產品生命週期**（定義、規劃、建置、驗證、審查、發布）並附帶審查角色、反合理化防護措施以及一個在儲存庫中檢查技能實際路由和行為的評估框架。**Superpowers** 側重於帶有子代理的**自主、推理密集型**運行、嚴格的管道以及工作區隔離。**Matt Pocock 的技能**是從一位專家的日常工作流程中提煉出來的一套**銳利、有觀點的 Claude Code 工具包**，帶有一個標誌性的「審問我」的詢問迴圈。在抽象層面上，沒有哪一個是「最佳的」；它取決於你面前的工作。
 
 ---
 
-## At a glance
+## 一眼了解
 
 | | **agent-skills** | **Superpowers** | **Matt Pocock's skills** |
 |---|---|---|---|
-| **Core idea** | Encode the full senior-engineering lifecycle as skills | A complete development *methodology* built on composable skills | One expert's Claude Code workflow, open-sourced and evolving |
-| **Organizing principle** | SDLC **phases** (Define to Ship) behind a meta-skill router | A single disciplined loop: brainstorm, plan, execute, review | A curated toolbox of focused, composable commands |
-| **Catalog size** | 25 skills spanning the whole lifecycle | ~14 skills, deep on the inner build loop | ~30 skills, grouped into engineering / productivity / in-progress / deprecated |
-| **Lifecycle coverage** | Broad: idea refinement, API and UI design, security, performance, CI/CD, observability, deprecation, ADRs, launch | Deep but narrow: TDD, debugging, planning, review, skill authoring | Define and Build heavy: grilling, PRDs, issues, TDD, architecture, bug triage, knowledge management |
-| **Entry points** | Slash commands mapped 1:1 to phases (`/spec` `/plan` `/build` `/test` `/review` `/code-simplify` `/ship`, plus `/webperf`), with a `/build auto` full-plan mode | Skill-chained pipeline (`brainstorming`, `writing-plans`, `subagent-driven-development`) | Slash commands (`/grill-me`, `/tdd`, `/to-prd`, `/diagnosing-bugs`, `/grill-with-docs`) |
-| **Distinctive mechanisms** | Anti-rationalization tables and Red Flags in every skill; parallel review **personas** in `/ship`; reference checklists; a **three-tier eval framework** in CI | Subagent-driven development with a task reviewer (spec + quality) and a fix loop; git-worktree isolation; skills-that-write-skills, pressure-tested | The **grilling** primitive (one question at a time, design-tree walking); seam-based TDD; explicit user-invoked vs model-invoked split; issue-tracker integration |
-| **Quality measurement** | Trigger, routing, and behavioral evals run against the catalog (in-repo, some in CI) | Pressure-testing methodology is core to its philosophy; the eval suite itself now lives in a separate repo | None shipped in-repo |
-| **Tooling reach** | Claude Code, Cursor, Gemini CLI, Antigravity, OpenCode, Windsurf, Copilot, Kiro, Codex, Command Code, plus the `npx skills` CLI | One of the widest and most actively churned surfaces: Claude Code, Codex, Cursor, Copilot CLI, OpenCode, Kimi, Factory Droid, Antigravity, Pi | Claude Code first, distributed via `npx skills add`; other agents work with varying fidelity |
-| **Governance** | Actively reviews and merges community contributions; every skill ships an eval | Largely solo-authored; a substantial backlog of unmerged community PRs | Solo-authored, self-merged, developed openly in public |
-| **Best for** | Driving a feature through every phase with a human checkpoint at each | Long, autonomous, reasoning-heavy or exploratory work | A pragmatic, battle-tested daily loop, strongest at requirements and TDD |
+| **核心理念** | 將完整的資深工程生命週期編碼為技能 | 基於可組合技能的完整開發**方法論** | 一位專家的 Claude Code 工作流程，已開源並在演進 |
+| **組織原則** | 在元技能路由器後面的 SDLC **階段**（定義到發布） | 一個單一的紀律性迴圈：集思廣益、規劃、執行、審查 | 一個聚焦的、可組合指令的精選工具箱 |
+| **目錄大小** | 涵蓋整個生命週期的 25 個技能 | 約 14 個技能，深入內層建置迴圈 | 約 30 個技能，按工程/生產力/進行中/已棄用分組 |
+| **生命週期覆蓋** | 廣泛：想法精煉、API 和 UI 設計、安全、效能、CI/CD、可觀察性、棄用、ADR、發布 | 深入但狹窄：TDD、除錯、規劃、審查、技能編寫 | 定義和建置為主：審問、PRD、問題、TDD、架構、錯誤分流、知識管理 |
+| **入口點** | 映射到階段的斜線指令（`/spec` `/plan` `/build` `/test` `/review` `/code-simplify` `/ship`，以及 `/webperf`），以及一個 `/build auto` 的完整規劃模式 | 技能鏈管道（`brainstorming`、`writing-plans`、`subagent-driven-development`） | 斜線指令（`/grill-me`、`/tdd`、`/to-prd`、`/diagnosing-bugs`、`/grill-with-docs`） |
+| **獨特機制** | 每個技能中都有反合理化表格和紅旗；在 `/ship` 中有並行的審查**角色**；參考檢查表；在 CI 中有**三層評估框架** | 帶有任務審查者（規格 + 品質）和修復迴圈的子代理驅動開發；git-worktree 隔離；技能寫入技能、壓力測試 | **審問**原語（一次一個問題、設計樹行走）；基於縫隙的 TDD；明確的用戶呼叫與模型呼叫的分離；問題追蹤整合 |
+| **品質衡量** | 運行對目錄的觸發、路由和行為評估（在儲存庫中，部分在 CI 中） | 壓力測試方法論是其哲學的核心；評估套件本身現在位於單獨的儲存庫中 | 沒有在儲存庫中發布的 |
+| **工具覆蓋** | Claude Code、Cursor、Gemini CLI、Antigravity、OpenCode、Windsurf、Copilot、Kiro、Codex、Command Code，以及 `npx skills` CLI | 最廣泛且最活躍變動的表面之一：Claude Code、Codex、Cursor、Copilot CLI、OpenCode、Kimi、Factory Droid、Antigravity、Pi | 首先是 Claude Code，通過 `npx skills add` 分發；其他代理的保真度各不相同 |
+| **治理** | 積極審查和合併社群貢獻；每個技能都發布一個評估結果 | 主要由單人撰寫；大量的未合併的社群 PR 待處理 | 單人撰寫、自行合併、公開發展 |
+| **最適合** | 通過每個階段都進行人類檢查點的流程驅動一個功能 | 長期、自主、推理密集型或探索性工作 | 一個實用、經過戰鬥檢驗的日常迴圈，在需求和 TDD 上最強 |
 
-*(We deliberately leave out star counts and adoption figures: they are cited wildly differently across blogs and change weekly. All three are actively used and maintained.)*
+*(我們故意省略星級數量和採用數據：它們在部落格和每週變動中引用方式各不相同。這三者都正在積極使用和維護。)*
 
 ---
 
-## The three projects, in their own terms
+## 三個專案，各自的說法
 
 ### Superpowers (obra)
 
-A full software-development *methodology* built on composable skills. It bets on **autonomy and upfront reasoning**. A session runs a deliberately linear pipeline: Socratic brainstorming that writes a dated spec and permits exactly one handoff, detailed plans written to be executable by "an enthusiastic junior engineer with poor taste and no context," then subagent-driven execution where a fresh subagent implements each task and a task reviewer signs off on both spec compliance and code quality before it closes, with a fix loop for anything it flags and a whole-branch review on the most capable model at the end. Git worktrees keep parallel work isolated, and its `writing-skills` skill applies TDD to documentation itself: no skill ships without a failing test first.
+一個建立在可組合技能上的完整的軟體開發**方法論**。它押注於**自主性和前置推理**。一個會運行一個刻意線性的管道：蘇格拉底式集思廣益，編寫一個有日期的規格並允許**恰好一次交接**，編寫的詳細計劃旨在被「一個熱情的初級工程師，他品味不佳且沒有上下文」所執行，然後是子代理驅動的執行，其中一個新的子代理實施每個任務，一個任務審查者在關閉前對規格合規性和程式碼品質進行簽署，並對它標記的任何問題進行修復迴圈，最後在能力最強的模型上進行一個整個分支的審查。Git 工作區保持平行工作的隔離，它的 `writing-skills` 技能將 TDD 應用於文件本身：沒有技能會發布，除非先有失敗的測試。
 
-Its strengths are real: hand off a sizable chunk and come back to a reviewed result, with strong guardrails against an agent rationalizing its way past the process. The trade-offs are the flip side of that discipline. Coverage is narrow (it is an inner-loop build methodology, not a security-to-launch lifecycle), the single pipeline can feel heavy on small changes, and the recent direction has been about paying down that cost, for example consolidating to a single task reviewer for roughly twice the speed and half the tokens. The loudest thing its community keeps asking for, multi-agent team execution, is not yet in the box.
+它的優勢是真實的：將相當一部分交接，然後得到一個經過審查的結果，並且有強大的防護措施防止代理通過過程進行合理化。權衡是這種紀律的另一面。覆蓋範圍很窄（它是一個內層建置方法論，而不是從安全到發布的生命週期），單一管道在小變更上可能感覺很重，而最近的方向是減少這種成本，例如將其整合為單一任務審查者，速度提高一倍，代幣數減少一半。其社群最常要求的是多代理團隊執行，這尚未納入範圍。
 
-**Repo:** <https://github.com/obra/superpowers>
+**儲存庫：** <https://github.com/obra/superpowers>
 
-### Matt Pocock's skills
+### Matt Pocock 的技能
 
-Matt open-sourced the Claude Code skills he actually uses, and the collection has grown into a broad, opinionated toolbox organized in public, complete with visible `in-progress/` and `deprecated/` directories that model the discipline the skills preach. The center of gravity is not TDD, it is **grilling**: a reusable interrogation loop that asks one question at a time, walks each branch of the design tree resolving dependencies in order, offers a recommended answer per question, prefers reading the codebase over asking, and refuses to proceed until you confirm a shared understanding. `grill-me` and `grill-with-docs` are thin wrappers over it. The TDD skill is distinctive too and cheerfully heterodox ("refactoring is not part of the loop," it belongs to code review), and there is a deliberate split between user-invoked and model-invoked skills to treat agent context as a scarce budget.
+Matt 開源了他實際使用的 Claude Code 技能，該集合已發展成一個公開的、有觀點的工具箱，帶有可見的 `in-progress/` 和 `deprecated/` 目錄，以體現技能所宣揚的紀律。重力中心不是 TDD，而是**審問**：一個可重複使用的詢問迴圈，一次問一個問題，按順序走決策樹的每個分支以解決依賴關係，對每個問題提供推薦的答案，偏好閱讀程式碼庫而非提問，並在您確認共同理解之前拒絕繼續。`grill-me` 和 `grill-with-docs` 是對它的薄層包裝。TDD 技能也是獨特的，而且樂於異見（「重構不屬於迴圈」，它屬於程式碼審查），並且在用戶呼叫和模型呼叫之間存在刻意的區分，以將代理上下文視為稀缺的預算。
 
-Its strengths are authenticity and sharpness: this is how one very good engineer ships, not a committee's idea of a framework, and the requirements-grilling loop is genuinely excellent. The trade-offs: it is Claude Code first in practice (other agents surface reliability rough edges), there are no in-repo evals to catch regressions, lifecycle coverage past Build is thin, and some skills couple to a personal setup wizard and tracker conventions. Recent work is pushing from single-session skills toward multi-session orchestration through issue trackers (the in-progress `wayfinder`).
+它的優勢是真實性和銳利度：這就是一個非常好的工程師發布的方式，而不是委員會對框架的看法，而需求審問迴圈確實非常出色。權衡：在實踐中，它首先是 Claude Code（其他代理展現出可靠性的粗糙邊緣），沒有在儲存庫中進行的評估來捕捉回退，Build 後的生命週期覆蓋很薄弱，並且一些技能與個人設置嚮導和追蹤慣例耦合。最近的工作是從單次會談技能推向通過問題追蹤器進行的多次會談協調（`wayfinder` 的進行中狀態）。
 
-**Repo:** <https://github.com/mattpocock/skills> · related: <https://github.com/mattpocock/agent-rules-books>
+**儲存庫：** <https://github.com/mattpocock/skills> · 相關：<https://github.com/mattpocock/agent-rules-books>
 
-### agent-skills (this project)
+### agent-skills (本文專案)
 
-agent-skills organizes the **entire product lifecycle** as skills, with a meta-skill (`using-agent-skills`) that routes a task to the right one. Every skill carries a **Common Rationalizations** table (the excuses an agent makes to skip a step, each rebutted) and **Red Flags**. Slash commands map one-to-one to lifecycle phases; `/build auto` runs a whole approved plan in one pass; and `/ship` fans out review **personas** (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`) in parallel, then merges them into a go/no-go. It keeps a human checkpoint at each phase, ships seven reference checklists including a Definition of Done, and runs across most major agent tools with a single-command install on several of them.
+agent-skills 將**整個產品生命週期**組織為技能，並有一個元技能（`using-agent-skills`）將任務路由到正確的技能。每個技能都帶有一個**共同合理化**表格（代理為了跳過步驟而提出的藉口，每個都被反駁）和**紅旗**。斜線指令與生命週期階段一一對應；`/build auto` 在一次通過中運行一個已批准的整個計劃；而 `/ship` 並行地發散審查**角色**（`code-reviewer`、`security-auditor`、`test-engineer`、`web-performance-auditor`），然後將它們合併為通過/不通過。它在每個階段都保留了人類檢查點，發布了七個參考檢查表，包括完成定義，並在幾個工具上進行單一指令安裝。
 
-What is newer, and the current point of difference: a **three-tier eval framework** lives in the repo. Tier 1 checks structure, Tier 2 checks that each skill's description carries the vocabulary users actually say and that no two skills collide on routing (deterministic, runs in CI), and Tier 3 grades an agent's real execution trace against per-skill expectations. Neither of the other two ships that kind of in-repo, catalog-wide measurement today. The honest trade-off in the other direction: agent-skills has less of a single opinionated "run" than Superpowers, and none of the three has yet solved durable cross-session memory well.
-
----
-
-## A real head-to-head: Superpowers vs. agent-skills
-
-Om Mishra ran a controlled experiment, same model, same repo, same prompt in Claude Code, changing only the skill framework, and wrote it up:
-
-**["Superpowers vs Agent-Skills: Faster Shipping, Safer Reasoning"](https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/)** by Om Mishra
-
-Summarized fairly:
-
-- **agent-skills** moved to code faster (~8 min vs ~12) and ran **more validation passes** (7 vs 5, including the full test suite). That broader validation caught a compatibility issue *outside* the immediate feature that the feature-specific tests missed. He gave it the edge on **validation depth** for that task.
-- **Superpowers** invested more **upfront architectural reasoning**, which he still prefers as his daily driver for evolving production systems and exploratory work with no established pattern to follow.
-- Token efficiency was effectively identical; both replanned once.
-
-It is one developer's single-task experiment, not a benchmark, but it is a concrete illustration of the core trade-off: **broad disciplined validation versus heavy upfront reasoning**. His own conclusion is the honest one: pick the tool to the task.
+更新的是，也是當前區別所在：一個**三層評估框架**位於儲存庫中。第一層檢查結構，第二層檢查每個技能的描述是否包含用戶實際說的詞彙以及兩個技能在路由上是否衝突（確定性，在 CI 中運行），第三層根據每個技能的期望來評估代理的實際執行軌跡。其他兩個專案目前都沒有發布這種在儲存庫中的、全目錄的衡量。在另一個方向上的誠實權衡是：agent-skills 比 Superpowers 缺乏單一的「運行」觀點，而且三者中沒有任何一個能很好地解決持久的跨會談記憶問題。
 
 ---
 
-## How to decide what to use
+## 實際的對決：Superpowers vs. agent-skills
 
-The at-a-glance table tells you how they are shaped. This is how to choose in practice.
+Om Mishra 進行了一次受控實驗，使用相同的模型、相同的儲存庫、相同的提示在 Claude Code 中運行，僅更改了技能框架，並撰寫了這篇報告：
 
-### Start with the shape of your work
+**["Superpowers vs Agent-Skills: Faster Shipping, Safer Reasoning"](https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/)** 作者：Om Mishra
 
-- **A whole feature, front to back?** agent-skills. It is the only one of the three that carries you from spec through security, performance, and launch with a checkpoint at each phase, so nothing quietly skips the review or the pre-flight.
-- **A big, ambiguous chunk you want to hand off and walk away from?** Superpowers. Its pipeline and subagent review are built to run for a long time and hand back a result that has already been reviewed against the spec.
-- **A fast, focused daily loop, especially getting requirements right before code?** Matt Pocock's skills. The grilling loop is the sharpest requirements tool of the three, and the toolkit stays out of your way.
+大致總結：
 
-### Then weight what you actually care about
+- **agent-skills** 運行得更快（約 8 分鐘對比約 12 分鐘），並進行了**更多的驗證次數**（7 次對比 5 次，包括完整的測試套件）。這種更廣泛的驗證捕捉到了**超出**即時功能的相容性問題，而功能特定的測試錯過了它。他在**驗證深度**方面在這項任務上佔據了優勢。
+- **Superpowers** 投入了更多的**前置架構推理**，他仍然偏好它作為他演進生產系統和沒有既定模式進行探索性工作的日常驅動。
+- 代幣效率實際上是相同的；兩者都重新規劃了一次。
 
-- **Breadth of coverage** (security, performance, CI/CD, observability, launch): agent-skills is the clear pick; the others are inner-loop focused.
-- **Autonomy over a long run**: Superpowers, by design.
-- **Low ceremony on small changes**: Pocock's toolkit is lightest; agent-skills offers a middle gear (a small change can skip straight to `/test` and `/review`); Superpowers is the most process-heavy.
-- **Confidence that the skills themselves work**: agent-skills is the only one with catalog-wide evals in the repo, so a description or routing regression fails CI rather than surfacing as a mysterious "why didn't the skill fire" later.
-- **Requirements interrogation**: Pocock's grilling is the reference implementation; agent-skills' `interview-me` is close in spirit and gaining an opt-in collaborative mode.
-- **Platform spread**: agent-skills and Superpowers both run almost everywhere; Pocock is happiest on Claude Code.
-- **A human gate at each step vs. a hands-off run**: agent-skills checkpoints by default; Superpowers minimizes mid-run check-ins on purpose.
-
-### Concrete scenarios
-
-- *"Ship a new endpoint with auth, tests, and a security pass before merge."* agent-skills: `/spec` to `/ship`, with the security-auditor and test-engineer personas fanning out at the end.
-- *"Refactor a gnarly subsystem overnight and review it in the morning."* Superpowers: hand it the plan, let subagent-driven development and the task reviewer run.
-- *"I have a vague idea and keep letting the agent guess the requirements."* Pocock's `grill-me` (or agent-skills' `interview-me`) to pin down intent before any code.
-- *"Fix one clear bug, test-first."* Any of them; reach for the lightest one you already have installed.
-- *"Standardize how a team of engineers uses agents across a repo."* agent-skills: the phase commands, personas, and shared checklists give a team a common vocabulary, and the evals keep custom skills honest.
-- *"Roll my own skills and know they trigger correctly."* agent-skills, and borrow Superpowers' pressure-testing discipline for the ones that must not be rationalized away.
-
-### Solo vs. team
-
-For a solo developer, taste and momentum win: pick the one whose defaults match how you already work, and the lowest-ceremony option is often the most-used one. For a team, the calculus shifts toward shared structure and guardrails you can enforce: named phases, review personas, checklists, and evals that fail CI are what keep five people (and their agents) converging on the same standard rather than five private workflows. That is the situation agent-skills is built for, though a team can absolutely adopt Superpowers' review discipline or Pocock's grilling loop within it.
-
-### The shared frontier (true of all three)
-
-None of these has solved **durable cross-session memory** well yet: what an agent learned in one session rarely carries cleanly into the next. All three are circling it (learnings files, handoff artifacts, tracker-backed planning maps). If that is your bottleneck, know that you are at the edge of what any of them ships today, and expect to stitch some of it yourself for now.
+這是一次單一開發者的單任務實驗，而不是基準測試，但它生動地說明了核心的權衡：**廣泛的紀律性驗證 versus 沉重的預先推理**。他自己的結論是誠實的：根據任務選擇工具。
 
 ---
 
-## Combining them
+## 如何決定使用哪個
 
-You do not have to choose exclusively, but combine with care. These are Markdown skills, not runtimes, so cherry-picking *individual* skills works well: pull in Pocock's `grill-me`, a Superpowers isolation pattern, or a specific checklist alongside your main setup.
+一覽表告訴你它們是如何被塑造的。這是實際選擇的方法。
 
-What does not work is running two of them as your **active router at the same time**. Stacked meta-skills fight over command names (`/tdd` defined in two places), compete on routing logic, and pull in different TDD philosophies, so you get unpredictable behavior rather than the best of both. Pick one framework as your primary router, and borrow from the others a la carte.
+### 從你的工作方式開始
+
+- **一個完整的特性，從頭到尾？** agent-skills。它是三者中唯一一個在每個階段都帶你從規格、安全、效能到發布，並在每個階段都有檢查點，所以沒有什麼悄無聲息地跳過審查或預先飛行。
+- **一個你想要交接並離開的、很大且模糊的部分？** Superpowers。它的管道和子代理審查是為了長時間運行並將一個已經根據規格進行過審查的結果交還。
+- **一個快速、集中的日常迴圈，特別是確保在編碼前需求正確？** Matt Pocock 的技能。審問迴圈是這三者中最銳利的需求工具，而工具箱不會阻礙你。
+
+### 然後權衡你真正關心的內容
+
+- **覆蓋範圍**（安全、效能、CI/CD、可觀察性、發布）：agent-skills 是明顯的選擇；其他兩個專注於內層迴圈。
+- **長時間運行的自主性**：Superpowers，這是設計的。
+- **小變更上的低儀式感**：Pocock 的工具包最輕；agent-skills 提供了一個中間層（小變更可以直接跳到 `/test` 和 `/review`）；Superpowers 是流程最重的。
+- **對技能本身的信心**：agent-skills 是唯一一個在儲存庫中進行全目錄評估的，因此描述或路由的退步會導致 CI 失敗，而不是在稍後浮現為一個神秘的「為什麼技能沒有觸發」。
+- **需求審問**：Pocock 的審問是參考實施；agent-skills 的 `interview-me` 在精神上非常接近，並且正在獲得選擇性的協作模式。
+- **平台廣度**：agent-skills 和 Superpowers 在幾乎所有地方運行；Pocock 最喜歡 Claude Code。
+- **每個步驟的人類門戶 vs. 無干預運行**：agent-skills 預設有檢查點；Superpowers刻意最小化運行中的檢查點。
+
+### 具體場景
+
+- *"在合併之前，發布一個帶有認證、測試和安全通過的新端點。"* agent-skills：從 `/spec` 到 `/ship`，讓安全審查員和測試工程師在最後發散。
+- *"在隔夜重構一個棘手的子系統，然後在早上審查它。"* Superpowers：交給它計劃，讓子代理驅動的開發和任務審查者運行。
+- *"我有一個模糊的想法，不斷讓代理猜測需求。"* Pocock 的 `grill-me`（或 agent-skills 的 `interview-me`）在任何程式碼之前確定意圖。
+- *"修復一個明確的錯誤，優先測試。"* 任何一個；選擇你已經安裝的最輕的那個。
+- *"標準化團隊如何使用代理在整個儲存庫中工作。"* agent-skills：階段指令、角色和共享檢查表為團隊提供了一個共同的詞彙，而評估則讓自定義技能保持誠實。
+- *"自己建立技能並知道它們是否正確觸發。"* agent-skills，並借用 Superpowers 的壓力測試紀律來處理那些不應被合理化的技能。
+
+### 單人 vs. 團隊
+
+對於單一開發者，品味和動能勝出：選擇與你現有工作方式匹配的那個，最少的儀式感通常是最常用的選項。對於團隊，計算轉向可以強制執行的共享結構和防護措施：命名階段、審查角色、檢查表以及導致 CI 失敗的評估，是讓五個人（和他們的代理）收斂到相同標準，而不是五個私有的工作流程的關鍵。這就是 agent-skills 的設計目標，儘管團隊絕對可以在其中採用 Superpowers 的審查紀律或 Pocock 的審問迴圈。
+
+### 共同的前沿（對所有三者都適用）
+
+在**持久的跨會談記憶**方面，沒有任何一個都解決得很好：代理在一個會談中學到的東西很少能乾淨地傳遞到下一個會談中。它們都在圍繞這個問題（學習文件、交接產物、追蹤器支持的規劃地圖）。如果這是你的瓶頸，請知道你處於當前任何一個發布的邊緣，並且目前需要自己將其中一些整合起來。
 
 ---
 
-## Sources
+## 結合它們
 
-- Superpowers: <https://github.com/obra/superpowers>
-- Matt Pocock's skills: <https://github.com/mattpocock/skills>
-- Om Mishra, *Superpowers vs Agent-Skills*: <https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/>
+你不需要完全選擇其中一個，但要謹慎地結合。這些是 Markdown 技能，而不是運行時，所以挑選**單個**技能是有效的方法：將 Pocock 的 `grill-me`、Superpowers 的隔離模式或特定的檢查表與你的主要設置一起拉入。
 
-*Spotted something inaccurate about another project here? Open an issue or PR. We would rather be fair than flattering.*
+不奏效的是同時運行兩個作為你的**主路由器**。堆疊的元技能會爭奪指令名稱（在兩個地方定義的 `/tdd`）、競爭路由邏輯，並引入不同的 TDD 理念，因此你得到的是不可預測的行為，而不是兩者的最佳組合。選擇一個框架作為你的主要路由器，然後從其他框架中按需借用。
+
+---
+
+## 來源
+
+- Superpowers：<https://github.com/obra/superpowers>
+- Matt Pocock 的技能：<https://github.com/mattpocock/skills>
+- Om Mishra, *Superpowers vs Agent-Skills*：<https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/>
+
+*在其他專案中發現了不準確之處？請開啟一個問題或 PR。我們寧願公平，也不願奉承。*

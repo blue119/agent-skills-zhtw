@@ -1,19 +1,19 @@
 ---
-description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
+description: 執行 TDD 工作流程 — 編寫失敗的測試，實作，驗證。對於錯誤，使用 Prove-It 模式。
 ---
 
-Invoke the agent-skills:test-driven-development skill.
+呼叫代理技能：test-driven-development。
 
-For new features:
-1. Write tests that describe the expected behavior (they should FAIL)
-2. Implement the code to make them pass
-3. Refactor while keeping tests green
+對於新功能：
+1. 編寫描述預期行為的測試（它們應該會失敗）
+2. 實作代碼使它們通過
+3. 在保持測試通過的同時重構
 
-For bug fixes (Prove-It pattern):
-1. Write a test that reproduces the bug (must FAIL)
-2. Confirm the test fails
-3. Implement the fix
-4. Confirm the test passes
-5. Run the full test suite for regressions
+對於錯誤修復（Prove-It 模式）：
+1. 編寫一個重現錯誤的測試（必須失敗）
+2. 確認測試失敗
+3. 實作修復
+4. 確認測試通過
+5. 運行完整的測試套件以檢查迴歸
 
-For browser-related issues, also invoke agent-skills:browser-testing-with-devtools to verify with Chrome DevTools MCP.
+對於瀏覽器相關問題，也呼叫代理技能：browser-testing-with-devtools 以使用 Chrome DevTools MCP 進行驗證。

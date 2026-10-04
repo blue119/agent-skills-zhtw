@@ -1,91 +1,91 @@
 ---
 name: spec-driven-development
-description: Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when drafting a PRD or requirements document with objectives and scope, or when requirements are unclear, ambiguous, or only exist as a vague idea. Use when a single requirement spans several independently testable capabilities and needs decomposing into a capability map of modules before specifying.
+description: 在編碼之前建立規格。在沒有規格時，用於開始新專案、功能或重大變更時使用。在起草具有目標和範圍的 PRD 或需求文件時使用，或者當需求不清楚、模稜兩可或僅存在於模糊想法時使用。當單一需求跨越多個獨立可測試的能力，需要先分解為模組能力圖再進行規範時使用。
 ---
 
-# Spec-Driven Development
+# 基於規格的開發
 
-## Overview
+## 概述
 
-Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+在編寫任何程式碼之前，先撰寫結構化的規格。規格是您與人類工程師之間共享的真實來源——它定義了我們在建構什麼、為什麼以及我們如何知道它已經完成。沒有規格的程式碼就是猜測。
 
-## When to Use
+## 何時使用
 
-- Starting a new project or feature
-- Requirements are ambiguous or incomplete
-- The change touches multiple files or modules
-- You're about to make an architectural decision
-- The task would take more than 30 minutes to implement
+- 開始新專案或功能
+- 需求不明確或不完整
+- 變更影響多個檔案或模組
+- 即將做出架構決策
+- 任務實作需要超過 30 分鐘
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained.
+**不應使用時：** 單行修復、拼字修正，或需求明確且自包含的變更。
 
-## The Gated Workflow
+## 閘控工作流程
 
-Spec-driven development has four phases, preceded by a scope check (Phase 0) that activates only when one request bundles several independently testable capabilities. Do not advance to the next phase until the current one is validated.
+基於規格的開發包含四個階段，前面有範圍檢查（階段 0），此階段僅在一個請求捆綁了多個獨立可測試的能力時才會啟動。在驗證當前階段之前，請勿進入下一個階段。
 
 ```
 SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
    │          │        │          │
-   ▼          ▼        ▼          ▼
- Human      Human    Human      Human
- reviews    reviews  reviews    reviews
+▼          ▼        ▼          ▼
+ 人類      人類      人類      人類
+審查      審查      審查      審查
 ```
 
-### Phase 0: Scope Check
+### 階段 0：範圍檢查
 
-Most requests describe one capability. If this one does, skip this phase and go straight to Specify — Phase 0 exists for the exception, not the rule, and it puts no hierarchy on single-capability features.
+大多數請求描述一個能力。如果只有一個，請跳過此階段，直接進入規範——階段 0 是針對例外情況存在的，而非規則，它不對單一能力的特性建立層級。
 
-**Detection.** Decompose before specifying when a single requirement bundles several independently testable capabilities:
+**偵測。** 在規範之前進行分解，當單一需求捆綁了多個獨立可測試的能力時：
 
-- The requirement names distinct capabilities with their own consumers or data (e.g. identity, billing, notifications, reporting)
-- Acceptance criteria cluster into groups that could ship and be verified separately
-- One capability could be cut or replaced without rewriting the others' requirements
+- 需求命名了具有各自消費者或資料的區分能力（例如：身份、帳單、通知、報告）
+- 可接受標準分組為可以單獨發布和驗證的群組
+- 可以移除或替換一個能力而無需重寫其他能力的規範
 
-**Propose a capability map before writing any spec.** Small and reviewable — a module table plus a build order, not a project plan:
+**在撰寫任何規格之前，先提出能力圖。** 是一個模組表加上建置順序，而不是專案計畫：
 
 ```markdown
-# Capability Map: [Initiative Name]
+# 能力圖：[專案名稱]
 
-| Module id | Responsibility | Depends on |
+| 模組 ID | 職責 | 依賴於 |
 |---|---|---|
-| identity | Accounts, sessions, SSO | — |
-| billing | Plans, invoices, payments | identity |
-| notifications | Email and webhook fan-out | identity |
-| reporting | Usage dashboards | billing, notifications |
+| identity | 帳戶、會話、SSO | — |
+| billing | 計畫、發票、付款 | identity |
+| notifications | 電郵和 Webhook 分散 | identity |
+| reporting | 使用者儀表板 | billing, notifications |
 
-Build order: identity → billing, notifications → reporting
+建置順序：identity → billing, notifications → reporting
 ```
 
-- **Stable module ids.** Kebab-case, chosen once, never renamed mid-initiative. Specs, plans, and downstream commands select work by these ids instead of guessing which spec is active.
-- **Dependency direction, no cycles.** Arrows point one way. If two modules each need the other, they are one module.
-- **Interfaces live at the boundary.** The map records that `billing` depends on `identity`; the contract between them belongs in the provider module's spec (see `api-and-interface-design` for designing it).
+- **穩定的模組 ID。** 使用連字符命名法，選定一次，在專案期間絕不重新命名。規格、計畫和下游指令使用這些 ID 來選擇工作，而不是猜測哪個規格是活躍的。
+- **依賴方向，無循環。** 箭頭指向單一方向。如果兩個模組互相需要對方，它們就是一個模組。
+- **介面存在於邊界處。** 圖表記錄 `billing` 依賴於 `identity`；它們之間的合約應存在於提供者模組的規格中（請參閱 `api-and-interface-design` 以設計它）。
 
-**The map is gated like every phase.** The human reviews module boundaries, dependency direction, and build order before any module spec is written. Getting the map wrong is expensive; reviewing ten lines is not.
+**圖表像每個階段一樣受到閘控。** 人類在撰寫任何模組規格之前，會審查模組邊界、依賴方向和建置順序。弄錯圖表是昂貴的；審查十行程式碼則不昂貴。
 
-**Then recurse per module.** Run Specify → Plan → Tasks → Implement for each module in dependency order. Each module gets its own spec, scoped to that module's objective, boundaries, and success criteria. Save the approved map at the project root and each module's spec alongside it, named by module id (`SPEC-identity.md`, `SPEC-billing.md`) — the map, not filename guessing, is the index of what exists.
+**然後按模組遞迴。** 按照依賴順序，對每個模組執行 Specify → Plan → Tasks → Implement。每個模組都獲得自己的規格，範圍限定於該模組的目標、邊界和成功標準。將已批准的圖表儲存在專案根目錄，並將每個模組的規格與之一起儲存，以模組 ID 命名（`SPEC-identity.md`，`SPEC-billing.md`）——圖表，而不是檔名猜測，是存在的索引。
 
-### Phase 1: Specify
+### 階段 1：規範 (Specify)
 
-Start with a high-level vision. Ask the human clarifying questions until requirements are concrete.
+從高層願景開始。提出澄清性問題直到需求具體化。
 
-**Surface assumptions immediately.** Before writing any spec content, list what you're assuming:
+**立即陳述假設。** 在撰寫任何規格內容之前，列出您所做的假設：
 
 ```
-ASSUMPTIONS I'M MAKING:
-1. This is a web application (not native mobile)
-2. Authentication uses session-based cookies (not JWT)
-3. The database is PostgreSQL (based on existing Prisma schema)
-4. We're targeting modern browsers only (no IE11)
-→ Correct me now or I'll proceed with these.
+我所做的假設：
+1. 這是一個網頁應用程式（非原生行動裝置）
+2. 身份驗證使用基於會話的 Cookie（而非 JWT）
+3. 資料庫是 PostgreSQL（基於現有的 Prisma 綱要）
+4. 我們只針對現代瀏覽器（不支援 IE11）
+→ 現在請糾正我，否則我將以此為基礎進行。
 ```
 
-Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
+不要靜默地填補模稜兩可的需求。規格的全部目的是在程式碼寫下之前暴露誤解——假設是最危險的誤解形式。
 
-**Write a spec document covering these six core areas:**
+**撰寫涵蓋這六個核心領域的規格文件：**
 
-1. **Objective** — What are we building and why? Who is the user? What does success look like?
+1. **目標 (Objective)** — 我們在建構什麼以及為什麼？使用者是誰？成功看起來是什麼樣子？
 
-2. **Commands** — Full executable commands with flags, not just tool names.
+2. **指令 (Commands)** — 帶有標誌的完整可執行指令，而不僅僅是工具名稱。
    ```
    Build: npm run build
    Test: npm test -- --coverage
@@ -93,167 +93,163 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
    Dev: npm run dev
    ```
 
-3. **Project Structure** — Where source code lives, where tests go, where docs belong.
+3. **專案結構 (Project Structure)** — 原始碼在哪裡，測試在哪裡，文件在哪裡。
    ```
-   src/           → Application source code
-   src/components → React components
-   src/lib        → Shared utilities
-   tests/         → Unit and integration tests
-   e2e/           → End-to-end tests
-   docs/          → Documentation
+   src/           → 應用程式原始碼
+   src/components → React 組件
+   src/lib        → 共享工具
+   tests/         → 單元和整合測試
+   e2e/           → 端到端測試
+   docs/          → 文件
    ```
 
-4. **Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of good output.
+4. **程式碼風格 (Code Style)** — 一個顯示您風格的實際程式碼片段勝過描述其的三段文字。包含命名約定、格式規則和良好輸出的範例。
 
-5. **Testing Strategy** — What framework, where tests live, coverage expectations, which test levels for which concerns.
+5. **測試策略 (Testing Strategy)** — 框架、測試位置、覆蓋率期望、針對哪些關注點進行哪些測試層級。
 
-6. **Boundaries** — Three-tier system:
-   - **Always do:** Run tests before commits, follow naming conventions, validate inputs
-   - **Ask first:** Database schema changes, adding dependencies, changing CI config
-   - **Never do:** Commit secrets, edit vendor directories, remove failing tests without approval
+6. **邊界 (Boundaries)** — 三層系統：
+   - **永遠做：** 在提交前運行測試，遵循命名約定，驗證輸入
+   - **先詢問：** 資料庫綱要變更、新增依賴、更改 CI 設定
+   - **絕不做：** 提交密碼，編輯供應商目錄，在未經批准的情況下移除失敗的測試
 
-**Spec template:**
+**規格範本：**
 
 ```markdown
-# Spec: [Project/Feature Name]
+# 規格：[專案/功能名稱]
 
-## Objective
-[What we're building and why. User stories or acceptance criteria.]
+## 目標
+[我們在建構什麼以及為什麼。使用者故事或可接受標準。]
 
-## Tech Stack
-[Framework, language, key dependencies with versions]
+## 技術棧
+[框架、語言、關鍵依賴及其版本]
 
-## Commands
-[Build, test, lint, dev — full commands]
+## 指令
+[Build、test、lint、dev — 完整指令]
 
-## Project Structure
-[Directory layout with descriptions]
+## 專案結構
+[帶有描述的目錄佈局]
 
-## Code Style
-[Example snippet + key conventions]
+## 程式碼風格
+[範例片段 + 關鍵約定]
 
-## Testing Strategy
-[Framework, test locations, coverage requirements, test levels]
+## 測試策略
+[框架、測試位置、覆蓋率要求、測試層級]
 
-## Boundaries
-- Always: [...]
-- Ask first: [...]
-- Never: [...]
+## 邊界
+- 永遠：[...]
+- 先詢問：[...]
+- 絕不：[...]
 
-## Success Criteria
-[How we'll know this is done — specific, testable conditions]
+## 成功標準
+[我們如何知道這已經完成——具體、可測試的條件]
 
-## Open Questions
-[Anything unresolved that needs human input]
+## 開放問題
+[任何未解決需要人類輸入的內容]
 ```
 
-**External spec tools:** This workflow is format-agnostic. If the project
-already uses OpenSpec or another specification system, keep that system's
-artifact format and storage conventions instead of creating a duplicate
-`SPEC.md`. This skill owns the clarification, content, and approval gates; the
-external tool owns how the approved spec is represented.
+**外部規格工具：** 此工作流程與格式無關。如果專案已經使用 OpenSpec 或其他規格系統，請保留該系統的產物格式和儲存慣例，而不是創建重複的 `SPEC.md`。此技能擁有澄清、內容和批准的閘門；外部工具擁有已批准的規格的表示方式。
 
-**Reframe instructions as success criteria.** When receiving vague requirements, translate them into concrete conditions:
+**將指示重新構建為成功標準。** 在收到模糊需求時，將其轉化為具體的條件：
 
 ```
-REQUIREMENT: "Make the dashboard faster"
+需求：「讓儀表板更快」
 
-REFRAMED SUCCESS CRITERIA:
-- Dashboard LCP < 2.5s on 4G connection
-- Initial data load completes in < 500ms
-- No layout shift during load (CLS < 0.1)
-→ Are these the right targets?
+重構的成功標準：
+- 在 4G 連線下，儀表板 LCP < 2.5 秒
+- 初始資料載入在 < 500 毫秒內完成
+- 載入過程中無佈局偏移 (CLS < 0.1)
+→ 這些是正確的目標嗎？
 ```
 
-This lets you loop, retry, and problem-solve toward a clear goal rather than guessing what "faster" means.
+這讓您可以朝著明確目標循環、重試和解決問題，而不是猜測「更快」的含義。
 
-**Stop after writing the spec (CRITICAL).** Once the spec is saved:
+**在撰寫規格後停止（關鍵）。** 一旦規格保存：
 
-1. Summarize it and list any Open Questions.
-2. Ask the human to approve it or request changes.
-3. **STOP YOUR TURN IMMEDIATELY.** Do NOT start Phase 2, invoke `planning-and-task-breakdown`, or write code in this turn. Planning starts only after the human approves the spec in a later turn.
+1. 總結它並列出任何開放問題。
+2. 要求人類批准它或請求更改。
+3. **立即停止您的回合。** 不要在此回合開始階段 2、呼叫 `planning-and-task-breakdown` 或編寫程式碼。規劃僅在人類在稍後的回合中批准規格後才開始。
 
-### Phase 2: Plan
+### 階段 2：規劃 (Plan)
 
-With the validated spec, generate a technical implementation plan:
+有了經過驗證的規格，生成技術實施計畫：
 
-1. Identify the major components and their dependencies
-2. Determine the implementation order (what must be built first)
-3. Note risks and mitigation strategies
-4. Identify what can be built in parallel vs. what must be sequential
-5. Define verification checkpoints between phases
+1. 識別主要組件及其依賴關係
+2. 確定實施順序（必須先建立什麼）
+3. 記錄風險和緩解策略
+4. 識別可以並行建立的和必須依序建立的內容
+5. 在階段之間定義驗證檢查點
 
-> Follow `planning-and-task-breakdown` for the dependency-graph mapping and vertical-slicing mechanics behind these steps; it is the canonical source. The bullets above are a lightweight summary; if they ever diverge, `planning-and-task-breakdown` takes precedence.
+> 遵循 `planning-and-task-breakdown` 以獲取這些步驟背後的依賴圖映射和垂直切片機制；它是權威來源。上述要點是輕量級摘要；如果它們有任何分歧，`planning-and-task-breakdown` 具有優先權。
 >
-> **Output convention:** Save the plan to `tasks/plan.md` and record the task list in the task list target defined by `planning-and-task-breakdown` (default `tasks/todo.md`; projects may designate an external tracker instead). Create `tasks/` if it does not exist. Downstream commands (`/build`, etc.) expect these defaults.
+> **輸出慣例：** 將計畫儲存到 `tasks/plan.md`，並在 `planning-and-task-breakdown` 定義的任務清單目標中記錄任務列表（預設為 `tasks/todo.md`；專案可以指定外部追蹤器）。如果不存在則創建 `tasks/`。下游指令（`/build` 等）期望這些預設值。
 
-The plan should be reviewable: the human should be able to read it and say "yes, that's the right approach" or "no, change X."
+計畫應該是可審查的：人類應該能夠閱讀它並說「是的，那是正確的方法」或「不，更改 X」。
 
-### Phase 3: Tasks
+### 階段 3：任務 (Tasks)
 
-Break the plan into discrete, implementable tasks:
+將計畫分解為離散、可實施的任務：
 
-- Each task should be completable in a single focused session
-- Each task has explicit acceptance criteria
-- Each task includes a verification step (test, build, manual check)
-- Tasks are ordered by dependency, not by perceived importance
-- No task should require changing more than ~5 files
+- 每個任務都應能在單一專注的會話中完成
+- 每個任務都有明確的可接受標準
+- 每個任務都包含一個驗證步驟（測試、建置、手動檢查）
+- 任務按依賴關係排序，而不是按感知重要性排序
+- 沒有任務應該需要更改超過約 5 個檔案
 
-> Follow `planning-and-task-breakdown` for the full task-sizing and dependency-ordering mechanics; it is the canonical source. The template below is a lightweight inline form; if they ever diverge, `planning-and-task-breakdown` takes precedence.
+> 遵循 `planning-and-task-breakdown` 以獲取完整的任務規模和依賴排序機制；它是權威來源。下面的範本是一個輕量級的內聯表單；如果它們有任何分歧，`planning-and-task-breakdown` 具有優先權。
 
-**Task template:**
+**任務範本：**
 ```markdown
-- [ ] Task: [Description]
-  - Acceptance: [What must be true when done]
-  - Verify: [How to confirm — test command, build, manual check]
-  - Files: [Which files will be touched]
+- [ ] 任務：[描述]
+  - 可接受標準：[完成時必須成立的條件]
+  - 驗證：[如何確認——測試指令、建置、手動檢查]
+  - 檔案：[將影響的檔案]
 ```
 
-### Phase 4: Implement
+### 階段 4：實施 (Implement)
 
-Execute tasks one at a time following `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) and `skills/test-driven-development/SKILL.md` (`test-driven-development`). Use `skills/context-engineering/SKILL.md` (`context-engineering`) to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+按照 `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) 和 `skills/test-driven-development/SKILL.md` (`test-driven-development`) 中的指示，一次執行一個任務。使用 `skills/context-engineering/SKILL.md` (`context-engineering`) 在每一步載入正確的規格部分和原始檔案，而不是向代理灌輸整個規格。
 
-## Keeping the Spec Alive
+## 維持規格的生命力
 
-The spec is a living document, not a one-time artifact:
+規格是一個活的文件，而不是一次性的產物：
 
-- **Update when decisions change** — If you discover the data model needs to change, update the spec first, then implement.
-- **Update when scope changes** — Features added or cut should be reflected in the spec.
-- **Commit the spec** — The spec belongs in version control alongside the code.
-- **Reference the spec in PRs** — Link back to the spec section that each PR implements.
+- **當決策改變時更新** — 如果您發現資料模型需要更改，請先更新規格，然後實施。
+- **當範圍改變時更新** — 新增或刪除的功能應反映在規格中。
+- **提交規格** — 規格應與程式碼一起存入版本控制。
+- **在 PR 中引用規格** — 將每個 PR 與其實施的規格部分連結起來。
 
-## Common Rationalizations
+## 常見合理化
 
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "This is simple, I don't need a spec" | Simple tasks don't need *long* specs, but they still need acceptance criteria. A two-line spec is fine. |
-| "I'll write the spec after I code it" | That's documentation, not specification. The spec's value is in forcing clarity *before* code. |
-| "The spec will slow us down" | A 15-minute spec prevents hours of rework. Waterfall in 15 minutes beats debugging in 15 hours. |
-| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec. |
-| "The user knows what they want" | Even clear requests have implicit assumptions. The spec surfaces those assumptions. |
-| "It's one big feature; splitting it is overhead" | If acceptance criteria cluster into independently testable groups, a monolithic spec forces every downstream task to reason over the whole contract. A ten-line capability map is the cheap alternative. |
-| "I'll decompose during planning" | Planning slices tasks within a spec. By then the oversized artifact already exists — module boundaries and dependency direction must be decided before the spec is written, not after. |
+|「這很簡單，我不需要規格」 | 簡單的任務不需要*冗長*的規格，但它們仍然需要可接受標準。兩行的規格就足夠了。 |
+|「我會在編碼後寫規格」 | 那是文件，不是規格。規格的價值在於在程式碼*之前*強制清晰度。 |
+|「規格會拖慢我們」 | 一個 15 分鐘的規格可以避免數小時的返工。15 分鐘的瀑布模型勝過 15 小時的除錯。 |
+|「需求最終會改變」 | 這就是規格是活文件的原因。過時的規格仍然比沒有規格要好。 |
+|「使用者知道他們想要什麼」 | 即使是明確的請求也有隱含的假設。規格暴露了這些假設。 |
+|「這是一個大功能；分割它是額外工作」 | 如果可接受標準分組為獨立可測試的群組，一個單一的規格會迫使每個下游任務都必須對整個合約進行推理。一個十行的能力圖是便宜的替代方案。 |
+|「我會在規劃期間分解」 | 規劃在規格內切分任務。到那時，超大的產物已經存在了——模組邊界和依賴方向必須在規格寫下*之前*就決定，而不是在之後。 |
 
-## Red Flags
+## 警示信號
 
-- Starting to write code without any written requirements
-- Asking "should I just start building?" before clarifying what "done" means
-- Implementing features not mentioned in any spec or task list
-- Making architectural decisions without documenting them
-- Skipping the spec because "it's obvious what to build"
-- Writing the spec and starting the plan or code in the same turn
-- One spec whose requirements span several independently testable capabilities
-- Module boundaries or build order decided implicitly during implementation because no capability map was approved up front
+- 在沒有書面需求的情況下開始編寫程式碼
+- 在澄清「完成」的含義之前詢問「我應該直接開始建構嗎？」
+- 實施任何未在任何規格或任務列表中提到的功能
+- 在沒有記錄的情況下做出架構決策
+- 因為「知道該建構什麼」而跳過規格
+- 在同一個回合中撰寫規格並開始規劃或編碼
+- 一個規格涵蓋多個獨立可測試能力的規格
+- 因為沒有事先批准能力圖，所以在實施過程中隱含地決定了模組邊界或建置順序
 
-## Verification
+## 驗證
 
-Before proceeding to implementation, confirm:
+在繼續實施之前，確認：
 
-- [ ] The spec covers all six core areas
-- [ ] The human has reviewed and approved the spec
-- [ ] The turn ended after saving the spec; approval came in a later turn
-- [ ] Success criteria are specific and testable
-- [ ] Boundaries (Always/Ask First/Never) are defined
-- [ ] The spec is saved to a file in the repository
-- [ ] If the request bundles several independently testable capabilities, a capability map (module ids, dependency direction, build order) was approved before any module spec was written
-- [ ] Every module spec traces to a module id in the approved map
+- [ ] 規格涵蓋所有六個核心領域
+- [ ] 人類已審查並批准了規格
+- [ ] 回合在保存規格後結束；批准在稍後的回合中得到
+- [ ] 成功標準是具體且可測試的
+- [ ] 邊界（永遠/先詢問/絕不）已定義
+- [ ] 規格已保存到儲存庫中的檔案中
+- [ ] 如果請求捆綁了多個獨立可測試的能力，則在撰寫任何模組規格之前，已批准能力圖（模組 ID、依賴方向、建置順序）
+- [ ] 每個模組規格都追溯到已批准的圖表中的一個模組 ID

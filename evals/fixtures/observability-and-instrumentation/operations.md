@@ -1,11 +1,10 @@
-# Payment retry operations
+# 支付重試操作
 
-On-call must be able to answer:
+值班人員必須能夠回答以下問題：
 
-- Are retries recovering transient gateway failures?
-- Which gateway and failure class is driving exhaustion?
-- Is one payment being charged more than once?
-- Which customer-visible payments need intervention now?
+- 重試是否正在恢復暫時性的閘道故障？
+- 哪一個閘道和哪一類故障導致了耗盡？
+- 是否有一次支付被收取了多次費用？
+- 哪些客戶可見的支付需要立即介入？
 
-Payment and attempt IDs are safe correlation identifiers. Card numbers,
-customer email addresses, and raw gateway responses must never be logged.
+支付和嘗試 ID 是安全的關聯識別符。絕不能記錄卡號、客戶電子郵件地址和原始閘道回應。

@@ -1,13 +1,13 @@
-# Using agent-skills with Windsurf
+# 使用代理技能與 Windsurf
 
-## Setup
+## 設定
 
-### Project Rules
+### 專案規則
 
-Windsurf uses `.windsurfrules` for project-specific agent instructions:
+Windsurf 使用 `.windsurfrules` 來存放專案特定的代理指令：
 
 ```bash
-# Create a combined rules file from your most important skills
+# 從你最重要的技能中建立一個組合規則檔案
 cat /path/to/agent-skills/skills/test-driven-development/SKILL.md > .windsurfrules
 echo "\n---\n" >> .windsurfrules
 cat /path/to/agent-skills/skills/incremental-implementation/SKILL.md >> .windsurfrules
@@ -15,34 +15,34 @@ echo "\n---\n" >> .windsurfrules
 cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> .windsurfrules
 ```
 
-### Global Rules
+### 全域規則
 
-For skills you want across all projects, add them to Windsurf's global rules:
+對於你希望在所有專案中都使用的技能，請將它們新增到 Windsurf 的全域規則中：
 
-1. Open Windsurf → Settings → AI → Global Rules
-2. Paste the content of your most-used skills
+1. 開啟 Windsurf → 設定 (Settings) → AI → 全域規則 (Global Rules)
+2. 貼上你最常用的技能內容
 
-## Recommended Configuration
+## 建議的配置
 
-Keep `.windsurfrules` focused on 2-3 essential skills to stay within context limits:
+請將 `.windsurfrules` 保持專注於 2-3 個基本技能，以維持在上下文限制範圍內：
 
 ```
 # .windsurfrules
-# Essential agent-skills for this project
+# 本專案的必要代理技能
 
-[Paste test-driven-development SKILL.md]
-
----
-
-[Paste incremental-implementation SKILL.md]
+[貼上 test-driven-development SKILL.md]
 
 ---
 
-[Paste code-review-and-quality SKILL.md]
+[貼上 incremental-implementation SKILL.md]
+
+---
+
+[貼上 code-review-and-quality SKILL.md]
 ```
 
-## Usage Tips
+## 使用提示
 
-1. **Be selective** — Windsurf's context is limited. Choose skills that address your biggest quality gaps.
-2. **Reference in conversation** — Paste additional skill content into the chat when working on specific phases (e.g., paste `security-and-hardening` when building auth).
-3. **Use references as checklists** — Paste `references/security-checklist.md` and ask Windsurf to verify each item.
+1. **要選擇性** — Windsurf 的上下文是有限的。請選擇能解決你最大品質差距的技能。
+2. **在對話中引用** — 在處理特定階段時，將額外的技能內容貼入聊天中（例如，在建置認證時，貼上 `security-and-hardening`）。
+3. **將引用作為檢查清單** — 貼上 `references/security-checklist.md` 並要求 Windsurf 驗證每一項。

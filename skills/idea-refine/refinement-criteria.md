@@ -1,113 +1,113 @@
-# Refinement & Evaluation Criteria
+# 完善與評估標準
 
-Use this rubric during Phase 2 (Evaluate & Converge) to stress-test idea directions. Not every criterion applies to every idea — use judgment about which dimensions matter most for the specific context.
+在第二階段（評估與收斂）中，請使用此評分標準來壓力測試想法方向。並非所有標準都適用於所有想法——請根據特定情境，判斷哪些維度最重要。
 
-## Core Evaluation Dimensions
+## 核心評估維度
 
-### 1. User Value
+### 1. 使用者價值 (User Value)
 
-The most important dimension. If the value isn't clear, nothing else matters.
+最重要的一維度。如果價值不清楚，其他一切都不重要。
 
-**Painkiller vs. Vitamin:**
-- **Painkiller:** Solves an acute, frequent problem. Users will actively seek this out. They'll switch from their current solution. Signs: people describe the problem with emotion, they've built workarounds, they'll pay for a solution.
-- **Vitamin:** Nice to have. Makes something marginally better. Users won't go out of their way. Signs: people nod politely, say "that's cool," then don't change behavior.
+**痛點解決 vs. 維生素 (Painkiller vs. Vitamin):**
+- **痛點解決 (Painkiller):** 解決一個急性、頻繁的問題。使用者會主動尋求它。他們會從現有的解決方案切換。跡象：人們用情緒描述問題，他們已經建立了變通方法，他們會為解決方案付費。
+- **維生素 (Vitamin):** 令人愉快。讓某事物稍微好一點。使用者不會費力去追求。跡象：人們禮貌地點點頭，說「那很酷」，但行為沒有改變。
 
-**Questions to ask:**
-- Can you name 3 specific people who have this problem right now?
-- What are they doing today instead? (The real competitor is always the current workaround.)
-- Would they switch from their current approach? What would make them switch?
-- How often do they encounter this problem? (Daily problems > monthly problems)
-- Is this a "pull" problem (users are asking for this) or a "push" problem (you think they should want this)?
+**需要提出的問題：**
+- 你能說出目前有這個問題的 3 個人嗎？
+- 他們今天在做什麼？（真正的競爭對手永遠是目前的變通方法。）
+- 他們會從他們目前的做法切換嗎？什麼會讓他們切換？
+- 他們多久遇到一次這個問題？（每日問題 > 每月問題）
+- 這是一個「拉動」問題（使用者在要求它）還是「推動」問題（你認為他們應該想要它）？
 
-**Red flags:**
-- "Everyone could use this" — if you can't name a specific user, the value isn't clear
-- "It's like X but better" — marginal improvements rarely drive adoption
-- The problem is real but rare — high intensity but low frequency rarely justifies a product
+**警訊 (Red flags):**
+- 「每個人都能用這個」——如果你不能指出具體的用戶，價值就不清楚。
+- 「它就像 X 但更好」——邊際的改進很少能推動採用。
+- 問題是真實但罕見——高強度但低頻率很少能證明產品的價值。
 
-### 2. Feasibility
+### 2. 可行性 (Feasibility)
 
-Can you actually build this? Not just technically, but practically.
+你真的能建立這個嗎？不僅是技術上，也是實踐上。
 
-**Technical feasibility:**
-- Does the core technology exist and work reliably?
-- What's the hardest technical problem? Is it a known-hard problem or a novel one?
-- Are there dependencies on third parties, APIs, or data sources you don't control?
-- What's the minimum technical stack needed? (If the answer is "a lot," that's a signal.)
+**技術可行性 (Technical feasibility):**
+- 核心技術是否存在且可靠地運作？
+- 最困難的技術問題是什麼？它是一個已知困難的問題還是新穎的問題？
+- 是否有依賴於你無法控制的第三方、API 或數據源？
+- 需要的最小技術堆疊是什麼？（如果答案是「很多」，那就是一個信號。）
 
-**Resource feasibility:**
-- What's the minimum team/effort to build an MVP?
-- Does it require specialized expertise you don't have?
-- Are there regulatory, legal, or compliance requirements?
+**資源可行性 (Resource feasibility):**
+- 建立 MVP 需要的最小團隊/精力是多少？
+- 它是否需要你沒有的專業知識？
+- 是否有監管、法律或合規要求？
 
-**Time-to-value:**
-- How quickly can you get something in front of users?
-- Is there a version that delivers value in days/weeks, not months?
-- What's the critical path? What has to happen first?
+**價值實現時間 (Time-to-value):**
+- 你能多快讓產品呈現給使用者？
+- 是否有能在幾天/幾週內提供價值的版本，而不是幾個月？
+- 關鍵路徑是什麼？什麼必須先發生？
 
-**Red flags:**
-- "We just need to solve [very hard research problem] first"
-- Multiple dependencies that all need to work simultaneously
-- MVP still requires months of work — likely not minimal enough
+**警訊 (Red flags):**
+- 「我們只需要先解決 [非常困難的研究問題]」
+- 多個依賴項，所有依賴項都需要同時運作
+- MVP 仍然需要數月的開發時間——可能不夠精簡。
 
-### 3. Differentiation
+### 3. 差異化 (Differentiation)
 
-What makes this genuinely different? Not better — *different*.
+這真正有什麼不同？不是更好——而是*不同*。
 
-**Questions to ask:**
-- If a user described this to a friend, what would they say? Is that description compelling?
-- What's the one thing this does that nothing else does? (If you can't name one, that's a problem.)
-- Is this differentiation durable? Can a competitor copy it in a week?
-- Is the difference something users actually care about, or just something builders find interesting?
+**需要提出的問題：**
+- 如果一個使用者向朋友描述這個，他們會說什麼？這個描述是否引人入勝？
+- 它做的是什麼，而其他產品都不做？（如果你不能說出一個，那就是一個問題。）
+- 這種差異化是否持久？競爭對手能在幾週內複製它嗎？
+- 這種差異化是使用者真正關心的，還是只是開發者覺得有趣？
 
-**Types of differentiation (strongest to weakest):**
-1. **New capability:** Does something that was previously impossible
-2. **10x improvement:** So much better on a key dimension that it changes behavior
-3. **New audience:** Brings an existing capability to people who were excluded
-4. **New context:** Works in a situation where existing solutions fail
-5. **Better UX:** Same capability, dramatically simpler experience
-6. **Cheaper:** Same thing, lower cost (weakest — easily competed away)
+**差異化的類型（由強到弱）：**
+1. **新能力 (New capability):** 實現了以前不可能做到的事情。
+2. **10 倍改進 (10x improvement):** 在一個關鍵維度上好得多，從而改變行為。
+3. **新受眾 (New audience):** 將現有的能力帶給那些被排除在外的人。
+4. **新情境 (New context):** 在現有解決方案失敗的環境中運作。
+5. **更好的使用者體驗 (Better UX):** 同樣的能力，但體驗大大簡化。
+6. **更便宜 (Cheaper):** 相同的事物，成本更低（最弱——很容易被競爭者超越）。
 
-**Red flags:**
-- Differentiation is entirely about technology, not user experience
-- "We're faster/cheaper/prettier" without a structural reason why
-- The feature that differentiates is not the feature users care most about
+**警訊 (Red flags):**
+- 差異化完全是關於技術，而不是使用者體驗。
+- 在沒有結構性原因的情況下，僅僅是「我們更快/更便宜/更漂亮」。
+- 產生差異化的功能不是使用者最關心的事情。
 
-## Assumption Audit
+## 假設審核 (Assumption Audit)
 
-For every idea direction, explicitly list assumptions in three categories:
+對於每一個想法方向，請在三個類別中明確列出假設：
 
-### Must Be True (Dealbreakers)
-Assumptions that, if wrong, kill the idea entirely. These need validation before building.
+### 必須為真 (Must Be True) (決定性因素)
+如果這些假設錯誤，將徹底扼殺該想法。在建構之前需要驗證。
 
-Example: "Users will share their data with us" — if they won't, the entire product doesn't work.
+範例：「使用者會與我們分享他們的數據」——如果他們不願意，整個產品就無效。
 
-### Should Be True (Important)
-Assumptions that significantly impact success but don't kill the idea. You can adjust the approach if these are wrong.
+### 應該為真 (Should Be True) (重要)
+這些假設對成功有重大影響，但不扼殺該想法。如果這些假設錯誤，你可以調整方法。
 
-Example: "Users prefer self-serve over talking to a person" — if wrong, you need a different go-to-market, but the core product can still work.
+範例：「使用者更喜歡自助服務而不是與人交談」——如果錯誤，你需要不同的市場推廣策略，但核心產品仍然可以運作。
 
-### Might Be True (Nice to Have)
-Assumptions about secondary features or optimizations. Don't validate these until the core is proven.
+### 可能為真 (Might Be True) (可有可無)
+關於次要功能或優化的假設。在核心被證實之前，不要驗證這些假設。
 
-Example: "Users will want to share their results with teammates" — a growth feature, not a core value proposition.
+範例：「使用者會想與團隊分享他們的結果」——這是一個增長功能，而不是核心價值主張。
 
-## Decision Framework
+## 決策框架 (Decision Framework)
 
-When choosing between directions, rank on this matrix:
+在選擇方向時，根據此矩陣進行排序：
 
-|                    | High Feasibility | Low Feasibility |
-|--------------------|-------------------|-----------------|
-| **High Value**     | Do this first     | Worth the risk   |
-| **Low Value**      | Only if trivial   | Don't do this    |
+| | 高可行性 (High Feasibility) | 低可行性 (Low Feasibility) |
+|---|---|---|
+| **高價值 (High Value)** | 先做這個 (Do this first) | 值得冒風險 (Worth the risk) |
+| **低價值 (Low Value)** | 僅在瑣碎時 (Only if trivial) | 不要做這個 (Don't do this) |
 
-Then use differentiation as the tiebreaker between options in the same quadrant.
+然後在同一象限內，使用差異化作為選項之間的決定因素。
 
-## MVP Scoping Principles
+## MVP 範圍原則 (MVP Scoping Principles)
 
-When defining MVP scope for the chosen direction:
+在為所選方向定義 MVP 範圍時：
 
-1. **One job, done well.** The MVP should nail exactly one user job. Not three jobs done partially.
-2. **The riskiest assumption first.** The MVP's primary purpose is to test the assumption most likely to be wrong.
-3. **Time-box, not feature-list.** "What can we build and test in [timeframe]?" is better than "What features do we need?"
-4. **The 'Not Doing' list is mandatory.** Explicitly name what you're cutting and why. This prevents scope creep and forces honest prioritization.
-5. **If it's not embarrassing, you waited too long.** The first version should feel incomplete to the builder. If it doesn't, you over-built.
+1. **一項工作，做好。** MVP 應該精確地解決一個使用者需求。不要做三項工作，且只做部分。
+2. **最不確定的假設優先。** MVP 的主要目的是測試最有可能錯誤的假設。
+3. **時間限制，而非功能列表。** 「在 [時間範圍]內我們可以建立和測試什麼？」比「我們需要哪些功能？」更好。
+4. **「不做」清單是強制性的。** 明確指出你將刪減什麼以及原因。這可以防止範圍蔓延並迫使誠實的優先排序。
+5. **如果不是丟臉，你就等得太久了。** 第一個版本應該讓開發者感覺不完整。如果不是，你就做了過多。

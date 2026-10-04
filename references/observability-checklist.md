@@ -1,92 +1,92 @@
-# Observability Checklist
+# 可觀察性檢查清單
 
-Quick reference for instrumenting production code. Use alongside the `observability-and-instrumentation` skill.
+用於監測生產程式碼的快速參考。請與 `observability-and-instrumentation` 技能一起使用。
 
-## Table of Contents
+## 目錄
 
-- [On-Call Questions (Start Here)](#on-call-questions-start-here)
-- [Structured Logging](#structured-logging)
-- [Metrics](#metrics)
-- [Distributed Tracing](#distributed-tracing)
-- [Alerting](#alerting)
-- [Dashboards](#dashboards)
-- [Verify the Telemetry](#verify-the-telemetry)
-- [Pre-Launch Gate](#pre-launch-gate)
+- [待命問題 (從這裡開始)](#on-call-questions-start-here)
+- [結構化日誌記錄](#structured-logging)
+- [指標](#metrics)
+- [分散式追蹤](#distributed-tracing)
+- [警報](#alerting)
+- [儀表板](#dashboards)
+- [驗證遙測數據](#verify-the-telemetry)
+- [發布前閘門](#pre-launch-gate)
 
-## On-Call Questions (Start Here)
+## 待命問題 (從這裡開始)
 
-Telemetry without a question is noise. Before instrumenting anything:
+沒有問題的遙測數據就是噪音。在實施任何監測之前：
 
-- [ ] 2–4 questions an on-call engineer will ask about this feature are written down
-- [ ] Every signal below maps to one of those questions
-- [ ] Each question is matched to the right signal type: metrics say **that** something is wrong, traces say **where**, logs say **why**
+- [ ] 記錄下待命工程師會詢問的 2–4 個問題
+- [ ] 每個訊號都對應於這些問題中的一個
+- [ ] 每個問題都與正確的訊號類型相匹配：指標表示**發生了**某事，追蹤表示**在哪裡**，日誌表示**為什麼**
 
-## Structured Logging
+## 結構化日誌記錄
 
-- [ ] Logs are structured (JSON) with stable event names — not free-form strings
-- [ ] Every log line carries a correlation/request ID, generated or accepted at the system boundary
-- [ ] Correlation ID is propagated on every outbound call and async boundary (HTTP headers, queue metadata)
-- [ ] Any log stream written by more than one entry point (scheduler, replay endpoint, manual run) carries an entry-point field, set where the run starts and propagated alongside the correlation ID
-- [ ] Log levels are consistent: `error` = invariant broken, someone may act; `warn` = degraded but handled; `info` = significant business event; `debug` = off in production
-- [ ] No secrets, tokens, passwords, or unredacted PII in any log line (hard rule from `security-and-hardening`)
-- [ ] Fields are allowlisted — no whole request/response bodies, no auth headers
-- [ ] External service calls logged with metadata only: endpoint, status, latency, attempt count, sanitized identifiers
-- [ ] Actual log output spot-checked: structured fields, not `[object Object]`
+- [ ] 日誌是結構化的 (JSON)，具有穩定的事件名稱 — 而非自由格式的字串
+- [ ] 每一行日誌都帶有關聯/請求 ID，由系統邊界生成或接受
+- [ ] 關聯 ID 在每一次出站呼叫和異步邊界（HTTP 標頭、佇列元數據）中傳播
+- [ ] 由多個入口點（排程器、重放端點、手動運行）寫入的任何日誌流都帶有入口點欄位，設定在運行開始的地方，並與關聯 ID 一起傳播
+- [ ] 日誌級別保持一致：`error` = 不變性被破壞，有人可能需要採取行動；`warn` = 降級但已處理；`info` = 重大的業務事件；`debug` = 在生產環境中關閉
+- [ ] 任何日誌行中不包含密鑰、令牌、密碼或未編輯的 PII（來自 `security-and-hardening` 的硬性規則）
+- [ ] 欄位是允許清單 — 不包含完整的請求/響應主體，也不包含認證標頭
+- [ ] 外部服務呼叫僅記錄元數據：端點、狀態、延遲、嘗試次數、清理後的識別符
+- [ ] 實際日誌輸出進行檢查：結構化欄位，而不是 `[object Object]`
 
-## Metrics
+## 指標
 
-- [ ] **RED** instrumented for every endpoint and every external dependency: Rate, Errors, Duration
-- [ ] **USE** instrumented for every resource (queues, pools, hosts): Utilization, Saturation, Errors
-- [ ] Latency is a histogram; p50/p95/p99 queryable — never an average
-- [ ] All labels come from small, fixed sets (route template, status class, provider name)
-- [ ] No unbounded label values: no user IDs, tenant IDs, emails, raw URLs, request IDs, or error message text
-- [ ] Status codes grouped by class (`5xx`, not `503`)
-- [ ] Queue depth and processing duration tracked for every worker/queue
+- [ ] 對每個端點和每個外部依賴都實施 **RED**：速率 (Rate)、錯誤 (Errors)、持續時間 (Duration)
+- [ ] 對每個資源（佇列、池、主機）都實施 **USE**：利用率 (Utilization)、飽和度 (Saturation)、錯誤 (Errors)
+- [ ] 延遲是直方圖；p50/p95/p99 可查詢 — 絕非平均值
+- [ ] 所有標籤都來自小而固定的集合（路由模板、狀態類別、提供者名稱）
+- [ ] 沒有無界標籤值：不包含使用者 ID、租戶 ID、電子郵件、原始 URL、請求 ID 或錯誤訊息文本
+- [ ] 狀態碼按類別分組（`5xx`，而非 `503`）
+- [ ] 追蹤每個工作執行器/佇列的佇列深度和處理持續時間
 
-## Distributed Tracing
+## 分散式追蹤
 
-- [ ] OpenTelemetry (or equivalent) initialized at service startup, before other imports
-- [ ] Auto-instrumentation enabled for HTTP, gRPC, and DB clients
-- [ ] Trace context propagated on every outbound call (W3C `traceparent`/`tracestate`) and extracted from every inbound request
-- [ ] Context survives async boundaries — queue messages carry trace metadata
-- [ ] Manual spans only around meaningful internal units of work, with the attributes on-call will filter by
-- [ ] No secrets or PII as span attributes
-- [ ] Head-based sampling at a low default rate; 100% of errors kept if tail sampling is available
+- [ ] OpenTelemetry（或等效的）在服務啟動時初始化，在其他導入之前
+- [ ] 為 HTTP、gRPC 和資料庫客戶端啟用自動監測
+- [ ] 追蹤上下文在每一次出站呼叫（W3C `traceparent`/`tracestate`）中傳播，並從每一次入站請求中提取
+- [ ] 上下文在異步邊界中保持有效 — 佇列訊息帶有追蹤元數據
+- [ ] 手動跨有意義的內部工作單元建立 Span，相關資訊將由待命人員過濾
+- [ ] Span 屬性中不包含密鑰或 PII
+- [ ] 基於頭部進行採樣，預設速率較低；如果可用，則保留 100% 的錯誤（尾部採樣）
 
-## Alerting
+## 警報
 
-- [ ] Every alert is symptom-based (error rate, p99 latency, queue age) — causes (CPU, disk, restarts) go to dashboards, not pagers
-- [ ] Every alert is actionable; "ignore it, it self-heals" alerts are deleted
-- [ ] Every alert links to a runbook — minimum three lines: what it means, first query to run, escalation path
-- [ ] Thresholds and durations justified by an SLO or historical data, not guesses
-- [ ] Two severities only: **page** (user-facing, act now) and **ticket** (degradation, act this week)
-- [ ] Each new alert test-fired once: it reached the right channel and the runbook link works
-- [ ] No alerts that fire daily and get acknowledged without action
+- [ ] 每個警報都是基於症狀的（錯誤率、p99 延遲、佇列อายุ） — 原因（CPU、磁碟、重啟）進入儀表板，而不是呼叫器
+- [ ] 每個警報都是可操作的；會刪除「忽略它，它會自我修復」的警報
+- [ ] 每個警報都連結到運行指南 — 最少三行：它代表什麼，要執行的第一個查詢，升級路徑
+- [ ] 閾值和持續時間是根據 SLO 或歷史數據來證明的，而不是猜測
+- [ ] 只有兩種嚴重程度：**page**（面向使用者的，立即採取行動）和 **ticket**（降級，本週採取行動）
+- [ ] 每個新的警報都進行一次測試：它到達了正確的通道，並且運行指南連結有效
+- [ ] 沒有每天觸發並被確認而未採取行動的警報
 
-## Dashboards
+## 儀表板
 
-- [ ] Service health dashboard exists: error rate, latency p99, traffic, saturation
-- [ ] Dependency health panel shows per-service error rates and latency
-- [ ] Dashboard answers the on-call questions from the top of this checklist — not "everything except the answer"
-- [ ] Default time range is sensible (1h–6h, not 30d)
+- [ ] 存在服務健康儀表板：錯誤率、p99 延遲、流量、飽和度
+- [ ] 依賴健康面板顯示每個服務的錯誤率和延遲
+- [ ] 儀表板回答了本檢查清單頂部的待命問題 — 而不是「除了答案之外的一切」
+- [ ] 預設的時間範圍是合理的（1 小時–6 小時，而非 30 天）
 
-## Verify the Telemetry
+## 驗證遙測數據
 
-Instrumentation is code; it can be wrong:
+監測是程式碼；它可能錯誤：
 
-- [ ] Forced an error in staging → found it in the logs by correlation ID
-- [ ] Sent test traffic → metric series appear with expected labels and sane values
-- [ ] Followed one request end-to-end in the tracing UI → no broken spans
-- [ ] An induced failure was diagnosed from telemetry alone, without reading the source
+- [ ] 在 Staging 環境中強制發生錯誤 → 透過關聯 ID 在日誌中找到它
+- [ ] 發送測試流量 → 指標序列出現，帶有預期的標籤和合理的數值
+- [ ] 在追蹤 UI 中端到端跟蹤一次請求 → 沒有損壞的 Span
+- [ ] 僅從遙測數據診斷出一個誘導的故障，而無需閱讀原始碼
 
-## Pre-Launch Gate
+## 發布前閘門
 
-Before a feature ships to production, all of the following are true:
+在功能發布到生產之前，以下所有內容都必須為真：
 
-- [ ] Structured logs flowing to the log aggregator
-- [ ] RED metrics visible in dashboards for every new endpoint and dependency
-- [ ] At least one symptom-based alert configured, with runbook, test-fired
-- [ ] A request can be traced across every service it touches
-- [ ] On-call knows where the runbooks are
+- [ ] 結構化日誌流向日誌聚合器
+- [ ] 對於每個新的端點和依賴，儀表板上可見 RED 指標
+- [ ] 配置了至少一個基於症狀的警報，並已運行指南測試
+- [ ] 一個請求可以追蹤它所涉及的每個服務
+- [ ] 待命人員知道運行指南的位置
 
-For launch-day monitoring sequence and rollback triggers, see the `shipping-and-launch` skill.
+有關發布日監測序列和回滾觸發器，請參閱 `shipping-and-launch` 技能。

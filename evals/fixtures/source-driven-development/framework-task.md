@@ -1,10 +1,5 @@
-# Session implementation task
+# 會話實作任務
 
-Implement server-side sessions for an Express 5 application. The project uses
-`express-session` and must follow the currently documented production approach
-for proxy settings, secure cookies, session stores, and secret configuration.
+為 Express 5 應用程式實作伺服器端會話。該專案使用 `express-session`，並必須遵循目前文件所記錄的代理設定、安全 Cookie、會話儲存和密鑰設定的生產方法。
 
-Ground behavioral claims in official Express or `express-session`
-documentation and cite the exact pages used. Do not rely on remembered Express
-4 defaults. Flag any deployment-specific assumption that cannot be verified
-from the repository or official documentation.
+根據官方 Express 或 `express-session` 文件中的資訊來建立行為主張，並引用所使用的確切頁面。不要依賴記憶中的 Express 4 預設值。標記任何無法從儲存庫或官方文件驗證的部署特定假設。

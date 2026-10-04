@@ -1,398 +1,367 @@
 ---
 name: code-review-and-quality
-description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch. Use when asked to review a diff or a pull request, even when the diff is pasted inline.
+description: 進行多軸程式碼審查。在合併任何變更之前使用。在審查您自己、另一個代理或人類撰寫的程式碼時使用。在程式碼進入主分支之前，當您需要跨多個維度評估程式碼品質時使用。當被要求審查差異或拉取請求時使用，即使差異是內嵌的。
 ---
 
-# Code Review and Quality
+# 程式碼審查與品質
 
-## Overview
+## 概述
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. Review covers five axes: correctness, readability, architecture, security, and performance.
+帶有品質門檻的多維度程式碼審查。所有變更在合併前都必須經過審查——沒有例外。審查涵蓋五個軸：正確性、可讀性、架構、安全性與效能。
 
-**The approval standard:** Approve a change when it definitely improves overall code health, even if it isn't perfect. Perfect code doesn't exist — the goal is continuous improvement. Don't block a change because it isn't exactly how you would have written it. If it improves the codebase and follows the project's conventions, approve it.
+**批准標準：** 當變更確實改善整體程式碼健康度時，即使它不完美，也應批准它。完美程式碼是不存在的——目標是持續改進。不要因為它不是您原本寫法就阻止變更。如果它改善了程式碼庫並遵循專案的慣例，就批准它。
 
-## When to Use
+## 何時使用
 
-- Before merging any PR or change
-- After completing a feature implementation
-- When another agent or model produced code you need to evaluate
-- When refactoring existing code
-- After any bug fix (review both the fix and the regression test)
+- 在合併任何 PR 或變更之前
+- 完成功能實作後
+- 當另一個代理或模型產生您需要評估的程式碼時
+- 當重構現有程式碼時
+- 任何錯誤修復後（同時審查修復和回歸測試）
 
-## The Five-Axis Review
+## 五軸審查
 
-Every review evaluates code across these dimensions:
+每一次審查都會從這些維度評估程式碼：
 
-### 1. Correctness
+### 1. 正確性 (Correctness)
 
-Does the code do what it claims to do?
+程式碼是否做到了它聲稱要做的事？
 
-- Does it match the spec or task requirements?
-- Are edge cases handled (null, empty, boundary values)?
-- Are error paths handled (not just the happy path)?
-- Does it pass all tests? Are the tests actually testing the right things?
-- Are there off-by-one errors, race conditions, or state inconsistencies?
+- 它是否符合規格或任務要求？
+- 是否處理了邊界案例（空值、空值、邊界值）？
+- 是否處理了錯誤路徑（而不僅僅是成功路徑）？
+- 它是否通過了所有測試？測試是否真正測試了正確的事物？
+- 是否存在偏移一位錯誤、競態條件或狀態不一致？
 
-### 2. Readability & Simplicity
+### 2. 可讀性與簡潔性 (Readability & Simplicity)
 
-Can another engineer (or agent) understand this code without the author explaining it?
+在沒有作者解釋的情況下，另一位工程師（或代理）能否理解這段程式碼？
 
-- Are names descriptive and consistent with project conventions? (No `temp`, `data`, `result` without context)
-- Is the control flow straightforward (avoid nested ternaries, deep callbacks)?
-- Is the code organized logically (related code grouped, clear module boundaries)?
-- Are there any "clever" tricks that should be simplified?
-- **Could this be done in fewer lines?** (1000 lines where 100 suffice is a failure)
-- **Are abstractions earning their complexity?** (Don't generalize until the third use case)
-- Would comments help clarify non-obvious intent? (But don't comment obvious code.)
-- Are there dead code artifacts: no-op variables (`_unused`), backwards-compat shims, or `// removed` comments?
-- **Is a new conditional bolted onto an unrelated flow?** That's a design smell, not a nit — push the logic into its own helper, state, or policy instead of tangling an existing path.
-- **Do repeated conditionals on the same shape appear?** They signal a missing model or dispatcher. A "temporary" branch is usually permanent debt.
+- 名稱是否描述清晰並與專案慣例一致？（不應在沒有上下文的情況下使用 `temp`、`data`、`result`）
+- 控制流程是否直觀（避免巢狀三元運算符、深層回呼函數）？
+- 程式碼是否邏輯清晰（相關程式碼是否分組，模組邊界是否清晰）？
+- 是否有應該簡化的「巧妙」技巧？
+- **這是否能用更少的行完成？**（1000 行，而 100 行就足夠，則失敗）
+- **抽象是否值得其複雜性？**（直到第三個使用案例才進行泛化）
+- 註釋是否能澄清不明顯的意圖？（但不要註釋明顯的程式碼。）
+- 是否存在無效程式碼產物：無操作變數（`_unused`）、向後相容的模擬（shims）或 `// removed` 註釋？
+- **一個新的條件是否被附加到不相關的流程上？** 這是一種設計氣味，而不是細節——應將邏輯推入其自己的輔助函數、狀態或策略中，而不是纏繞現有的路徑。
+- **是否在相同形狀上重複了條件判斷？** 這表明缺少一個模型或分派器。一個「臨時」分支通常是永久的債務。
 
-### 3. Architecture
+### 3. 架構 (Architecture)
 
-Does the change fit the system's design?
+變更是否符合系統的設計？
 
-- Does it follow existing patterns or introduce a new one? If new, is it justified?
-- Does it maintain clean module boundaries?
-- Is there code duplication that should be shared?
-- Are dependencies flowing in the right direction (no circular dependencies)?
-- Is the abstraction level appropriate (not over-engineered, not too coupled)?
-- **Does this refactor reduce complexity or just relocate it?** Count the concepts a reader must hold to follow the change. If a "cleaner" version leaves that count unchanged, it isn't cleaner — prefer the restructuring that makes whole branches, modes, or layers disappear over one that re-centralizes the same logic. Prefer deleting an abstraction to polishing it.
-- **Is feature-specific logic leaking into a shared or general-purpose module?** Keep logic in its owning layer, reuse the existing canonical helper instead of a near-duplicate, and don't normalize architectural drift.
-- **Are type boundaries explicit?** Question gratuitous `any`/`unknown`/optional/casts and silent fallbacks that paper over an unclear invariant — making the boundary explicit often makes the surrounding control flow simpler.
+- 它是否遵循現有的模式或引入了新的模式？如果是新的，是否有理由？
+- 它是否保持了乾淨的模組邊界？
+- 是否存在應共享的程式碼重複？
+- 依賴關係是否朝著正確的方向流動（沒有循環依賴）？
+- 抽象層級是否適當（不是過度工程化，也不是過度耦合）？
+- **這次重構是減少了複雜性還是只是重新定位了它？** 讀者必須記住多少概念才能跟上變更。如果一個「更乾淨」的版本保持了相同的計數，它就不是更乾淨的——優先選擇能讓整個分支、模式或層級消失的重構，而不是重新集中相同的邏輯。傾向於刪除一個抽象來完善它。
+- **功能特定的邏輯是否洩漏到共享或通用模組中？** 將邏輯保留在其所有層級中，重用現有的標準輔助函數而不是近乎重複的代碼，並且不要使架構漂移正常化。
+- **類型邊界是否明確？** 對於不必要的 `any`/`unknown`/`optional`/`casts` 和掩蓋不清晰不變量的靜默回退，質疑它們——使邊界明確通常會使周圍的控制流程更簡單。
 
-### 4. Security
+### 4. 安全性 (Security)
 
-For detailed security guidance, see `security-and-hardening`. Does the change introduce vulnerabilities?
+有關詳細的安全指導，請參閱 `security-and-hardening`。變更是否引入了漏洞？
 
-- Is user input validated and sanitized?
-- Are secrets kept out of code, logs, and version control?
-- Is authentication/authorization checked where needed?
-- Are SQL queries parameterized (no string concatenation)?
-- Are outputs encoded to prevent XSS?
-- Are dependencies from trusted sources with no known vulnerabilities?
-- Is data from external sources (APIs, logs, user content, config files) treated as untrusted?
-- Are external data flows validated at system boundaries before use in logic or rendering?
+- 使用者輸入是否經過驗證和清理？
+- 機密資訊是否從程式碼、日誌和版本控制中保密？
+- 是否在需要的地方檢查了身份驗證/授權？
+- SQL 查詢是否參數化（不使用字串連接）？
+- 輸出是否編碼以防止 XSS？
+- 依賴項是否來自可信來源，且沒有已知的漏洞？
+- 來自外部來源（API、日誌、用戶內容、設定檔）的資料是否被視為不可信？
+- 外部資料流在用於邏輯或渲染之前是否在系統邊界進行了驗證？
 
-### 5. Performance
+### 5. 效能 (Performance)
 
-For detailed profiling and optimization, see `performance-optimization`. Does the change introduce performance problems?
+有關詳細的分析和優化，請參閱 `performance-optimization`。變更是否引入了效能問題？
 
-- Any N+1 query patterns?
-- Any unbounded loops or unconstrained data fetching?
-- Any synchronous operations that should be async?
-- Any unnecessary re-renders in UI components?
-- Any missing pagination on list endpoints?
-- Any large objects created in hot paths?
+- 是否有 N+1 查詢模式？
+- 是否有無界循環或不受約束的資料獲取？
+- 是否有應該是異步的同步操作？
+- UI 組件中是否有不必要的重新渲染？
+- 列表端點上是否有缺少分頁？
+- 在熱路徑中是否創建了大型物件？
 
-## Structural Remedies
+## 結構性補救措施
 
-When you flag a structural problem, propose the move — not just the problem. A review that only says "this is complex" leaves the author guessing. Reach for a named restructuring:
+當您標記出結構性問題時，提出移動的方案——而不僅僅是問題本身。只說「這很複雜」的審查會讓作者猜測。尋求有名字的重構：
 
-- **Replace a chain of conditionals** with a typed model or an explicit dispatcher.
-- **Collapse duplicate branches** into a single clearer flow.
-- **Separate orchestration from business logic** so each reads on its own.
-- **Move feature-specific logic** out of a shared module into the package that owns the concept.
-- **Reuse the canonical helper** instead of a bespoke near-duplicate.
-- **Make a type boundary explicit** so downstream branching disappears.
-- **Delete a pass-through wrapper** that adds indirection without clarifying the API.
-- **Extract a helper, or split a large file** into focused modules.
+- **用型別模型或明確的分派器**替換條件判斷的鏈。
+- **將重複的分支**合併為一個更清晰的流程。
+- **將協調工作與業務邏輯分開**，以便它們可以獨立閱讀。
+- **將功能特定的邏輯**從共享模組移到擁有該概念的套件中。
+- **重用標準輔助函數**而不是定制的近乎重複的代碼。
+- **使類型邊界明確**，以便下游的分支消失。
+- **刪除添加了不清晰 API 的通過層**。
+- **提取一個輔助函數，或將一個大型檔案拆分成專注的模組**。
 
-Prefer the remedy that removes moving pieces over one that spreads the same complexity around.
+傾向於移除移動部件的補救措施，而不是在周圍分散相同的複雜性。
 
-## Change Sizing
+## 變更大小
 
-Small, focused changes are easier to review, faster to merge, and safer to deploy. Target these sizes:
-
-```
-~100 lines changed   → Good. Reviewable in one sitting.
-~300 lines changed   → Acceptable if it's a single logical change.
-~1000 lines changed  → Too large. Split it.
-```
-
-**Watch file size, not just diff size.** A small diff can still push a file past a healthy boundary — around 1000 *total* lines in a single file (distinct from the ~1000 *changed*-lines threshold above) is a common inspection signal, not a hard cap. When a change materially grows an already-large file, ask whether to extract helpers, subcomponents, or modules *first*, before piling more on. Decompose, then add.
-
-**What counts as "one change":** A single self-contained modification that addresses one thing, includes related tests, and keeps the system functional after submission. One part of a feature — not the whole feature.
-
-**Splitting strategies when a change is too large:**
-
-| Strategy | How | When |
-|----------|-----|------|
-| **Stack** | Submit a small change, start the next one based on it | Sequential dependencies |
-| **By file group** | Separate changes for groups needing different reviewers | Cross-cutting concerns |
-| **Horizontal** | Create shared code/stubs first, then consumers | Layered architecture |
-| **Vertical** | Break into smaller full-stack slices of the feature | Feature work |
-
-**When large changes are acceptable:** Complete file deletions and automated refactoring where the reviewer only needs to verify intent, not every line.
-
-**Separate refactoring from feature work.** A change that refactors existing code and adds new behavior is two changes — submit them separately. Small cleanups (variable renaming) can be included at reviewer discretion.
-
-## Change Descriptions
-
-Every change needs a description that stands alone in version control history.
-
-**First line:** Short, imperative, standalone. "Delete the FizzBuzz RPC" not "Deleting the FizzBuzz RPC." Must be informative enough that someone searching history can understand the change without reading the diff.
-
-**Body:** What is changing and why. Include context, decisions, and reasoning not visible in the code itself. Link to bug numbers, benchmark results, or design docs where relevant. Acknowledge approach shortcomings when they exist.
-
-**Anti-patterns:** "Fix bug," "Fix build," "Add patch," "Moving code from A to B," "Phase 1," "Add convenience functions."
-
-## Review Process
-
-### Step 1: Understand the Context
-
-Before looking at code, understand the intent:
+小而集中的變更更容易審查，更快地合併，更安全地部署。目標是這些大小：
 
 ```
-- What is this change trying to accomplish?
-- What spec or task does it implement?
-- What is the expected behavior change?
+~100 行變更   → 良好。可以一次審查。
+~300 行變更   → 可接受，如果它是一個單一的邏輯變更。
+~1000 行變更  → 太大。拆分它。
 ```
 
-### Step 2: Review the Tests First
+**關注檔案大小，而不僅僅是差異大小。** 一個小的差異仍然可能將檔案推到健康邊界之外——在單個檔案中（與上述的 ~1000 *變更* 行閾值不同），約 1000 *總* 行是一個常見的檢查信號，而不是硬性上限。當變更實質性地擴大一個已經很大的檔案時，請先詢問是否要提取輔助函數、子組件或模組，然後再增加更多內容。分解，然後添加。
 
-Tests reveal intent and coverage:
+**什麼算作「一次變更」：** 一個單獨的、自包含的修改，解決一件事，包含相關測試，並在提交後保持系統功能。一個功能的某一部分——而不是整個功能。
 
-```
-- Do tests exist for the change?
-- Do they test behavior (not implementation details)?
-- Are edge cases covered?
-- Do tests have descriptive names?
-- Would the tests catch a regression if the code changed?
-```
+**當變更太大時的拆分策略：**
 
-Answer the last question by experiment, not by reading. Invert one condition the change adds (drop a negation, swap `&&` for `||`), run the suite, then restore the file from a copy. A mutation that stays green is a finding: name the test case that is missing. For a project-wide mutation score, see `constraint-driven-development`.
+| 策略 | 如何 | 何時 |
+|---|---|---|
+| **堆疊 (Stack)** | 提交一個小的變更，基於它開始下一個變更 | 依賴的順序 |
+| **按檔案組 (By file group)** | 為需要不同審查員的組別分開變更 | 跨領域關注點 |
+| **水平 (Horizontal)** | 首先創建共享代碼/存根，然後是消費者 | 分層架構 |
+| **垂直 (Vertical)** | 將功能拆分成更小的全棧切片 | 功能工作 |
 
-### Step 3: Review the Implementation
+**何時可以接受大型變更：** 完全的檔案刪除和自動重構，審查員只需要驗證意圖，而不需要檢查每一行。
 
-Walk through the code with the five axes in mind:
+**將重構與功能工作分開。** 既重構現有程式碼又添加新行為的變更是兩個變更——請分別提交。小的清理工作（變數重新命名）可以由審查員酌情處理。
 
-```
-For each file changed:
-1. Correctness: Does this code do what the test says it should?
-2. Readability: Can I understand this without help?
-3. Architecture: Does this fit the system?
-4. Security: Any vulnerabilities?
-5. Performance: Any bottlenecks?
-```
+## 變更描述
 
-### Step 4: Categorize Findings
+每一次變更都需要一個在版本控制歷史中可以獨立存在於描述中的描述。
 
-Label every comment with its severity so the author knows what's required vs optional:
+**第一行：** 簡短、命令式、獨立。例如「刪除 FizzBuzz RPC」，而不是「正在刪除 FizzBuzz RPC」。必須足夠信息，以便有人在歷史記錄中搜索可以理解變更，而無需閱讀差異。
 
-| Prefix | Meaning | Author Action |
-|--------|---------|---------------|
-| *(no prefix)* | Required change | Must address before merge |
-| **Critical:** | Blocks merge | Security vulnerability, data loss, broken functionality |
-| **Nit:** | Minor, optional | Author may ignore — formatting, style preferences |
-| **Optional:** / **Consider:** | Suggestion | Worth considering but not required |
-| **FYI** | Informational only | No action needed — context for future reference |
+**內文：** 正在改變什麼以及為什麼。包含程式碼本身不可見的上下文、決策和推理。在相關的地方連結到錯誤編號、基準測試結果或設計文件。如果存在，請承認方法的不足。
 
-This prevents authors from treating all feedback as mandatory and wasting time on optional suggestions.
+**反模式 (Anti-patterns)：**「修復錯誤」、「修復建置」、「添加補丁」、「將程式碼從 A 移到 B」、「第一階段」、「添加便利函數」。
 
-**Lead with what matters.** Order findings by leverage: correctness and security first, then structural regressions and missed simplifications, then everything else. Don't bury a real issue under cosmetic nits — a few high-conviction comments beat a long list. If you have one structural problem and ten nits, the structural problem *is* the review.
+## 審查流程
 
-### Step 5: Verify the Verification
+### 步驟 1：理解上下文
 
-Check the author's verification story:
+在查看程式碼之前，理解意圖：
 
 ```
-- What tests were run?
-- Did the build pass?
-- Was the change tested manually?
-- Are there screenshots for UI changes?
-- Is there a before/after comparison?
+- 這個變更試圖達成什麼目標？
+- 它實施了哪個規格或任務？
+- 預期的行為變化是什麼？
 ```
 
-## Multi-Model Review Pattern
+### 步驟 2：首先審查測試
 
-Use different models for different review perspectives:
+測試揭示了意圖和覆蓋範圍：
 
 ```
-Model A writes the code
+- 是否存在針對此變更的測試？
+- 它們是否測試了行為（而不是實作細節）？
+- 是否涵蓋了邊界案例？
+- 測試是否有描述性的名稱？
+- 如果程式碼更改，測試是否會捕獲回歸？
+```
+
+通過實驗，而不是閱讀來回答最後一個問題。改變增加的條件反轉一個條件（刪除一個否定，將 `&&` 替換為 `||`），運行套件，然後從副本中恢復檔案。如果變更保持綠色，那就是一個發現：命名缺失的測試案例。對於整個專案的變異分數，請參閱 `constraint-driven-development`。
+
+### 步驟 3：審查實作
+
+同時考慮五個軸來審查程式碼：
+
+```
+對於每個變更的檔案：
+1. 正確性：這段程式碼是否做到了測試所說的？
+2. 可讀性：我是否能不求助就能理解它？
+3. 架構：它是否適合系統？
+4. 安全性：是否存在漏洞？
+5. 效能：是否存在瓶頸？
+```
+
+### 步驟 4：分類發現
+
+為每一條註釋標記其嚴重程度，以便作者知道需要做什麼與可選事項：
+
+| 前綴 | 含義 | 作者行動 |
+|---|---|---|
+| *(無前綴)* | 必需變更 | 必須在合併前解決 |
+| **Critical:** | 阻止合併 | 安全漏洞、資料丟失、功能損壞 |
+| **Nit:** | 次要，可選 | 作者可以忽略——格式、風格偏好 |
+| **Optional:** / **Consider:** | 建議 | 值得考慮但不是必需的 |
+| **FYI** | 僅供參考 | 不需要採取任何行動——供未來參考 |
+
+這可以防止作者將所有反饋視為強制性，並浪費時間在可選建議上。
+
+**從最重要的事情開始。** 按照槓桿度排序發現：首先是正確性和安全性，然後是結構性退步和遺漏的簡化，然後是其他所有事情。不要將真正問題掩埋在美容性的細節之下——少數高可信度的註釋勝過冗長的列表。如果你有一個結構性問題和十個細節，這個結構性問題就**是**審查。
+
+### 步驟 5：驗證核實
+
+檢查作者的驗證故事：
+
+```
+- 運行了哪些測試？
+- 建置是否成功？
+- 是否手動驗證了變更？
+- 是否有 UI 變更的截圖？
+- 是否有前後比較？
+```
+
+## 多模型審查模式
+
+使用不同的模型來審查不同的視角：
+
+```
+模型 A 撰寫程式碼
     │
     ▼
-Model B reviews for correctness and architecture
+模型 B 審查正確性和架構
     │
     ▼
-Model A addresses the feedback
+模型 A 處理反饋
     │
     ▼
-Human makes the final call
+人類做出最終決定
 ```
 
-This catches issues that a single model might miss — different models have different blind spots.
+這可以捕捉單一模型可能遺漏的問題——不同的模型有不同的盲點。
 
-**Example prompt for a review agent:**
+**審查代理的範例提示：**
 ```
-Review this code change for correctness, security, and adherence to
-our project conventions. The spec says [X]. The change should [Y].
-Flag any issues as Critical, Required, Optional, or Nit.
+審查此程式碼變更的正確性、安全性以及對我們專案慣例的遵循。規格說明 [X]。變更應該 [Y]。標記任何問題為 Critical、Required、Optional 或 Nit。
 ```
 
-## Dead Code Hygiene
+## 無效程式碼衛生 (Dead Code Hygiene)
 
-After any refactoring or implementation change, check for orphaned code:
+在任何重構或實作變更後，檢查是否有孤立的程式碼：
 
-1. Identify code that is now unreachable or unused
-2. List it explicitly
-3. **Ask before deleting:** "Should I remove these now-unused elements: [list]?"
+1. 識別目前無法到達或未使用的程式碼
+2. 明確列出它們
+3. **在刪除前提問：**「我應該刪除這些目前未使用的元素嗎：[列表]？」
 
-Don't leave dead code lying around — it confuses future readers and agents. But don't silently delete things you're not sure about. When in doubt, ask.
+不要讓無效程式碼隨處散落——它會讓未來的讀者和代理感到困惑。但不要靜默刪除你不確定的東西。有疑問時，請詢問。
 
 ```
-DEAD CODE IDENTIFIED:
-- formatLegacyDate() in src/utils/date.ts — replaced by formatDate()
-- OldTaskCard component in src/components/ — replaced by TaskCard
-- LEGACY_API_URL constant in src/config.ts — no remaining references
-→ Safe to remove these?
+識別到的無效程式碼：
+- src/utils/date.ts 中的 formatLegacyDate() — 已被 formatDate() 取代
+- src/components/ 中的舊 TaskCard 組件 — 已被 TaskCard 取代
+- src/config.ts 中的 LEGACY_API_URL 常數 — 沒有剩餘引用
+→ 可以安全地移除這些嗎？
 ```
 
-## Review Speed
+## 審查速度
 
-Slow reviews block entire teams. The cost of context-switching to review is less than the waiting cost imposed on others.
+緩慢的審查會阻礙整個團隊。切換上下文來審查的成本，小於對他人的等待成本。
 
-- **Respond within one business day** — this is the maximum, not the target
-- **Ideal cadence:** Respond shortly after a review request arrives, unless deep in focused coding. A typical change should complete multiple review rounds in a single day
-- **Prioritize fast individual responses** over quick final approval. Quick feedback reduces frustration even if multiple rounds are needed
-- **Large changes:** Ask the author to split them rather than reviewing one massive changeset
+- **在一個工作日內回應**——這是上限，不是目標
+- **理想的節奏：** 在收到審查請求後不久回應，除非正在專注編碼。一個典型的變更應在一天內完成多次審查輪次。
+- **優先考慮快速的個人回應**，而不是快速的最終批准。即使需要多輪，快速的反饋也能減少挫折感。
+- **大型變更：** 要求作者將其拆分，而不是審查一個巨大的變更集。
 
-## Handling Disagreements
+## 處理分歧
 
-When resolving review disputes, apply this hierarchy:
+在解決審查爭議時，應用以下層級：
 
-1. **Technical facts and data** override opinions and preferences
-2. **Style guides** are the absolute authority on style matters
-3. **Software design** must be evaluated on engineering principles, not personal preference
-4. **Codebase consistency** is acceptable if it doesn't degrade overall health
+1. **技術事實和數據**凌駕於意見和偏好之上
+2. **風格指南**在風格問題上具有絕對權威
+3. **軟體設計**必須根據工程原則進行評估，而不是個人偏好
+4. **程式碼庫一致性**在不損害整體健康度時是可接受的
 
-**Don't accept "I'll clean it up later."** Experience shows deferred cleanup rarely happens. Require cleanup before submission unless it's a genuine emergency. If surrounding issues can't be addressed in this change, require filing a bug with self-assignment.
+**不要接受「我稍後會清理它」。** 經驗表明，延遲清理很少發生。除非是真正的緊急情況，否則要求在提交前進行清理。如果無法在本次變更中解決周圍的問題，則要求自行分配一個錯誤。
 
-## Honesty in Review
+## 審查中的誠實
 
-When reviewing code — whether written by you, another agent, or a human:
+在審查程式碼時——無論是您自己、另一個代理還是人類撰寫的：
 
-- **Don't rubber-stamp.** "LGTM" without evidence of review helps no one.
-- **Don't soften real issues.** "This might be a minor concern" when it's a bug that will hit production is dishonest.
-- **Quantify problems when possible.** "This N+1 query will add ~50ms per item in the list" is better than "this could be slow."
-- **Push back on approaches with clear problems.** Sycophancy is a failure mode in reviews. If the implementation has issues, say so directly and propose alternatives.
-- **Accept override gracefully.** If the author has full context and disagrees, defer to their judgment. Comment on code, not people — reframe personal critiques to focus on the code itself.
+- **不要隨意同意。** 沒有審查證據的「好的」幫助不了任何人。
+- **不要緩和真正的問題。** 當這是一個將影響生產環境的錯誤時，說「這可能是一個小問題」是不誠實的。
+- **在可能的情況下量化問題。**「這個 N+1 查詢在列表中會增加約 50 毫秒/項目」比「這可能會很慢」要好。
+- **對帶有明確問題的方法提出反對意見。** 奉承是審查中的一種失敗模式。如果實作存在問題，請直接說明並提出替代方案。
+- **優雅地接受覆蓋。** 如果作者有完整的上下文並且不同意，請尊重他們的判斷。評論程式碼，而不是人——將個人批評重新框架為專注於程式碼本身。
 
-## Dependency Discipline
+## 依賴紀律 (Dependency Discipline)
 
-Part of code review is dependency review:
+程式碼審查的一部分是依賴審查：
 
-**Before adding any dependency:**
-1. Does the existing stack solve this? (Often it does.)
-2. How large is the dependency? (Check bundle impact.)
-3. Is it actively maintained? (Check last commit, open issues.)
-4. Does it have known vulnerabilities? (`npm audit`)
-5. What's the license? (Must be compatible with the project.)
+**在添加任何依賴之前：**
+1. 現有的堆疊是否解決了這個問題？（通常是）
+2. 依賴的大小是多少？（檢查套件影響。）
+3. 它是否被積極維護？（檢查最後一次提交、未解決的問題。）
+4. 它是否存在已知的漏洞？（`npm audit`）
+5. 許可證是什麼？（必須與專案兼容。）
 
-**Rule:** Prefer standard library and existing utilities over new dependencies. Every dependency is a liability.
+**規則：** 優先使用標準函式庫和現有的工具，而不是新的依賴項。每個依賴項都是一個負擔。
 
-**Upgrading an existing dependency** is a code change like any other, and the riskiest upgrades are the ones merged in bulk with a message like "bump deps." Review them with the same discipline:
+**升級現有依賴項** 是一次程式碼變更，就像其他任何變更一樣，風險最高的升級是那些與「增加依賴項」的消息一起批量合併的。請用同樣的紀律審查它們：
 
-1. **Read the changelog, not just the version number.** Semver is a promise the maintainer may not have kept — a "patch" can carry a behavioral change. For a major bump, read the migration notes and find what breaks.
-2. **One dependency per change.** Upgrade and merge them individually (or in small related groups). When a bulk bump breaks the build, you've lost which package did it; a single-package change makes the cause obvious and the revert clean.
-3. **Let the tests decide.** The upgrade is verified by a green suite before *and* after, not by "it installed." If coverage around the dependency's behavior is thin, that gap is the real finding — add a test first.
-4. **Mind the transitive graph.** Most installed packages are ones nobody chose directly. Review the lockfile diff, not just `package.json`; a single direct bump can pull in dozens of indirect changes.
-5. **Keep the lockfile honest.** Commit it, review its diff, and never hand-edit it. The lockfile is the thing that actually pins what ships.
+1. **閱讀變更日誌，而不僅僅是版本號。** Semver 是一個維護者可能沒有保持的承諾——一個「補丁」可能帶有行為更改。對於主要升級，請閱讀遷移說明並找出哪些部分會出錯。
+2. **每次變更一個依賴項。** 單獨（或在小的相關組中）升級和合併它們。當批量升級導致建置失敗時，您就不知道是哪個套件導致了問題；單個套件的變更使原因變得明顯，並且回滾很乾淨。
+3. **讓測試決定。** 升級在**之前和之後**都由綠色套件進行驗證，而不是由「它安裝了」來驗證。如果圍繞依賴項行為的覆蓋範圍很薄，這個差距就是真正的發現——先添加一個測試。
+4. **注意傳遞圖。** 大多數安裝的套件是沒有人直接選擇的。審查鎖定檔的差異，而不僅僅是 `package.json`；單個直接的升級可能引入數十個間接的更改。
+5. **保持鎖定檔的誠實。** 提交它，審查其差異，永遠不要手動編輯它。鎖定檔是實際決定發布內容的東西。
 
-For triaging `npm audit` findings and supply-chain risk (typosquatting, compromised maintainers), follow the `security-and-hardening` skill — this section covers the upgrade *workflow*, that one covers the security verdict.
+對於分流 `npm audit` 發現和供應鏈風險（錯字查詢、被破壞的維護者）的調查，請遵循 `security-and-hardening` 技能——此部分涵蓋升級的**工作流程**，而另一個部分涵蓋安全判決。
 
-## The Review Checklist
+## 審查檢查表
 
 ```markdown
-## Review: [PR/Change title]
+## 審查: [PR/變更標題]
 
-### Context
-- [ ] I understand what this change does and why
+### 上下文
+- [ ] 我理解這個變更的內容和原因
 
-### Correctness
-- [ ] Change matches spec/task requirements
-- [ ] Edge cases handled
-- [ ] Error paths handled
-- [ ] Tests cover the change adequately
+### 正確性
+- [ ] 變更符合規格/任務要求
+- [ ] 邊界案例已處理
+- [ ] 錯誤路徑已處理
+- [ ] 測試充分覆蓋了變更
 
-### Readability
-- [ ] Names are clear and consistent
-- [ ] Logic is straightforward
-- [ ] No unnecessary complexity
+### 可讀性
+- [ ] 名稱清晰且一致
+- [ ] 邏輯直觀
+- [ ] 沒有不必要的複雜性
 
-### Architecture
-- [ ] Follows existing patterns
-- [ ] No unnecessary coupling or dependencies
-- [ ] Appropriate abstraction level
-- [ ] Refactors reduce complexity rather than relocate it
-- [ ] No feature logic in shared modules; file stays within a healthy size
+### 架構
+- [ ] 遵循現有模式
+- [ ] 沒有不必要的耦合或依賴
+- [ ] 適當的抽象層級
+- [ ] 重構減少了複雜性而不是重新定位它
+- [ ] 共享模組中沒有功能邏輯；檔案保持在健康的大小範圍內
 
-### Security
-- [ ] No secrets in code
-- [ ] Input validated at boundaries
-- [ ] No injection vulnerabilities
-- [ ] Auth checks in place
-- [ ] External data sources treated as untrusted
+### 安全性
+- [ ] 程式碼中沒有機密資訊
+- [ ] 輸入在邊界處進行驗證
+- [ ] 沒有注入漏洞
+- [ ] 身份驗證檢查到位
+- [ ] 外部資料來源被視為不可信
 
-### Performance
-- [ ] No N+1 patterns
-- [ ] No unbounded operations
-- [ ] Pagination on list endpoints
+### 效能
+- [ ] 沒有 N+1 模式
+- [ ] 沒有無界操作
+- [ ] 列表端點上有分頁
 
-### Verification
-- [ ] Tests pass
-- [ ] Build succeeds
-- [ ] Manual verification done (if applicable)
+### 驗證
+- [ ] 測試通過
+- [ ] 建置成功
+- [ ] 已進行手動驗證（如適用）
 
-### Verdict
-- [ ] **Approve** — Ready to merge
-- [ ] **Request changes** — Issues must be addressed
+### 判斷
+- [ ] **批准** — 準備合併
+- [ ] **要求更改** — 必須解決問題
 ```
-## See Also
 
-- For detailed security review guidance, see `../../references/security-checklist.md`
-- For performance review checks, see `../../references/performance-checklist.md`
+## 參考
 
-## Common Rationalizations
+- 有關詳細安全審查指導，請參閱 `../../references/security-checklist.md`
+- 有關效能審查檢查，請參閱 `../../references/performance-checklist.md`
 
-| Rationalization | Reality |
+## 常見合理化
+
+| 合理化 | 現實 |
 |---|---|
-| "It works, that's good enough" | Working code that's unreadable, insecure, or architecturally wrong creates debt that compounds. |
-| "I wrote it, so I know it's correct" | Authors are blind to their own assumptions. Every change benefits from another set of eyes. |
-| "We'll clean it up later" | Later never comes. The review is the quality gate — use it. Require cleanup before merge, not after. |
-| "AI-generated code is probably fine" | AI code needs more scrutiny, not less. It's confident and plausible, even when wrong. |
-| "The tests pass, so it's good" | Tests are necessary but not sufficient. They don't catch architecture problems, security issues, or readability concerns. |
-| "The refactor makes it cleaner" | Relocating complexity isn't reducing it. If the reader still holds the same number of concepts, the structure didn't improve — look for the version where branches disappear. |
-| "It's only a small addition to this file" | Small diffs still push files past a healthy size and bolt branches onto unrelated flows. Judge the resulting structure, not the diff size. |
-| "It's just a version bump" | A bump is a behavior change you didn't write. Read the changelog; semver doesn't guarantee no breakage. |
-| "I'll upgrade everything in one PR to save time" | A bulk bump that breaks the build hides which package did it. One dependency per change keeps the cause and the revert clean. |
-
-## Red Flags
-
-- PRs merged without any review
-- Review that only checks if tests pass (ignoring other axes)
-- "LGTM" without evidence of actual review
-- Security-sensitive changes without security-focused review
-- Large PRs that are "too big to review properly" (split them)
-- No regression tests with bug fix PRs
-- Review comments without severity labels — makes it unclear what's required vs optional
-- Accepting "I'll fix it later" — it never happens
-- A refactor that moves code around without reducing the number of concepts a reader must hold
-- A change that grows an already-large file instead of decomposing it
-- New conditionals scattered into unrelated code paths (a missing abstraction)
-- A bespoke helper that duplicates an existing canonical one, or feature logic placed in a shared module
-- A bulk "bump dependencies" PR with no changelog review and no per-package isolation
-- A lockfile change that's hand-edited, uncommitted, or merged without reviewing its diff
-
-## Verification
-
-After review is complete:
-
-- [ ] All Critical issues are resolved
-- [ ] All Required (no-prefix) changes are resolved or explicitly deferred with justification
-- [ ] Tests pass
-- [ ] Build succeeds
-- [ ] The verification story is documented (what changed, how it was verified)
-- [ ] Dependency upgrades were reviewed against their changelog, isolated per package, and verified by a green suite with the lockfile diff reviewed
-
-**Presumptive blockers:** surface and propose the simpler design for each of these; escalate to Required only when the change actively makes structure worse: a refactor that relocates complexity instead of reducing it; a change that pushes a file past the size boundary with no decomposition; feature logic added to a shared module; a near-duplicate of an existing canonical helper; a silent fallback that hides an unclear invariant.
+|「它能運作，這樣就足夠了」 | 運行但難以閱讀、不安全或架構錯誤的程式碼會產生累積的債務。 |
+|「我寫的，所以我知道它是正確的」 | 作者對自己的假設是盲點。每一次變更都受益於另一組眼睛的審查。 |
+|「我們稍後會清理它」 | 後來永遠不會到。審查就是品質門檻——要使用它。要求在合併前進行清理，而不是之後。 |
+|「AI 生成的程式碼可能沒問題」 | AI 程式碼需要更多的審查，而不是更少的審查。即使是錯誤的，它也是自信且合理的。 |
+|「測試通過，所以它很好」 | 測試是必要的，但不是充分的。它們無法捕捉架構問題、安全問題或可讀性問題。 |
+|「重構讓它更乾淨」 | 重新定位複雜性並不是減少它。如果讀者仍然持有相同的概念數量，結構就沒有改善——尋找分支消失的版本。 |
+|「這只是這個檔案的一個小添加」 | 小差異仍然可能將檔案推到健康大小之外並將分支附加到不相關的流程上。要判斷的是結果的結構，而不是差異的大小。 |
+|「這只是版本號的增加」 | 增加是一個你沒有寫的行為更改。閱讀變更日誌；Semver 不保證沒有破壞。 |
+|「我會在一個 PR 中升級所有內容以節省時間」 | 導致建置失敗的批量升級會隱藏是哪個套件導致了問題。每次變更一個依賴項可以保持原因和回滾的乾淨。 |

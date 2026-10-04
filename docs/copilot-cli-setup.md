@@ -1,64 +1,64 @@
-# Using agent-skills with GitHub Copilot CLI
+# 使用 agent-skills 與 GitHub Copilot CLI
 
-The standalone `copilot` command-line tool installs this repository as a plugin and discovers every skill in `skills/`. For Copilot inside VS Code, see [copilot-setup.md](copilot-setup.md) instead — the setup and the invocation model are different.
+獨立的 `copilot` 命令列工具會將此儲存庫安裝為一個外掛程式並在 `skills/` 中發現所有技能。對於 VS Code 中的 Copilot，請參閱 [copilot-setup.md](copilot-setup.md) — 設定和呼叫模型是不同的。
 
-## Install
+## 安裝
 
-**From this repository's marketplace** — register it, then install from it. `addy-agent-skills` is the marketplace name this repository declares, not a GitHub-wide registry, and the name only resolves after the `marketplace add`:
+**從此儲存庫的市場** — 註冊它，然後從中安裝。`addy-agent-skills` 是此儲存庫宣告的市場名稱，而不是 GitHub 範圍的註冊表，該名稱僅在執行 `marketplace add` 後才會解析：
 
 ```bash
 copilot plugin marketplace add addyosmani/agent-skills
 copilot plugin install agent-skills@addy-agent-skills
 ```
 
-**Directly from the repository**, without registering a marketplace:
+**直接從儲存庫**，無需註冊市場：
 
 ```bash
 copilot plugin install addyosmani/agent-skills
 ```
 
-**From a local clone**, for a session-scoped development install:
+**從本地克隆**，用於會話範圍的開發安裝：
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
 copilot --plugin-dir /path/to/agent-skills
 ```
 
-`--plugin-dir` loads the plugin for that session only and installs nothing persistently — use it while editing skills.
+`--plugin-dir` 只為該會話載入外掛程式，並且不會永久安裝任何內容 — 在編輯技能時使用它。
 
-## Verify
+## 驗證
 
 ```bash
 copilot plugin list   # agent-skills@addy-agent-skills
-copilot skill list    # the plugin's skills, alongside the built-in ones
+copilot skill list    # 外掛程式的技能，以及內建的技能
 ```
 
-In an interactive session, `/skills list` shows the same catalog.
+在互動會話中，`/skills list` 會顯示相同的目錄。
 
-## What you get, and what you don't
+## 您獲得的和沒有獲得的內容
 
-The root `plugin.json` is the manifest Copilot CLI reads — it takes precedence over `.claude-plugin/plugin.json`, which belongs to Claude Code. That root manifest declares only a name, version and description, so component paths fall back to their defaults:
+根目錄的 `plugin.json` 是 Copilot CLI 讀取的宣告文件 — 它優先於屬於 Claude Code 的 `.claude-plugin/plugin.json`。該根宣告檔只宣告了名稱、版本和描述，因此組件路徑會回退到其預設值：
 
-- **Skills — available.** With no explicit path, the CLI uses the conventional `skills/` directory, and the skills are discovered there.
-- **Lifecycle commands — not available.** The root manifest has no `commands` field, so nothing registers `/spec`, `/plan`, `/build`, `/test`, `/review` or `/ship`. Those files live in `.claude/commands/` and are Claude Code commands.
+- **技能 — 可用。** 沒有明確的路徑，CLI 使用慣例的 `skills/` 目錄，技能在其中被發現。
+- **生命週期指令 — 不可用。** 根宣告檔沒有 `commands` 欄位，因此沒有註冊 `/spec`、`/plan`、`/build`、`/test`、`/review` 或 `/ship`。這些檔案位於 `.claude/commands/` 中，是 Claude Code 的指令。
 
-For manifest precedence and the per-component path defaults, see the [CLI plugin reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference) and [Creating plugins](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating).
+有關宣告檔的優先順序和每個組件的路徑預設值，請參閱 [CLI 外掛程式參考](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference) 和 [建立外掛程式](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating)。
 
-## Usage
+## 使用方法
 
-Name the skill you want, or describe the task and let the agent route to it:
+命名您想要的技能，或描述任務讓代理導向它：
 
-> Use the spec-driven-development skill to write a spec for [the feature].
+> 使用 spec-driven-development 技能來為 [該功能] 編寫規格。
 
-> Use the test-driven-development skill: write a failing test for this bug first, then fix it.
+> 使用 test-driven-development 技能：先為這個錯誤編寫一個失敗的測試，然後修復它。
 
-> Use the code-review-and-quality skill to review my staged changes.
+> 使用 code-review-and-quality 技能來審查我的暫存變更。
 
-## Troubleshooting
+## 疑難排解
 
-| Symptom | What to check |
+| 症狀 | 應檢查內容 |
 |---------|---------------|
-| `plugin install` can't resolve `agent-skills@addy-agent-skills` | Run `copilot plugin marketplace add addyosmani/agent-skills` first — that name only resolves once the marketplace is registered. Or install the repository directly. |
-| Plugin installed but no skills | `copilot plugin list` to confirm the plugin, then `copilot skill list` (or `/skills list` in session) to see what was discovered. |
-| `/spec`, `/build` and friends are not found | Expected, not a broken install: the root manifest registers no commands. Ask for the skill by name instead. |
-| Skills changed locally but the CLI shows the old copy | Start a fresh session, or run with `--plugin-dir` pointing at your clone. |
+| `plugin install` 無法解析 `agent-skills@addy-agent-skills` | 首先執行 `copilot plugin marketplace add addyosmani/agent-skills` — 該名稱只有在市場被註冊後才會解析。或者直接安裝儲存庫。 |
+| 外掛程式已安裝但沒有技能 | 執行 `copilot plugin list` 確認外掛程式，然後執行 `copilot skill list`（或會話中的 `/skills list`）以查看被發現的內容。 |
+| 找不到 `/spec`、`/build` 等 | 這是預期的，而不是安裝錯誤：根宣告檔沒有註冊任何指令。請改用名稱來請求該技能。 |
+| 本地技能已更改但 CLI 顯示舊的副本 | 開始一個新的會話，或使用 `--plugin-dir` 指向您的克隆。 |

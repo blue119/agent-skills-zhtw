@@ -1,160 +1,160 @@
-# Accessibility Checklist
+# 無障礙性檢查清單
 
-Quick reference for WCAG 2.1 AA compliance. Use alongside the `frontend-ui-engineering` skill.
+WCAG 2.1 AA 合規性的快速參考。請與 `frontend-ui-engineering` 技能一起使用。
 
-## Table of Contents
+## 目錄
 
-- [Essential Checks](#essential-checks)
-- [Common HTML Patterns](#common-html-patterns)
-- [Testing Tools](#testing-tools)
-- [Quick Reference: ARIA Live Regions](#quick-reference-aria-live-regions)
-- [Common Anti-Patterns](#common-anti-patterns)
+- [基本檢查](#essential-checks)
+- [常見 HTML 模式](#common-html-patterns)
+- [測試工具](#testing-tools)
+- [快速參考：ARIA Live 區域](#quick-reference-aria-live-regions)
+- [常見反模式](#common-anti-patterns)
 
-## Essential Checks
+## 基本檢查
 
-### Keyboard Navigation
-- [ ] All interactive elements focusable via Tab key
-- [ ] Focus order follows visual/logical order
-- [ ] Focus is visible (outline/ring on focused elements)
-- [ ] Custom widgets have keyboard support (Enter to activate, Escape to close)
-- [ ] No keyboard traps (user can always Tab away from a component)
-- [ ] Skip-to-content link at top of page - visible (at least) on keyboard focus
-- [ ] Modals trap focus while open, return focus on close
+### 鍵盤導航
+- [ ] 所有互動元素都可透過 Tab 鍵聚焦
+- [ ] 焦點順序遵循視覺/邏輯順序
+- [ ] 焦點可見（聚焦元素有輪廓/環）
+- [ ] 自訂元件具有鍵盤支援（Enter 啟用，Escape 關閉）
+- [ ] 沒有鍵盤陷阱（使用者可以隨時 Tab 離開元件）
+- [ ] 頁面頂部的跳轉至內容連結 - 在鍵盤聚焦時可見（至少）
+- [ ] 模態框在開啟時會鎖定焦點，關閉時將焦點還原
 
-### Screen Readers
-- [ ] All images have `alt` text (or `alt=""` for decorative images)
-- [ ] All form inputs have associated labels (`<label>` or `aria-label`)
-- [ ] Buttons and links have descriptive text (not "Click here")
-- [ ] Icon-only buttons have `aria-label`
-- [ ] Page has one `<h1>` and headings don't skip levels
-- [ ] Dynamic content changes announced (`aria-live` regions)
-- [ ] Tables have `<th>` headers with scope
+### 螢幕閱讀器
+- [ ] 所有圖片都有 `alt` 文字（或用於裝飾圖片的 `alt=""`）
+- [ ] 所有表單輸入都有相關的標籤（`<label>` 或 `aria-label`）
+- [ ] 按鈕和連結有描述性文字（而不是「點擊這裡」）
+- [ ] 僅有圖標的按鈕有 `aria-label`
+- [ ] 頁面只有一個 `<h1>` 標題，標題之間不跳級
+- [ ] 動態內容會被宣告（`aria-live` 區域）
+- [ ] 表格有具有範圍的 `<th>` 標頭
 
-### Visual
-- [ ] Text contrast ≥ 4.5:1 (normal text) or ≥ 3:1 (large text, 18px+)
-- [ ] UI components contrast ≥ 3:1 against background
-- [ ] Color is not the only way to convey information
-- [ ] Text resizable to 200% without breaking layout
-- [ ] No content that flashes more than 3 times per second
+### 視覺
+- [ ] 文字對比度 $\ge$ 4.5:1（常規文字）或 $\ge$ 3:1（大文字，18px+）
+- [ ] UI 元件與背景的對比度 $\ge$ 3:1
+- [ ] 顏色不是傳達資訊的唯一方式
+- [ ] 文字可放大至 200% 而不破壞佈局
+- [ ] 沒有內容每秒閃爍超過 3 次
 
-### Forms
-- [ ] Every input has a visible label
-- [ ] Required fields indicated (not by color alone)
-- [ ] Error messages specific and associated with the field
-- [ ] Error state visible by more than color (icon, text, border)
-- [ ] Form submission errors summarized and focusable
-- [ ] Known fields use autocomplete (for example `type="email" autocomplete="email"`)
+### 表單
+- [ ] 每個輸入都有可見的標籤
+- [ ] 必填欄位有標示（不僅僅是顏色）
+- [ ] 錯誤訊息具體且與該欄位相關
+- [ ] 錯誤狀態可透過更多資訊（圖標、文字、邊框）顯示
+- [ ] 表單提交錯誤被總結並可聚焦
+- [ ] 已知的欄位使用自動完成（例如 `type="email" autocomplete="email"`）
 
-### Content
-- [ ] Language declared (`<html lang="en">`)
-- [ ] Page has a descriptive `<title>`
-- [ ] Links distinguish from surrounding text (not by color alone)
-- [ ] Touch targets ≥ 44x44px on mobile
-- [ ] Meaningful empty states (not blank screens)
+### 內容
+- [ ] 宣告了語言（`<html lang="en">`）
+- [ ] 頁面有描述性的 `<title>`
+- [ ] 連結與周圍文字區分開（不僅僅是顏色）
+- [ ] 行動區（在行動裝置上）$\ge$ 44x44px
+- [ ] 有意義的空狀態（而不是空白畫面）
 
-## Common HTML Patterns
+## 常見 HTML 模式
 
-### Buttons vs. Links
+### 按鈕與連結
 
 ```html
-<!-- Use <button> for actions -->
-<button onClick={handleDelete}>Delete Task</button>
+<!-- 使用 <button> 進行動作 -->
+<button onClick={handleDelete}>刪除任務</button>
 
-<!-- Use <a> for navigation -->
-<a href="/tasks/123">View Task</a>
+<!-- 使用 <a> 進行導航 -->
+<a href="/tasks/123">查看任務</a>
 
-<!-- NEVER use div/span as buttons -->
-<div onClick={handleDelete}>Delete</div>  <!-- BAD -->
+<!-- 絕不使用 div/span 作為按鈕 -->
+<div onClick={handleDelete}>刪除</div>  <!-- 錯誤 -->
 ```
 
-### Form Labels
+### 表單標籤
 
 ```html
-<!-- Explicit label association -->
-<label htmlFor="email">Email address</label>
+<!-- 明確的標籤關聯 -->
+<label htmlFor="email">電子郵件地址</label>
 <input id="email" type="email" required />
 
-<!-- Implicit wrapping -->
+<!-- 隱含的包裝 -->
 <label>
-  Email address
+  電子郵件地址
   <input type="email" required />
 </label>
 
-<!-- Hidden label (visible label preferred) -->
-<input type="search" aria-label="Search tasks" />
+<!-- 隱藏的標籤（首選可見標籤） -->
+<input type="search" aria-label="搜尋任務" />
 ```
 
-### ARIA Roles
+### ARIA 角色
 
 ```html
-<!-- Navigation -->
-<nav aria-label="Main navigation">...</nav>
-<nav aria-label="Footer links">...</nav>
+<!-- 導航 -->
+<nav aria-label="主要導航">...</nav>
+<nav aria-label="頁腳連結">...</nav>
 
-<!-- Status messages -->
-<div role="status" aria-live="polite">Task saved</div>
+<!-- 狀態訊息 -->
+<div role="status" aria-live="polite">任務已儲存</div>
 
-<!-- Alert messages -->
-<div role="alert">Error: Title is required</div>
+<!-- 警報訊息 -->
+<div role="alert">錯誤：需要標題</div>
 
-<!-- Modal dialogs -->
+<!-- 模態框對話框 -->
 <dialog aria-modal="true" aria-labelledby="dialog-title">
-  <h2 id="dialog-title">Confirm Delete</h2>
+  <h2 id="dialog-title">確認刪除</h2>
   ...
 </dialog>
 
-<!-- Loading states -->
-<div aria-busy="true" aria-label="Loading tasks">
+<!-- 載入狀態 -->
+<div aria-busy="true" aria-label="載入任務">
   <Spinner />
 </div>
 ```
 
-### Accessible Lists
+### 可存取列表
 
 ```html
-<ul role="list" aria-label="Tasks">
+<ul role="list" aria-label="任務">
   <li>
-    <input type="checkbox" id="task-1" aria-label="Complete: Buy groceries" />
-    <label htmlFor="task-1">Buy groceries</label>
+    <input type="checkbox" id="task-1" aria-label="完成：購買雜貨">
+    <label htmlFor="task-1">購買雜貨</label>
   </li>
 </ul>
 ```
 
-## Testing Tools
+## 測試工具
 
 ```bash
-# Automated audit
-npx axe-core          # Programmatic accessibility testing
-npx pa11y             # CLI accessibility checker
+# 自動化審核
+npx axe-core          # 程式化無障礙性測試
+npx pa11y             # CLI 無障礙性檢查器
 
-# In browser
-# Chrome DevTools → Lighthouse → Accessibility
-# Chrome DevTools → Elements → Accessibility tree
+# 在瀏覽器中
+# Chrome DevTools → Lighthouse → 無障礙性
+# Chrome DevTools → Elements → 無障礙性樹
 
-# Screen reader testing
+# 螢幕閱讀器測試
 # macOS: VoiceOver (Cmd + F5)
-# Windows: NVDA (free) or JAWS
+# Windows: NVDA (免費) 或 JAWS
 # Linux: Orca
 ```
 
-## Quick Reference: ARIA Live Regions
+## 快速參考：ARIA Live 區域
 
-| Value | Behavior | Use For |
-|-------|----------|---------|
-| `aria-live="polite"` | Announced at next pause | Status updates, saved confirmations |
-| `aria-live="assertive"` | Announced immediately | Errors, time-sensitive alerts |
-| `role="status"` | Same as `polite` | Status messages |
-| `role="alert"` | Same as `assertive` | Error messages |
-
-## Common Anti-Patterns
-
-| Anti-Pattern | Problem | Fix |
+| 值 | 行為 | 用於 |
 |---|---|---|
-| `div` as button | Not focusable, no keyboard support | Use `<button>` |
-| Missing `alt` text | Images invisible to screen readers | Add descriptive `alt` |
-| Color-only states | Invisible to color-blind users | Add icons, text, or patterns |
-| Autoplaying media | Disorienting, can't be stopped | Add controls, don't autoplay |
-| Custom dropdown with no ARIA | Unusable by keyboard/screen reader | Use native `<select>` or proper ARIA listbox |
-| Removing focus outlines | Users can't see where they are | Style outlines, don't remove them |
-| Empty links/buttons | "Link" announced with no description | Add text or `aria-label` |
-| `tabindex > 0` | Breaks natural tab order | Use `tabindex="0"` or `-1` only |
+| `aria-live="polite"` | 在下一個暫停時宣告 | 狀態更新、儲存確認 |
+| `aria-live="assertive"` | 立即宣告 | 錯誤、時間敏感的警報 |
+| `role="status"` | 與 `polite` 相同 | 狀態訊息 |
+| `role="alert"` | 與 `assertive` 相同 | 錯誤訊息 |
+
+## 常見反模式
+
+| 反模式 | 問題 | 解決方案 |
+|---|---|---|
+| 使用 `div` 作為按鈕 | 無法聚焦，沒有鍵盤支援 | 使用 `<button>` |
+| 缺少 `alt` 文字 | 螢幕閱讀器無法看到圖片 | 添加描述性的 `alt` |
+| 僅使用顏色狀態 | 對色盲使用者不可見 | 添加圖標、文字或圖案 |
+| 自動播放媒體 | 令人困惑，無法停止 | 添加控制項，不要自動播放 |
+| 沒有 ARIA 的自訂下拉式選單 | 無法透過鍵盤/螢幕閱讀器使用 | 使用原生的 `<select>` 或適當的 ARIA listbox |
+| 移除焦點輪廓 | 使用者看不到他們的位置 | 設定輪廓，不要移除它們 |
+| 空連結/按鈕 | 宣告為「連結」但沒有描述 | 添加文字或 `aria-label` |
+| `tabindex > 0` | 打破自然 Tab 順序 | 只使用 `tabindex="0"` 或 `-1` |

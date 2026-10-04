@@ -1,146 +1,146 @@
 ---
 name: deprecation-and-migration
-description: Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when migrating a database schema in production, such as renaming or dropping a column without downtime (expand/contract). Use when deciding whether to maintain or sunset existing code.
+description: 管理棄用與遷移。在移除舊系統、API 或功能時使用。在將使用者從一個實作遷移到另一個實作時使用。在生產環境中遷移資料庫綱要，例如在不中斷時間內重新命名或刪除欄位時使用（擴展/收縮）。在決定是否維護或淘汰現有程式碼時使用。
 ---
 
-# Deprecation and Migration
+# 棄用與遷移
 
-## Overview
+## 概述
 
-Code is a liability, not an asset. Every line of code has ongoing maintenance cost — bugs to fix, dependencies to update, security patches to apply, and new engineers to onboard. Deprecation is the discipline of removing code that no longer earns its keep, and migration is the process of moving users safely from the old to the new.
+程式碼是負擔，而非資產。每一行程式碼都有持續的維護成本——需要修復的錯誤、需要更新的依賴項、需要套用的安全補丁，以及需要新工程師上手的成本。棄用是移除不再有價值的程式碼的紀律，遷移是安全地將使用者從舊版本遷移到新版本的過程。
 
-Most engineering organizations are good at building things. Few are good at removing them. This skill addresses that gap.
+大多數工程組織擅長建立事物。很少有組織擅長移除事物。這項技能解決了這一差距。
 
-## When to Use
+## 何時使用
 
-- Replacing an old system, API, or library with a new one
-- Sunsetting a feature that's no longer needed
-- Consolidating duplicate implementations
-- Removing dead code that nobody owns but everybody depends on
-- Planning the lifecycle of a new system (deprecation planning starts at design time)
-- Deciding whether to maintain a legacy system or invest in migration
+- 用新的系統、API 或函式庫取代舊的
+- 淘汰不再需要的特定功能
+- 合併重複的實作
+- 移除那些無人擁有但所有人都依賴的死程式碼
+- 規劃新系統的生命週期（棄用規劃從設計階段開始）
+- 決定是維護遺留系統還是投資於遷移
 
-## Core Principles
+## 核心原則
 
-### Code Is a Liability
+### 程式碼是負擔
 
-Every line of code has ongoing cost: it needs tests, documentation, security patches, dependency updates, and mental overhead for anyone working nearby. The value of code is the functionality it provides, not the code itself. When the same functionality can be provided with less code, less complexity, or better abstractions — the old code should go.
+每一行程式碼都有持續的成本：它需要測試、文件、安全補丁、依賴項更新，以及任何在附近工作的人的心智負擔。程式碼的價值在於它提供的功能，而不僅僅是程式碼本身。當相同的功能可以用更少的程式碼、更少的複雜性或更好的抽象來提供時——舊程式碼就應該被移除。
 
-### Hyrum's Law Makes Removal Hard
+### Hyrum 的法則使移除變得困難
 
-With enough users, every observable behavior becomes depended on — including bugs, timing quirks, and undocumented side effects. This is why deprecation requires active migration, not just announcement. Users can't "just switch" when they depend on behaviors the replacement doesn't replicate.
+隨著足夠的使用者，每一個可觀察的行為都變得相互依賴——包括錯誤、時序怪癖和未記錄的副作用。這就是為什麼棄用需要主動遷移，而不僅僅是公告。當使用者依賴於替換版本無法複製的行為時，他們不能「隨便切換」。
 
-### Deprecation Planning Starts at Design Time
+### 棄用規劃從設計階段開始
 
-When building something new, ask: "How would we remove this in 3 years?" Systems designed with clean interfaces, feature flags, and minimal surface area are easier to deprecate than systems that leak implementation details everywhere.
+在建立新事物時，請問：「我們如何在三年內移除它？」設計時就建立具有乾淨介面、功能標誌和最小表面積的系統，更容易被棄用，而不是那些在各處洩露實作細節的系統。
 
-## The Deprecation Decision
+## 棄用決策
 
-Before deprecating anything, answer these questions:
+在棄用任何東西之前，請回答以下問題：
 
 ```
-1. Does this system still provide unique value?
-   → If yes, maintain it. If no, proceed.
+1. 這個系統是否仍然提供獨特的價值？
+   → 如果是，則維護它。如果否，則繼續。
 
-2. How many users/consumers depend on it?
-   → Quantify the migration scope.
+2. 有多少使用者/消費者依賴於它？
+   → 量化遷移範圍。
 
-3. Does a replacement exist?
-   → If no, build the replacement first. Don't deprecate without an alternative.
+3. 是否存在替代方案？
+   → 如果沒有，請先建立替代方案。不要在沒有替代方案的情況下棄用。
 
-4. What's the migration cost for each consumer?
-   → If trivially automated, do it. If manual and high-effort, weigh against maintenance cost.
+4. 對於每個消費者，遷移成本是多少？
+   → 如果可以輕易自動化，就執行它。如果需要手動且耗費大量精力，則與維護成本進行權衡。
 
-5. What's the ongoing maintenance cost of NOT deprecating?
-   → Security risk, engineer time, opportunity cost of complexity.
+5. 不棄用的持續維護成本是多少？
+   → 安全風險、工程師時間、複雜性的機會成本。
 ```
 
-## Compulsory vs Advisory Deprecation
+## 強制性與建議性棄用
 
-| Type | When to Use | Mechanism |
+| 類型 | 何時使用 | 機制 |
 |------|-------------|-----------|
-| **Advisory** | Migration is optional, old system is stable | Warnings, documentation, nudges. Users migrate on their own timeline. |
-| **Compulsory** | Old system has security issues, blocks progress, or maintenance cost is unsustainable | Hard deadline. Old system will be removed by date X. Provide migration tooling. |
+| **建議性 (Advisory)** | 遷移是可選的，舊系統是穩定的 | 警告、文件、提示。使用者依自己的時間表遷移。 |
+| **強制性 (Compulsory)** | 舊系統存在安全問題、阻礙進展，或維護成本不可持續 | 硬截止日期。舊系統將在日期 X 之前被移除。提供遷移工具。 |
 
-**Default to advisory.** Use compulsory only when the maintenance cost or risk justifies forcing migration. Compulsory deprecation requires providing migration tooling, documentation, and support — you can't just announce a deadline.
+**預設為建議性。** 僅在維護成本或風險證明強制遷移是合理的時才使用強制性。強制性棄用需要提供遷移工具、文件和支援——你不能只是宣布一個截止日期。
 
-## The Migration Process
+## 遷移過程
 
-### Step 1: Build the Replacement
+### 步驟 1：建立替代方案
 
-Don't deprecate without a working alternative. The replacement must:
+不要在沒有可運行的替代方案的情況下棄用。替代方案必須：
 
-- Cover all critical use cases of the old system
-- Have documentation and migration guides
-- Be proven in production (not just "theoretically better")
+- 涵蓋舊系統的所有關鍵使用案例
+- 具有文件和遷移指南
+- 在生產環境中得到證明（而不僅僅是「理論上更好」）
 
-### Step 2: Announce and Document
+### 步驟 2：公告與文件化
 
 ```markdown
-## Deprecation Notice: OldService
+## 棄用通知：OldService
 
-**Status:** Deprecated as of 2025-03-01
-**Replacement:** NewService (see migration guide below)
-**Removal date:** Advisory — no hard deadline yet
-**Reason:** OldService requires manual scaling and lacks observability.
-            NewService handles both automatically.
+**狀態：** 自 2025-03-01 起棄用
+**替代方案：** NewService（請參閱下方的遷移指南）
+**移除日期：** 建議性 — 尚未有硬截止日期
+**原因：** OldService 需要手動擴展和缺乏可觀察性。
+            NewService 自動處理兩者。
 
-### Migration Guide
-1. Replace `import { client } from 'old-service'` with `import { client } from 'new-service'`
-2. Update configuration (see examples below)
-3. Run the migration verification script: `npx migrate-check`
+### 遷移指南
+1. 將 `import { client } from 'old-service'` 替換為 `import { client } from 'new-service'`
+2. 更新配置（參見下方的範例）
+3. 執行遷移驗證腳本：`npx migrate-check`
 ```
 
-### Step 3: Migrate Incrementally
+### 步驟 3：逐步遷移
 
-Migrate consumers one at a time, not all at once. For each consumer:
-
-```
-1. Identify all touchpoints with the deprecated system
-2. Update to use the replacement
-3. Verify behavior matches (tests, integration checks)
-4. Remove references to the old system
-5. Confirm no regressions
-```
-
-**The Churn Rule:** If you own the infrastructure being deprecated, you are responsible for migrating your users — or providing backward-compatible updates that require no migration. Don't announce deprecation and leave users to figure it out.
-
-### Step 4: Remove the Old System
-
-Only after all consumers have migrated:
+一次只遷移一個消費者，而不是一次全部遷移。對於每個消費者：
 
 ```
-1. Verify zero active usage (metrics, logs, dependency analysis)
-2. Remove the code
-3. Remove associated tests, documentation, and configuration
-4. Remove the deprecation notices
-5. Celebrate — removing code is an achievement
+1. 識別所有與棄用系統的接觸點
+2. 更新以使用替代方案
+3. 驗證行為相符（測試、整合檢查）
+4. 移除對舊系統的引用
+5. 確認沒有迴歸
 ```
 
-## Migration Patterns
+**變動規則 (The Churn Rule)：** 如果你擁有正在被棄用的基礎設施，你就負責遷移你的使用者——或提供不需要遷移的向後相容更新。不要宣布棄用，讓使用者自己去解決。
 
-### Strangler Pattern
+### 步驟 4：移除舊系統
 
-Run old and new systems in parallel. Route traffic incrementally from old to new. When the old system handles 0% of traffic, remove it.
+只有在所有消費者都遷移完成之後：
 
 ```
-Phase 1: New system handles 0%, old handles 100%
-Phase 2: New system handles 10% (canary)
-Phase 3: New system handles 50%
-Phase 4: New system handles 100%, old system idle
-Phase 5: Remove old system
+1. 驗證沒有任何活躍使用（指標、日誌、依賴項分析）
+2. 移除程式碼
+3. 移除相關的測試、文件和配置
+4. 移除棄用通知
+5. 慶祝——移除程式碼是一項成就
 ```
 
-### Adapter Pattern
+## 遷移模式
 
-Create an adapter that translates calls from the old interface to the new implementation. Consumers keep using the old interface while you migrate the backend.
+### 瓶頸模式 (Strangler Pattern)
+
+讓舊系統和新系統並行運行。逐步將流量從舊系統導向新系統。當舊系統處理的流量為 0% 時，移除它。
+
+```
+階段 1：新系統處理 0%，舊系統處理 100%
+階段 2：新系統處理 10%（金絲雀）
+階段 3：新系統處理 50%
+階段 4：新系統處理 100%，舊系統閒置
+階段 5：移除舊系統
+```
+
+### 轉接器模式 (Adapter Pattern)
+
+建立一個轉接器，將舊介面的呼叫轉換為新的實作。使用者在遷移後端時，仍然可以繼續使用舊介面。
 
 ```typescript
-// Adapter: old interface, new implementation
+// 轉接器：舊介面，新實作
 class LegacyTaskService implements OldTaskAPI {
   constructor(private newService: NewTaskService) {}
 
-  // Old method signature, delegates to new implementation
+  // 舊方法簽名，委派給新實作
   getTask(id: number): OldTask {
     const task = this.newService.findById(String(id));
     return this.toOldFormat(task);
@@ -148,9 +148,9 @@ class LegacyTaskService implements OldTaskAPI {
 }
 ```
 
-### Feature Flag Migration
+### 功能標誌遷移 (Feature Flag Migration)
 
-Use feature flags to switch consumers from old to new system one at a time:
+使用功能標誌一次將使用者從舊系統切換到新系統：
 
 ```typescript
 function getTaskService(userId: string): TaskService {
@@ -161,87 +161,87 @@ function getTaskService(userId: string): TaskService {
 }
 ```
 
-### Database Schema Migrations (Expand/Contract)
+### 資料庫綱要遷移（擴展/收縮）(Expand/Contract)
 
-A schema change is the riskiest migration because the data is the one thing you cannot roll back by reverting a deploy. The failure mode is coupling the schema change to the code change: rename a column in the same release that starts using the new name, and during the rollout window — when old and new code run at once — one of them is querying a column that doesn't exist. The fix is to **never change a column in place**. Migrate in additive phases so old and new code are both valid at every step.
+綱要的更改是最具風險的遷移，因為資料是你在部署時無法回滾的唯一東西。失敗模式是將綱要更改與程式碼更改耦合：在同一發布中重新命名一個欄位，並在滾動窗口期間——當舊程式碼和新程式碼同時運行時——其中一個正在查詢一個不存在的欄位。解決方法是**絕不原地更改欄位**。以增加性的階段進行遷移，這樣舊程式碼和新程式碼在每一步都是有效的。
 
 ```
-EXPAND ──────────────→ MIGRATE ──────────────→ CONTRACT
-add the new column,    backfill existing rows,  once no code reads the
-nullable, alongside    dual-write old+new from  old column, drop it in
-the old one            the app                  a later, separate deploy
+擴展 ──────────────→ 遷移 ──────────────→ 收縮
+新增新的欄位，      回填現有行，      一旦沒有程式碼讀取
+可空，並與之並行    從舊欄位雙寫舊+新  刪除它在舊欄位中
+舊的應用程式        應用程式                  一個稍後、單獨的部署
 ```
 
-**Worked example — renaming `name` to `full_name`:**
+**實作範例——將 `name` 重命名為 `full_name`：**
 
-1. **Expand.** Add `full_name` as nullable. Deploy. (Old code ignores it; nothing breaks.)
-2. **Dual-write.** App writes both `name` and `full_name` on every insert/update. Deploy.
-3. **Backfill.** Copy `name → full_name` for existing rows, in batches, so you don't lock the table.
-4. **Switch reads.** Point the app at `full_name`, keep writing both. Deploy and bake.
-5. **Contract.** Stop writing `name`, then — in a *separate, later* deploy — drop the column.
+1. **擴展。** 將 `full_name` 添加為可空。部署。 (舊程式碼忽略它；沒有破壞。)
+2. **雙寫。** 應用程式在每次插入/更新時都寫入 `name` 和 `full_name`。部署。
+3. **回填。** 分批複製 `name → full_name` 給現有行，這樣就不會鎖定表格。
+4. **切換讀取。** 將應用程式指向 `full_name`，繼續雙寫。部署並固化。
+5. **收縮。** 停止寫入 `name`，然後——在一個*單獨的、稍後*的部署中——刪除該欄位。
 
-Each step is independently deployable and reversible: if step 4 misbehaves, roll the code back and `full_name` is still being populated. Treat each phase as a thin vertical slice — see the `incremental-implementation` skill.
+每一步都是可獨立部署和可逆的：如果步驟 4 表現不佳，可以回滾程式碼，而 `full_name` 仍然正在被填充。將每個階段視為一個薄的垂直切片——參見 `incremental-implementation` 技能。
 
-**Rules:**
-- **Additive first, destructive last and alone.** Adds (new nullable column, new table, new index) are safe in any deploy; drops and renames get their own deploy *after* no code references the old shape.
-- **Every migration has a tested down path.** A migration you can't reverse is a deploy you can't roll back. Write and run the `down` before merging.
-- **Backfill in batches, off the hot path.** A single `UPDATE` over millions of rows locks the table; chunk it and throttle.
-- **Build large indexes without blocking writes** (e.g. Postgres `CREATE INDEX CONCURRENTLY`).
-- **Decouple from code by feature flag** when the cutover is risky, exactly as in the Feature Flag Migration pattern above.
+**規則：**
+- **先增加，後破壞，且單獨進行。** 增加（新的可空欄位、新表格、新索引）在任何部署中都是安全的；刪除和重新命名需要單獨的部署，在沒有程式碼引用舊形狀之後。
+- **每個遷移都有一個經過測試的下行路徑。** 你無法逆轉的遷移就是你無法回滾的部署。在合併之前編寫並運行 `down`。
+- **分批回填，避開熱路徑。** 對數百萬行的單次 `UPDATE` 會鎖定表格；分塊並限制速度。
+- **建立大型索引而不阻塞寫入**（例如 PostgreSQL 的 `CREATE INDEX CONCURRENTLY`）。
+- **在切換風險時，通過功能標誌與程式碼解耦**，正如上述功能標誌遷移模式所示。
 
-## Zombie Code
+##殭屍程式碼 (Zombie Code)
 
-Zombie code is code that nobody owns but everybody depends on. It's not actively maintained, has no clear owner, and accumulates security vulnerabilities and compatibility issues. Signs:
+殭屍程式碼是指沒有人擁有但所有人都依賴的程式碼。它沒有被積極維護，沒有明確的所有者，並累積了安全漏洞和相容性問題。跡象包括：
 
-- No commits in 6+ months but active consumers exist
-- No assigned maintainer or team
-- Failing tests that nobody fixes
-- Dependencies with known vulnerabilities that nobody updates
-- Documentation that references systems that no longer exist
+- 6 個月以上沒有提交，但仍有活躍的消費者
+- 沒有指定的維護者或團隊
+- 沒有人修復的失敗測試
+- 沒有人更新的已知漏洞依賴項
+- 引用不再存在的系統的文件
 
-**Response:** Either assign an owner and maintain it properly, or deprecate it with a concrete migration plan. Zombie code cannot stay in limbo — it either gets investment or removal.
+**回應：** 要麼指派所有者並妥善維護它，要麼用具體的遷移計劃來棄用它。殭屍程式碼不能停留在中間狀態——它要麼得到投資，要麼被移除。
 
-## Common Rationalizations
+## 常見的合理化
 
-| Rationalization | Reality |
+| 合理化 | 現實 |
 |---|---|
-| "It still works, why remove it?" | Working code that nobody maintains accumulates security debt and complexity. Maintenance cost grows silently. |
-| "Someone might need it later" | If it's needed later, it can be rebuilt. Keeping unused code "just in case" costs more than rebuilding. |
-| "The migration is too expensive" | Compare migration cost to ongoing maintenance cost over 2-3 years. Migration is usually cheaper long-term. |
-| "We'll deprecate it after we finish the new system" | Deprecation planning starts at design time. By the time the new system is done, you'll have new priorities. Plan now. |
-| "Users will migrate on their own" | They won't. Provide tooling, documentation, and incentives — or do the migration yourself (the Churn Rule). |
-| "We can maintain both systems indefinitely" | Two systems doing the same thing is double the maintenance, testing, documentation, and onboarding cost. |
-| "Just rename the column, it's one line" | During the rollout, old and new code run together — one will query a column that no longer exists. Expand/contract, never rename in place. |
-| "I'll add the column and drop the old one in the same migration" | That couples a safe add to a destructive drop. Drops get their own deploy, after no code references the old shape. |
-| "We'll write the rollback if we need it" | A migration with no down path is a deploy you can't reverse. Write and run the `down` before merging. |
+|「它仍然有效，為什麼要移除它？」 | 沒有人維護的有效程式碼會累積安全債務和複雜性。維護成本會悄悄增加。 |
+|「稍後可能有人需要它」 | 如果稍後需要，它可以被重建。保留未使用的程式碼「以防萬一」所花的時間比重建還要多。 |
+|「遷移太貴了」 | 將遷移成本與未來 2-3 年的持續維護成本進行比較。長期來看，遷移通常更便宜。 |
+|「等我們完成新系統後再棄用它」 | 棄用規劃從設計階段開始。當新系統完成時，你會有新的優先事項。現在就規劃。 |
+|「使用者會自己遷移」 | 不會。提供工具、文件和激勵措施——或者自己進行遷移（變動規則）。 |
+|「我們可以無限期維護這兩個系統」 | 兩個系統做同樣的事情，維護、測試、文件和上手的成本都是兩倍。 |
+|「只是重新命名欄位，只需要一行」 | 在滾動過程中，舊程式碼和新程式碼同時運行——一個會查詢一個不再存在的欄位。擴展/收縮，絕不原地重新命名。 |
+|「我會在同一個遷移中添加欄位並刪除舊欄位」 | 這將安全的添加與破壞性的刪除耦合在一起。刪除需要單獨的部署，在沒有程式碼引用舊形狀之後。 |
+|「我們需要它，我們會寫回滾機制」 | 沒有下行路徑的遷移就是你無法回滾的部署。在合併之前編寫並運行 `down`。 |
 
-## Red Flags
+## 警示信號 (Red Flags)
 
-- Deprecated systems with no replacement available
-- Deprecation announcements with no migration tooling or documentation
-- "Soft" deprecation that's been advisory for years with no progress
-- Zombie code with no owner and active consumers
-- New features added to a deprecated system (invest in the replacement instead)
-- Deprecation without measuring current usage
-- Removing code without verifying zero active consumers
-- A schema change and the code that depends on it shipped in the same deploy
-- A column renamed or dropped in place rather than via expand/contract
-- A migration merged with no tested down path, or a backfill that locks the table
+- 沒有替代方案的棄用系統
+- 沒有遷移工具或文件的棄用通知
+- 多年來一直處於建議性狀態但沒有進展的「軟」棄用
+- 沒有所有者和活躍消費者的殭屍程式碼
+- 在棄用的系統上新增功能（應投資於替代方案）
+- 在不衡量當前使用情況下進行棄用
+- 在未驗證零活躍消費者的情況下移除程式碼
+- 綱要更改與依賴於它的程式碼在同一部署中發布
+- 欄位是原地重新命名或刪除而不是通過擴展/收縮
+- 一個沒有經過測試的下行路徑的遷移被合併，或一個鎖定表格的回填
 
-## Verification
+## 驗證
 
-After completing a deprecation:
+完成棄用後：
 
-- [ ] Replacement is production-proven and covers all critical use cases
-- [ ] Migration guide exists with concrete steps and examples
-- [ ] All active consumers have been migrated (verified by metrics/logs)
-- [ ] Old code, tests, documentation, and configuration are fully removed
-- [ ] No references to the deprecated system remain in the codebase
-- [ ] Deprecation notices are removed (they served their purpose)
+- [ ] 替代方案在生產環境中得到證明並涵蓋所有關鍵使用案例
+- [ ] 存在遷移指南，包含具體的步驟和範例
+- [ ] 所有活躍的消費者都已遷移（通過指標/日誌驗證）
+- [ ] 舊程式碼、測試、文件和配置已完全移除
+- [ ] 代碼庫中不再有對棄用系統的引用
+- [ ] 棄用通知已被移除（它們已經完成了它們的任務）
 
-After a database schema migration:
+在資料庫綱要遷移後：
 
-- [ ] The change ships in additive phases (expand → backfill → contract), not a single in-place edit
-- [ ] Old and new code are both valid against the schema at every deploy step
-- [ ] Each migration has a tested down path; backfills run in throttled batches
-- [ ] Destructive steps (drop/rename) ship in their own deploy after no code references the old shape
+- [ ] 更改以增加性的階段發布（擴展 → 回填 → 收縮），而不是單一的原地編輯
+- [ ] 舊程式碼和新程式碼在每個部署步驟中都對綱要是有效的
+- [ ] 每個遷移都有經過測試的下行路徑；回填以受限制的分批運行
+- [ ] 破壞性步驟（刪除/重新命名）在沒有程式碼引用舊形狀的情況下，在它們自己的部署中發布

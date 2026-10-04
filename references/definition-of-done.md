@@ -1,67 +1,67 @@
-# Definition of Done
+# 完成的定義
 
-A standing, project-wide bar that every change must clear before it counts as done. Unlike acceptance criteria, which vary per task and answer "did we build the right thing?", the Definition of Done is the same every time and answers "is this finished to our standard?". Use it as the final gate in `planning-and-task-breakdown`, `incremental-implementation`, and `shipping-and-launch`.
+一個在整個專案中都必須達成的標準，才能算作完成。與接受標準（acceptance criteria）不同，接受標準因任務而異，回答的是「我們建對了東西嗎？」；而完成的定義則每次都一樣，回答的是「這是否達到我們的標準？」使用它作為 `planning-and-task-breakdown`、`incremental-implementation` 和 `shipping-and-launch` 中的最終門檻。
 
-## Definition of Done vs. Acceptance Criteria
+## 完成的定義 vs. 接受標準
 
-| | Acceptance Criteria | Definition of Done |
+| | 接受標準 (Acceptance Criteria) | 完成的定義 (Definition of Done) |
 |---|---|---|
-| Scope | Specific to one task or spec | Applies to every increment |
-| Changes | Different for each item | Fixed and reused |
-| Answers | "Did we build *this thing*?" | "Is it *ready*?" |
-| Owner | Defined when planning the task | Defined once for the project |
-| Example | "User can reset password via email link" | "Tests pass, no regressions, docs updated" |
+| 範圍 (Scope) | 針對單一任務或規格 | 適用於每一次增量 |
+| 變更 (Changes) | 每個項目不同 | 固定且可重複使用 |
+| 回答 (Answers) | 「我們建了*這個東西*嗎？」 | 「它*準備好了*嗎？」 |
+| 負責人 (Owner) | 在規劃任務時定義 | 為整個專案定義一次 |
+| 範例 (Example) | 「使用者可以透過電子郵件連結重設密碼」 | 「測試通過，沒有迴歸，文件已更新」 |
 
-The two are complementary. A task is done only when **its** acceptance criteria are met **and** the standing Definition of Done is satisfied. Skipping either leaves work that looks finished but is not.
+兩者是互補的。只有當**其**接受標準得到滿足**並且**完成的定義得到滿足時，任務才算完成。跳過其中任何一個都會留下看起來完成但實際上未完成的工作。
 
-## The Standing Checklist
+## 標準檢查清單
 
-Apply this to every change before declaring it done.
+在宣告完成之前，對每一次變更都應用此清單。
 
-### Correctness
-- [ ] All acceptance criteria for the task are met
-- [ ] Code runs and behaves as intended, verified at runtime, not just compiled or typechecked
-- [ ] New behavior is covered by tests that fail without the change and pass with it
-- [ ] Existing tests still pass; no regressions introduced
-- [ ] Edge cases and error paths are handled, not just the happy path
+### 正確性 (Correctness)
+- [ ] 任務的所有接受標準都已滿足
+- [ ] 代碼在運行時表現如預期，在運行時進行了驗證，而不僅僅是編譯或類型檢查
+- [ ] 新行為由測試覆蓋，這些測試在沒有變更時會失敗，在有變更時會通過
+- [ ] 現有測試仍然通過；沒有引入迴歸
+- [ ] 邊界情況和錯誤路徑都已處理，而不僅僅是成功路徑
 
-### Quality
-- [ ] Code reveals intent through naming and structure; no comments needed to explain *what* it does
-- [ ] No duplicated business logic
-- [ ] No dead code, debug output, or commented-out blocks left behind
-- [ ] Changes are scoped to the task; no unrelated refactors snuck in
-- [ ] Linting and formatting pass
+### 品質 (Quality)
+- [ ] 代碼通過命名和結構揭示意圖；不需要註釋來解釋它*做了什麼*
+- [ ] 沒有重複的業務邏輯
+- [ ] 沒有遺留的死代碼、除錯輸出或註釋掉的區塊
+- [ ] 變更範圍僅限於任務；沒有不相關的重構被偷偷加入
+- [ ] 代碼風格檢查和格式化通過
 
-The depth behind these items lives in `code-review-and-quality` (the five-axis review) and `code-simplification` (reducing complexity without changing behavior).
+這些項目背後的深度存在於 `code-review-and-quality`（五軸審查）和 `code-simplification`（在不改變行為的情況下減少複雜度）中。
 
-### Integration
-- [ ] Change works with the rest of the system, not just in isolation
-- [ ] Database migrations, config changes, and feature flags are accounted for
-- [ ] Backward compatibility considered for any public interface or API change
+### 整合 (Integration)
+- [ ] 變更與系統的其余部分協同工作，而不僅僅是孤立地工作
+- [ ] 數據庫遷移、配置更改和功能標誌都已考慮
+- [ ] 對任何公開接口或 API 更改都考慮了向後相容性
 
-### Documentation
-- [ ] Public interfaces, APIs, and user-facing behavior are documented
-- [ ] Architectural decisions worth preserving are recorded (see `documentation-and-adrs`)
-- [ ] Documentation describes the current state in timeless language, not the change history
+### 文件 (Documentation)
+- [ ] 公共接口、API 和使用者介面行為都已記錄
+- [ ] 值得保留的架構決策已記錄（參見 `documentation-and-adrs`）
+- [ ] 文件描述的是當前狀態，使用永恆的語言，而不是變更歷史
 
-### Ship-readiness
-- [ ] Security implications reviewed for any untrusted input, auth, or data handling (see `security-and-hardening`)
-- [ ] Observability in place for new critical paths (logs, metrics, traces) (see `observability-and-instrumentation`)
-- [ ] Rollback path exists for anything risky (see `shipping-and-launch`)
-- [ ] The human has reviewed and approved before merge or deploy
+### 發布就緒 (Ship-readiness)
+- [ ] 對任何不可信的輸入、身份驗證或數據處理的安全性影響都已審查（參見 `security-and-hardening`）
+- [ ] 對新的關鍵路徑有可觀察性（日誌、指標、追蹤）（參見 `observability-and-instrumentation`）
+- [ ] 對任何有風險的行為都存在回滾路徑（參見 `shipping-and-launch`）
+- [ ] 在合併或部署之前，人類已審查並批准
 
-## How to Apply
+## 如何應用
 
-- **Per task**: confirm the Correctness and Quality sections before checking the task off.
-- **Per feature**: confirm Integration and Documentation before considering the feature complete.
-- **Per release**: the full checklist is the floor; `shipping-and-launch` adds the deploy-specific gates on top.
+- **針對每個任務**：在勾選任務之前，確認正確性和品質部分。
+- **針對每個功能**：在考慮功能完成之前，確認整合和文件部分。
+- **針對每次發布**：完整的檢查清單是底線；`shipping-and-launch` 在其上增加了部署特定的門檻。
 
-Tailor the list to the project once, then reuse it unchanged. A Definition of Done that is renegotiated every sprint is not a Definition of Done.
+一次為專案量身定制此清單，然後保持不變地重複使用它。一個在每個衝刺中重新協商的完成的定義就不是完成的定義。
 
-## Red Flags
+## 警示信號 (Red Flags)
 
-- "It's done, I just haven't run it yet": unverified work is not done.
-- "Tests pass" used as a synonym for done while docs, regressions, or runtime verification are skipped.
-- A different bar applied depending on deadline pressure.
-- Acceptance criteria treated as the whole bar, with no standing quality floor.
-- "Done" declared before human review on changes that need it.
+-「它已經完成了，我只是還沒運行它」：未驗證的工作不算完成。
+- 將「測試通過」用作完成的同義詞，而跳過文件、迴歸或運行時驗證。
+- 根據截止日期的壓力應用不同的標準。
+- 將接受標準視為整個標準，沒有固定的品質底線。
+- 在需要人類審查的變更之前就宣告「完成」。

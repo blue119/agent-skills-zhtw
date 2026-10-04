@@ -1,123 +1,123 @@
-# Agent Personas
+# 代理人角色
 
-Specialist personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, Copilot, etc.).
+專門扮演單一角色、單一視角的角色。每個角色都是作為系統提示被您的工具（Claude Code、Cursor、Copilot 等）消費的 Markdown 文件。
 
-| Persona | Role | Best for |
+| 角色 | 職責 | 最適合 |
 |---------|------|----------|
-| [code-reviewer](../agents/code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge |
-| [security-auditor](../agents/security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit |
-| [test-engineer](../agents/test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern |
-| [web-performance-auditor](../agents/web-performance-auditor.md) | Web Performance Engineer | Core Web Vitals audit, loading/rendering/network analysis |
+| [code-reviewer](../agents/code-reviewer.md) | 資深工程師 | 合併前五軸審查 |
+| [security-auditor](../agents/security-auditor.md) | 安全工程師 | 漏洞偵測、OWASP 風格審查 |
+| [test-engineer](../agents/test-engineer.md) | QA 工程師 | 測試策略、覆蓋率分析、Prove-It 模式 |
+| [web-performance-auditor](../agents/web-performance-auditor.md) | 網頁效能工程師 | 核心網頁指標審查、載入/渲染/網路分析 |
 
-## How personas relate to skills and commands
+## 角色與技能及指令的關係
 
-Three layers, each with a distinct job:
+三層結構，每一層都有不同的職責：
 
-| Layer | What it is | Example | Composition role |
+| 層級 | 是什麼 | 範例 | 組合成角色 |
 |-------|-----------|---------|------------------|
-| **Skill** | A workflow with steps and exit criteria | `code-review-and-quality` | The *how* — invoked from inside a persona or command |
-| **Persona** | A role with a perspective and an output format | `code-reviewer` | The *who* — adopts a viewpoint, produces a report |
-| **Command** | A user-facing entry point | `/review`, `/ship` | The *when* — composes personas and skills |
+| **技能 (Skill)** | 一個具有步驟和退出標準的工作流程 | `code-review-and-quality` | 執行方式 — 在角色或指令內部調用 |
+| **角色 (Persona)** | 一個具有視角和輸出格式的角色 | `code-reviewer` | 執行者 — 採納一個觀點，產生一份報告 |
+| **指令 (Command)** | 用戶可見的入口點 | `/review`, `/ship` | 時間點 — 組合成角色和技能 |
 
-The user (or a slash command) is the orchestrator. **Personas do not call other personas.** Skills are mandatory hops inside a persona's workflow.
+用戶（或斜線指令）是協調者。**角色不會呼叫其他角色。**技能是角色工作流程內部的必要步驟。
 
-## When to use each
+## 使用時機
 
-### Direct persona invocation
-Pick this when you want one perspective on the current change and the user is in the loop.
+### 直接角色呼叫
+當您希望對當前的變更獲得單一視角，且用戶在循環中時，請選擇此選項。
 
-- "Review this PR" → invoke `code-reviewer` directly
-- "Are there security issues in `auth.ts`?" → invoke `security-auditor` directly
-- "What tests are missing for the checkout flow?" → invoke `test-engineer` directly
-- "Audit Core Web Vitals on the product page" → invoke `web-performance-auditor` directly
+- "審查這個 PR" → 直接呼叫 `code-reviewer`
+- " `auth.ts` 中是否有安全問題？" → 直接呼叫 `security-auditor`
+- "結帳流程缺少哪些測試？" → 直接呼叫 `test-engineer`
+- "審查產品頁面的核心網頁指標" → 直接呼叫 `web-performance-auditor`
 
-### Slash command (single persona behind it)
-Pick this when there's a repeatable workflow you'd otherwise re-explain every time.
+### 斜線指令（背後單一角色）
+當存在一個可以重複的流程，否則您每次都需要重新解釋時，請選擇此選項。
 
-- `/review` → wraps `code-reviewer` with the project's review skill
-- `/test` → wraps `test-engineer` with TDD skill
-- `/webperf` → wraps `web-performance-auditor` for performance-focused audits on web apps
+- `/review` → 將 `code-reviewer` 與專案的審查技能包裝起來
+- `/test` → 將 `test-engineer` 與 TDD 技能包裝起來
+- `/webperf` → 將 `web-performance-auditor` 包裝起來，用於網頁應用程式的效能相關審查
 
-### Slash command (orchestrator — fan-out)
-Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
+### 斜線指令（協調者 — 擴散）
+僅在可以**獨立**進行並行調查並產生單一代理人後進行合併的報告時，請選擇此選項。
 
-- `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision
+- `/ship` → 並行擴散到 `code-reviewer` + `security-auditor` + `test-engineer`，然後將它們的報告綜合為一個通過/不通過的決定
 
-This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+這是本儲存庫所支持的唯一協調模式。請參閱 [references/orchestration-patterns.md](../references/orchestration-patterns.md) 以獲取完整的模式目錄和反模式。
 
-## Decision matrix
+## 決策矩陣
 
 ```
-Is the work a single perspective on a single artifact?
-├── Yes → Direct persona invocation
-└── No  → Are the sub-tasks independent (no shared mutable state, no ordering)?
-         ├── Yes → Slash command with parallel fan-out (e.g. /ship)
-         └── No  → Sequential slash commands run by the user (/spec → /plan → /build → /test → /review)
+工作是單一實體上的單一視角嗎？
+├── 是 → 直接角色呼叫
+└── 否 → 子任務是否獨立（沒有共享的可變狀態，沒有順序）？
+         ├── 是 → 帶有並行擴散的斜線指令（例如 `/ship`）
+         └── 否 → 由用戶執行的連續斜線指令（`/spec` → `/plan` → `/build` → `/test` → `/review`）
 ```
 
-## Worked example: valid orchestration
+## 實例：有效的協調
 
-`/ship` is the canonical fan-out orchestrator in this repo:
+`/ship` 是本儲存庫中的標準擴散協調器：
 
 ```
 /ship
-  ├── (parallel) code-reviewer    → review report
-  ├── (parallel) security-auditor → audit report
-  └── (parallel) test-engineer    → coverage report
+  ├── (並行) code-reviewer    → 審查報告
+  ├── (並行) security-auditor → 審查報告
+  └── (並行) test-engineer    → 覆蓋率報告
                   ↓
-        merge phase (main agent)
+        合併階段（主代理人）
                   ↓
-        go/no-go decision + rollback plan
+        通過/不通過決定 + 回滾計劃
 ```
 
-Why this works:
-- Each sub-agent operates on the same diff but produces a **different perspective**
-- They have no dependencies on each other → genuine parallelism, real wall-clock savings
-- Each runs in a fresh context window → main session stays uncluttered
-- The merge step is small and benefits from full context, so it stays in the main agent
+這樣有效的原因：
+- 每個子代理人都在相同的差異上操作，但產生**不同的視角**
+- 它們之間沒有相互依賴 → 真正的並行，實際的時鐘節省
+- 每個代理人在一個新的上下文視窗中運行 → 主要會話保持不混亂
+- 合併步驟很小，受益於完整的上下文，因此保留在主代理人中
 
-## Worked example: invalid orchestration (do not build this)
+## 實例：無效的協調（請勿建立此類）
 
-A `meta-orchestrator` persona whose job is "decide which other persona to call":
+一個職責是「決定呼叫哪個其他角色的」`meta-orchestrator` 角色：
 
 ```
 /work-on-pr → meta-orchestrator
-                  ↓ (decides "this needs a review")
+                  ↓（決定「這需要審查」）
               code-reviewer
-                  ↓ (returns)
-              meta-orchestrator (paraphrases result)
+                  ↓（回傳）
+              meta-orchestrator（轉述結果）
                   ↓
-              user
+              用戶
 ```
 
-Why this fails:
-- Pure routing layer with no domain value
-- Adds two paraphrasing hops → information loss + 2× token cost
-- The user already knows they want a review; let them call `/review` directly
-- Replicates work that slash commands and `AGENTS.md` intent-mapping already do
+這樣失敗的原因：
+- 純粹的路由層，沒有領域價值
+- 增加了兩個轉述步驟 → 資訊丟失 + 2 倍的 Token 成本
+- 用戶已經知道他們想要審查；讓他們直接呼叫 `/review`
+- 重複了斜線指令和 `AGENTS.md` 中的意圖映射已經完成的工作
 
-## Rules for personas
+## 角色規則
 
-1. A persona is a single role with a single output format. If you find yourself adding a second role, create a second persona.
-2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. On Claude Code this is also a hard platform constraint — *"subagents cannot spawn other subagents"* — so the rule is enforced for you.
-3. A persona may invoke skills (the *how*).
-4. Every persona file ends with a "Composition" block stating where it fits.
+1. 一個角色是一個單一的角色和單一的輸出格式。如果您發現自己正在添加第二個角色，請建立第二個角色。
+2. **角色不會呼叫其他角色。** 組合成是斜線指令或用戶的工作。在 Claude Code 中這也是一個硬平台約束——「子代理人不能生成其他子代理人」——因此此規則對您來說是強制執行的。
+3. 一個角色可以呼叫技能（執行方式）。
+4. 每個角色文件結尾都包含一個「Composition」區塊，說明其適當的位置。（當使用 `/ Invoke` 時直接呼叫；否則不要從其他角色呼叫）。
 
-## Claude Code interop
+## Claude Code 互操作性
 
-The personas in this repo are designed to work as Claude Code subagents and as Agent Teams teammates without modification:
+本儲存庫中的角色被設計為可以無修改地作為 Claude Code 的子代理人和代理團隊的隊友：
 
-- **As subagents:** auto-discovered when this plugin is enabled (no path config needed). Use the Agent tool with `subagent_type: code-reviewer` (or `security-auditor`, `test-engineer`). `/ship` is the canonical example.
-- **As Agent Teams teammates** (experimental, requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`): reference the same persona name when spawning a teammate. The persona's body is **appended to** the teammate's system prompt as additional instructions (not a replacement), so your persona text sits on top of the team-coordination instructions the lead installs (SendMessage, task-list tools, etc.).
+- **作為子代理人：** 啟用此插件時自動發現（無需路徑配置）。使用 Agent 工具並設定 `subagent_type: code-reviewer`（或 `security-auditor`、`test-engineer`）。`/ship` 是標準範例。
+- **作為代理團隊隊友**（實驗性，需要 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`）：在生成隊友時引用相同的角色名稱。該角色的內容會**附加到**隊友的系統提示中作為額外的指令（而不是替換），因此您的角色文本會疊加在領導者安裝的團隊協調指令之上（SendMessage、task-list 工具等）。
 
-Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full mapping.
+子代理人只向主代理人報告結果。代理團隊允許隊友直接互相發訊息。當報告足夠時，請使用子代理人；當子代理人需要互相質疑彼此的發現時（例如競爭假設除錯），請使用代理團隊。請參閱 [references/orchestration-patterns.md](../references/orchestration-patterns.md) 以獲取完整的映射。
 
-Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
+插件代理人不支持 `hooks`、`mcpServers` 或 `permissionMode` 的前置元數據——這些欄位會被靜默忽略。在在此處編寫新角色時，請避免依賴它們。
 
-## Adding a new persona
+## 添加新角色
 
-1. Create `agents/<role>.md` with the same frontmatter format used by existing personas.
-2. Define the role, scope, output format, and rules.
-3. Add a **Composition** block at the bottom (Invoke directly when / Invoke via / Do not invoke from another persona).
-4. Add the persona to the table at the top of this file.
-5. If the persona enables a new orchestration pattern, document it in `references/orchestration-patterns.md` rather than inventing the pattern in the persona file itself.
+1. 在 `agents/<role>.md` 中創建文件，使用現有角色的相同前置元數據格式。
+2. 定義角色、範圍、輸出格式和規則。
+3. 在底部添加一個 **Composition** 區塊（當使用 `/ Invoke` 時直接呼叫；否則不要從其他角色呼叫）。
+4. 將該角色添加到此文件的頂部表格中。
+5. 如果該角色啟用新的協調模式，請在 `references/orchestration-patterns.md` 中記錄它，而不是在角色文件中發明該模式。

@@ -1,116 +1,107 @@
-# Developer Onboarding
+# 開發者入門
 
-This guide is for people working **on** the agent-skills repository itself: contributing skills, fixing docs, improving the eval harness. If you want to *use* the skills in your own projects, you're looking for [getting-started.md](getting-started.md) instead.
+本指南適用於在 agent-skills 儲存庫本身工作的用戶：貢獻技能、修復文件、改進評估框架。如果你想在自己的專案中使用這些技能，請查看 [getting-started.md](getting-started.md)。
 
-It's a guided tour, not a rulebook. The rules live in [CONTRIBUTING.md](../CONTRIBUTING.md) (contribution workflow), [skill-anatomy.md](skill-anatomy.md) (skill format), and [evals/README.md](../evals/README.md) (eval framework); this document tells you when to read each one and how the pieces fit.
+這是一個導覽，而不是規則集。規則存在於 [CONTRIBUTING.md](../CONTRIBUTING.md)（貢獻工作流程）、[skill-anatomy.md](skill-anatomy.md)（技能格式）和 [evals/README.md](../evals/README.md)（評估框架）中；本文告訴你該閱讀哪些文件以及這些部分是如何組合在一起的。
 
 ---
 
-## 1. The mental model
+## 1. 思維模型
 
-The repo has five composable layers. Understanding what each one is *for* prevents the most common contribution mistakes (putting reference material in a skill, building a persona that routes to other personas, duplicating content across skills).
+該儲存庫有五個可組合的層次。了解每個層次是「為了什麼」能避免最常見的貢獻錯誤（將參考資料放入技能中、建立導向其他角色的角色、在不同技能間重複內容）。
 
-| Layer | Location | Job | In one word |
+| 層次 | 位置 | 工作內容 | 一詞概括 |
 |---|---|---|---|
-| **Skills** | `skills/<name>/SKILL.md` | Step-by-step workflows with verification gates | *How* |
-| **Personas** | `agents/<role>.md` | Roles with a perspective and output format | *Who* |
-| **Commands** | `.claude/commands/`, `.gemini/commands/`, `commands/` | User-facing entry points; the orchestration layer | *When* |
-| **References** | `references/*.md` | Checklists skills pull in on demand | *What to check* |
-| **Evals** | `evals/cases/<name>.json` | Proof that skills trigger and behave correctly | *Does it work* |
+| **技能 (Skills)** | `skills/<name>/SKILL.md` | 帶有驗證門的逐步工作流程 | *如何* |
+| **角色 (Personas)** | `agents/<role>.md` | 具有視角和輸出格式的角色 | *誰* |
+| **指令 (Commands)** | `.claude/commands/`, `.gemini/commands/`, `commands/` | 用戶可見的入口點；協調層 | *何時* |
+| **參考資料 (References)** | `references/*.md` | 技能按需引用的檢查清單 | *要檢查什麼* |
+| **評估 (Evals)** | `evals/cases/<name>.json` | 證明技能觸發和行為正確 | *是否有效* |
 
-Two structural rules worth internalizing early:
+有兩個結構規則值得早期內化：
 
-- **The user (or a slash command) is the orchestrator.** Personas never invoke other personas; the only endorsed multi-persona pattern is parallel fan-out with a merge step (see [references/orchestration-patterns.md](../references/orchestration-patterns.md)).
-- **Don't duplicate, reference.** Skills link to other skills and to `references/` instead of restating content. The same rule applies to docs, including this one.
+- **用戶（或斜線指令）是協調者。** 角色絕不呼叫其他角色；唯一被認可的多角色模式是並行分發並帶有合併步驟（參見 [references/orchestration-patterns.md](../references/orchestration-patterns.md)）。
+- **不要重複，不要引用。** 技能應連結到其他技能和 `references/` 而不是重複內容。此規則也適用於文件，包括本文。
 
-One scope caveat that trips people up: `AGENTS.md` and `CLAUDE.md` at the repo root configure agents working on *this repo*. They are not reusable assets and setup guides must never tell users to copy them into their own projects; the reusable assets are the skills.
+一個讓大家感到困惑的範圍限制：儲存庫根目錄中的 `AGENTS.md` 和 `CLAUDE.md` 配置了在*本儲存庫*上運行的代理。它們不是可重用的資產，並且設定指南絕不能告訴用戶將它們複製到自己的專案中；可重用的資產是技能。
 
-Note that commands exist in three parallel directories (Claude Code, Gemini CLI, Antigravity). Touch one and CI checks parity across all of them, see §3.
+請注意，指令存在於三個並行的目錄中（Claude Code、Gemini CLI、Antigravity）。接觸其中一個，CI 檢查就能同步所有它們，請參見 §3。
 
-## 2. Local setup
+## 2. 本地設定
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
 cd agent-skills
 ```
 
-There's no build step and no `package.json`; validators are plain Node scripts. You need:
+沒有建置步驟也沒有 `package.json`；驗證器是純粹的 Node 腳本。你需要：
 
-- **Node 20+** (what CI runs) for the `scripts/` validators
-- **bash** (+ `jq` recommended) for the hook regression test
-- **`gh` CLI** for the duplicate-PR check before proposing a skill
-- **Claude Code** only if you want to run Tier 3 behavioral evals locally
+- **Node 20+**（CI 運行環境）用於 `scripts/` 中的驗證器
+- **bash**（推薦 `jq`）用於掛鉤回歸測試
+- **`gh` CLI** 用於在提議技能前檢查重複 PR
+- **Claude Code** 僅在你想在本地運行第三級行為評估時需要
 
-To try the pack live against a local checkout:
+要嘗試在本地檢查點運行打包內容：
 
 ```bash
 claude --plugin-dir /path/to/agent-skills
 ```
 
-## 3. The verification loop
+## 3. 驗證循環
 
-The repo eats its own cooking: verification is non-negotiable for skills, and it's non-negotiable for contributions to the repo too. Everything CI runs, you can run locally in seconds:
+該儲存庫會為自己烹飪：對於技能來說，驗證是不可協商的，對於對儲存庫的貢獻也是不可協商的。所有 CI 運行的事情，你可以在幾秒鐘內在本地運行：
 
 ```bash
-# Tier 1, structural: frontmatter, naming, required sections
+# 第一級，結構性：前置元數據、命名、必需部分
 node scripts/validate-skills.js
 
-# Command parity and description sync across the three command directories
+# 跨三個指令目錄同步指令和描述
 node scripts/validate-commands.js
 
-# Tier 2, trigger & routing: positive prompts rank top-k, negatives don't collide
+# 第二級，觸發與路由：正面提示排名前 k，負面提示不衝突
 node scripts/run-evals.js
 
-# Tier 3, behavioral (on demand, spends tokens; --dry-run prints the plan)
+# 第三級，行為（按需，消耗 Token；--dry-run 打印計劃）
 node scripts/run-evals.js --behavioral <skill-name> --dry-run
 
-# Hook regression test, required if you touch hooks/session-start.sh
-# or skills/using-agent-skills/SKILL.md
+# 掛鉤回歸測試，如果你修改了 hooks/session-start.sh
+# 或 skills/using-agent-skills/SKILL.md
 bash hooks/session-start-test.sh
 ```
 
-The three eval tiers are worth understanding even if you never touch the harness, because a red Tier 2 usually means *fix your skill's description*, not the eval: Tier 2 is a lexical approximation of routing (stemmed TF-IDF over descriptions), and its two target failure modes are a description missing the vocabulary users actually say, and an over-broad description that outranks the right skill. The full design, schema, and trust-level rules are in [evals/README.md](../evals/README.md).
+這三個評估層次值得理解，即使你從不接觸框架，因為紅色的第二級通常意味著*修復你的技能描述*，而不是評估：第二級是路由的詞彙近似（基於描述的 TF-IDF），它的兩個目標失敗模式是描述缺少用戶實際說的詞彙，以及過於寬泛的描述排在正確的技能之上。完整的設計、模式和信任級別規則在 [evals/README.md](../evals/README.md) 中。
 
-Run the relevant subset before every PR. A PR that arrives green through Tier 1 + Tier 2 + command parity is reviewable; one that doesn't will bounce on mechanics before anyone reads the content.
+在每次 PR 之前運行相關子集。通過第一級 + 第二級 + 指令一致性綠燈的 PR 是可審查的；不綠燈的 PR 會在任何人閱讀內容之前在機制上被彈回。
 
-## 4. Contribution paths
+## 4. 貢獻路徑
 
-### Path 1: Fixing or improving an existing skill (most common, best first PR)
+### 路徑 1：修復或改進現有技能（最常見，首選 PR）
 
-1. Keep changes focused and minimal; preserve the skill's structure and tone.
-2. If you changed the frontmatter `description`, expect Tier 2 effects; run `node scripts/run-evals.js` and check the skill's trigger prompts still rank.
-3. Run Tier 1 to confirm frontmatter is still valid.
+1. 保持更改集中且最小化；保留技能的結構和語氣。
+2. 如果你更改了前置元數據 `description`，請預期第二級的影響；運行 `node scripts/run-evals.js` 並檢查技能的觸發提示是否仍然排名。
+3. 運行第一級以確認前置元數據仍然有效。
 
-### Path 2: Proposing a new skill (higher bar, do the pre-flight)
+### 路徑 2：提議新技能（門檻更高，進行預先檢查）
 
-The catalog already covers most of the lifecycle, so the burden of proof is on the gap. Before writing anything, run the pre-flight checks in [CONTRIBUTING.md](../CONTRIBUTING.md#before-proposing-a-new-skill): search the catalog, check open PRs (`gh pr list --state open`; near-duplicate clusters already exist), confirm the idea fits [skill-anatomy.md](skill-anatomy.md), and justify the gap explicitly in your PR description. If it overlaps an existing skill, a focused edit to that skill beats a new directory.
+目錄已經涵蓋了大部分生命週期，因此證明負擔在於差距。在編寫任何內容之前，請在 [CONTRIBUTING.md](../CONTRIBUTING.md#before-proposing-a-new-skill) 中運行預先檢查：搜索目錄，檢查已打開的 PR（`gh pr list --state open`；已存在近重複的集群），確認想法符合 [skill-anatomy.md](skill-anatomy.md)，並在你的 PR 描述中明確說明差距。如果它與現有技能重疊，則專注編輯該技能勝於建立新目錄。
 
-A new skill ships as a set, not a single file: the `skills/<kebab-case-name>/SKILL.md`, a matching `evals/cases/<name>.json`, and a `scripts/` directory only when it ships runnable helpers (reference material goes in `references/`, never inside the skill). The exact frontmatter rules, the section anatomy, and the eval-case minimums live in [CONTRIBUTING.md](../CONTRIBUTING.md#structure) and [skill-anatomy.md](skill-anatomy.md); take them from there rather than this tour, so the two can't drift.
+新技能以一套的形式發布，而不是單個文件：`skills/<kebab-case-name>/SKILL.md`、匹配的 `evals/cases/<name>.json`，以及 `scripts/` 目錄僅在發布可運行的輔助程序時才存在（參考資料放在 `references/` 中，絕不放在技能內部）。確切的前置元數據規則、部分結構和評估案例的最小值存在於 [CONTRIBUTING.md](../CONTRIBUTING.md#structure) 和 [skill-anatomy.md](skill-anatomy.md) 中；請從那裡獲取，而不是從這次導覽中獲取，這樣兩者就不會產生偏差。
 
-One point worth internalizing rather than looking up: when writing trigger prompts, paraphrase how users actually talk; copying the description into the prompts games the eval and tells you nothing.
+一個值得內化的觀點：在撰寫觸發提示時，請轉述用戶實際的說法；將描述複製到提示中會影響評估，但不會告訴你任何信息。
 
-### Path 3: Docs, references, harness
+### 路徑 3：文件、參考資料、框架
 
-- Docs and skills are **English only**; translations aren't accepted because they drift ([CONTRIBUTING.md](../CONTRIBUTING.md#translations) has the rationale).
-- Changes to `scripts/run-evals.js` or the eval schema should stay compatible with skill-creator's `evals.json` schema (adopted verbatim for the behavioral tier; that compatibility is a feature, not an accident).
-- Anything touching the session-start hook or the meta-skill it embeds requires the hook regression test (§3).
+- 文件和技能**僅限英文**；不接受翻譯，因為它們會產生偏差（[CONTRIBUTING.md](../CONTRIBUTING.md#translations) 說明了原因）。
+- 對 `scripts/run-evals.js` 或評估模式的更改應與技能創建者的 `evals.json` 模式保持相容性（行為層級採用該模式的兼容性是特性，而不是意外）。
+- 任何觸及 session-start 掛鉤或其嵌入的元技能的內容都需要進行掛鉤回歸測試（§3）。
 
-## 5. Pre-PR checklist
+## 5. PR 前檢查清單
 
-- [ ] Tier 1 green: `node scripts/validate-skills.js`
-- [ ] Tier 2 green: `node scripts/run-evals.js`
-- [ ] Command parity green if you touched any command directory: `node scripts/validate-commands.js`
-- [ ] Hook test green if you touched `hooks/` or `using-agent-skills`
-- [ ] New skill → eval case file present with the minimum trigger/behavioral counts
-- [ ] New skill → gap justified in the PR description; catalog and open PRs checked
-- [ ] No duplicated content; cross-references used instead
-- [ ] Change is small and focused (the repo's own `code-review-and-quality` change-sizing guidance applies to contributions here too)
-
-## 6. Suggested reading order
-
-1. [README.md](../README.md): the catalog and the lifecycle diagram (10 min)
-2. `skills/using-agent-skills/SKILL.md`: how routing works from the agent's side
-3. One well-established skill end to end (e.g. `test-driven-development`): internalize the anatomy by example
-4. [skill-anatomy.md](skill-anatomy.md): the format spec, now with context
-5. [evals/README.md](../evals/README.md): the three tiers and the case format
-6. [CONTRIBUTING.md](../CONTRIBUTING.md) + [AGENTS.md](../AGENTS.md): the rules and the repo-scoped agent config
+- [ ] 第一級綠燈：`node scripts/validate-skills.js`
+- [ ] 第二級綠燈：`node scripts/run-evals.js`
+- [ ] 如果你更改了任何指令目錄：指令一致性綠燈：`node scripts/validate-commands.js`
+- [ ] 如果你更改了 `hooks/` 或 `using-agent-skills`：掛鉤測試綠燈
+- [ ] 新技能 → 存在評估案例文件，並有最小的觸發/行為計數
+- [ ] 新技能 → PR 描述中說明差距；已檢查目錄和打開的 PR
+- [ ] 沒有重複內容；使用交叉引用
+- [ ] 更改很小且集中（儲存庫自身的 `code
